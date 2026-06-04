@@ -471,7 +471,7 @@ export default function App() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
-          @import url('https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Scheherazade+New:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Noto+Serif+Malayalam:wght@400;500;600;700;800;900&family=Scheherazade+New:wght@400;700&display=swap');
           @media print { @page { margin: 0; size: A4 portrait; } body, html { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: 'Inter', sans-serif; background: white; margin: 0; padding: 0; } .print-hidden { display: none !important; } .print-block { display: block !important; } .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; } }
           .custom-scrollbar::-webkit-scrollbar { width: 6px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
       ` }} />

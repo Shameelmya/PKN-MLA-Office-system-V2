@@ -19,8 +19,8 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         boxSizing: 'border-box', 
         paddingTop: '180px', 
         paddingBottom: '50px', 
-        paddingLeft: '60px', 
-        paddingRight: '60px', 
+        paddingLeft: '100px', 
+        paddingRight: '100px', 
         margin: '0 auto' 
       }}
     >
@@ -38,17 +38,17 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
-        <div className="mb-8">
-          <p className="text-sm"><span className="font-bold text-black mr-2">Sub:</span> {task.subject} - Acknowledgement</p>
+        <div className="mb-8 text-base font-semibold" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
+          <span className="font-bold text-black mr-2">Sub:</span> {task.subject} - Acknowledgement
         </div>
-        <div className="mb-12 text-base leading-relaxed text-black font-medium" style={{ fontFamily: "'Anek Malayalam', sans-serif" }}>
+        <div className="mb-12 text-[15px] leading-loose text-black font-medium" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            Bahu. {task.personalDetails.name}, <br/><br/>
            {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
            എം.എൽ.എ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
         </div>
-        <div className="mt-12">
-          <p className="font-medium text-black mb-2" style={{ fontFamily: "'Anek Malayalam', sans-serif" }}>സ്നേഹത്തോടെ,</p>
-          <div className="mt-8">
+        <div className="mt-12 text-right">
+          <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
+          <div className="mt-8 text-right">
             <p className="font-bold text-black uppercase text-sm">MLA Office</p>
             <p className="text-xs text-gray-600">Phone: 9037032002</p>
           </div>
@@ -78,8 +78,8 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         boxSizing: 'border-box', 
         paddingTop: '180px', 
         paddingBottom: '50px', 
-        paddingLeft: '60px', 
-        paddingRight: '60px', 
+        paddingLeft: '100px', 
+        paddingRight: '100px', 
         margin: '0 auto' 
       }}
     >
@@ -104,18 +104,18 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
-        <div className="mb-8">
-          <p className="text-sm"><span className="font-bold text-black mr-2">Sub:</span> {task.subject}</p>
+        <div className="mb-8 text-base font-semibold" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
+          <span className="font-bold text-black mr-2">Sub:</span> {task.subject}
         </div>
-        <div className="mb-12 text-base leading-relaxed text-black font-medium" style={{ fontFamily: "'Anek Malayalam', sans-serif" }}>
+        <div className="mb-12 text-[15px] leading-loose text-black font-medium" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            Bahu. {task.personalDetails.name}, <br/><br/>
            {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
            കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും ഞങ്ങളെ ബന്ധപ്പെടാവുന്നതാണ്.
         </div>
-        <div className="mt-8">
-          <p className="font-medium text-black mb-2" style={{ fontFamily: "'Anek Malayalam', sans-serif" }}>സ്നേഹത്തോടെ,</p>
+        <div className="mt-8 text-right">
+          <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           {isVerified ? (
-            <div className="my-4">
+            <div className="my-4 flex flex-col items-end">
               <img 
                 src={livesign} 
                 alt="MLA Signature" 
@@ -136,11 +136,11 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
               </div>
             </div>
           ) : (
-            <div className="my-4 h-16 flex items-end">
+            <div className="my-4 h-16 flex justify-end items-end">
               <span className="text-gray-400 italic text-sm">(Draft Copy - Signature Pending)</span>
             </div>
           )}
-          <div className="mt-4 border-t border-slate-100 pt-2">
+          <div className="mt-4 border-t border-slate-100 pt-2 inline-block text-right">
             <p className="font-bold text-black uppercase text-sm">P.K Navas</p>
             <p className="text-xs text-gray-600 mb-1">Member of Legislative Assembly (MLA)</p>
           </div>

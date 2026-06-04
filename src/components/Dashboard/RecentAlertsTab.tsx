@@ -86,7 +86,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
       </div>
 
       {user.role === 'admin' && users && setImpersonatedUser ? (
-        <div className="flex flex-col md:flex-row gap-8 mb-8 max-w-max mx-auto items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-6 mb-8 w-full justify-center items-center">
           {/* Big Active Box */}
           <div className="bg-white border border-[#FEE2E2] rounded-[24px] py-6 px-10 shadow-sm flex flex-col items-center justify-center shrink-0">
             <div className="text-6xl font-black text-[#EF4444] tracking-tight leading-none mb-2">
@@ -95,19 +95,19 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
             <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
               ACTIVE ACTIONS
             </div>
-            <div className="flex gap-4 text-[10px] font-bold mt-1">
+            <div className="flex gap-4 text-sm font-black mt-1">
               <span className="text-red-500">{pendingCount} Pending</span>
               <span className="text-orange-500">{inProgressCount} In Progress</span>
             </div>
             {overdueCount > 0 && (
-              <div className="text-red-600 font-black text-xs uppercase bg-red-100 px-3 py-1 rounded-full mt-3">
+              <div className="text-red-600 font-black text-[10px] uppercase bg-red-100 px-3 py-1 rounded-full mt-3">
                 {overdueCount} Overdues
               </div>
             )}
           </div>
 
           {/* Officer Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 w-full md:w-auto">
             {users.filter(u => u.enabled).map(u => {
               const uPending = tasks.filter(t => 
                 t.assignedTo.includes(u.id) && 
@@ -123,7 +123,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                 <button 
                   key={u.id} 
                   onClick={() => setImpersonatedUser(u)}
-                  className="flex flex-col items-stretch justify-center gap-1.5 p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-[180px]"
+                  className="flex flex-col items-stretch justify-center gap-1.5 p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-full md:w-[170px]"
                 >
                   <div className="flex items-center justify-between gap-3 w-full">
                     <div className="text-xs font-bold text-slate-800 truncate text-left">{u.name}</div>
@@ -148,12 +148,12 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
             ACTIVE ACTIONS
           </div>
-          <div className="flex justify-center gap-4 text-[10px] font-bold mt-1">
+          <div className="flex justify-center gap-4 text-sm font-black mt-1">
             <span className="text-red-500">{pendingCount} Pending</span>
             <span className="text-orange-500">{inProgressCount} In Progress</span>
           </div>
           {overdueCount > 0 && (
-            <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-4 py-1 rounded-full inline-block mt-3">
+            <div className="text-red-600 font-black text-[10px] uppercase bg-red-100 px-3 py-1 rounded-full inline-block mt-3">
               {overdueCount} Overdues
             </div>
           )}

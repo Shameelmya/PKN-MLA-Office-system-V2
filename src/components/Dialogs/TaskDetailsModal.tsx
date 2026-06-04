@@ -1,0 +1,921 @@
+import { useState, useEffect, useMemo } from 'react';
+import { 
+  FileText, Check, X, Edit, Printer, Download, PenTool, 
+  FileSignature, User, Activity, MessageSquare, ExternalLink, Trash2, CheckCircle, Plus 
+} from 'lucide-react';
+import { Task, User as UserType, TimelineItem } from '../../types';
+import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
+import { sendWhatsAppUpdate } from '../../utils/whatsapp';
+import { TimelineIcon } from '../Layout/TimelineIcon';
+
+interface TaskDetailsModalProps {
+  task: Task;
+  onClose: () => void;
+  updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (taskId: string) => void;
+  users: UserType[];
+  categories: string[];
+  triggerDetailsPrint: (task: Task) => void;
+  triggerDownloadPDF: (task: Task) => void;
+  currentUser: UserType;
+  triggerConfirm: (
+    title: string,
+    message: string,
+    onConfirm: (val: string) => void,
+    isDanger?: boolean,
+    confirmText?: string,
+    showInput?: boolean,
+    inputPlaceholder?: string
+  ) => void;
+  templates: string[];
+  addTemplate: (newTemplate: string) => Promise<void>;
+}
+
+export function TaskDetailsModal({
+  task,
+  onClose,
+  updateTask,
+  deleteTask,
+  users,
+  categories,
+  triggerDetailsPrint,
+  triggerDownloadPDF,
+  currentUser,
+  triggerConfirm,
+  templates,
+  addTemplate
+}: TaskDetailsModalProps) {
+  if (!task) return null;
+  const [newUpdate, setNewUpdate] = useState('');
+  const [newUpdateLinks, setNewUpdateLinks] = useState<string[]>(['']);
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false);
+  const newUpdateLink = newUpdateLinks[0] || '';
+  const setNewUpdateLink = (val: string) => setNewUpdateLinks([val]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editData, setEditData] = useState<Task>(task);
+  const [editingTimelineId, setEditingTimelineId] = useState<string | null>(null);
+  const [timelineEditText, setTimelineEditText] = useState('');
+  
+  const [showReassign, setShowReassign] = useState(false);
+  const [reassignAssignedTo, setReassignAssignedTo] = useState<string[]>([]);
+
+  const [sentWhatsAppIds, setSentWhatsAppIds] = useState<Set<string>>(() => {
+    return new Set(JSON.parse(localStorage.getItem('sent_whatsapp_ids') || '[]'));
+  });
+
+  const handleSendWAStatus = (itemId: string, itemText: string, itemLink?: string) => {
+    sendWhatsAppUpdate(task, itemText, itemLink);
+    const nextSet = new Set(sentWhatsAppIds);
+    nextSet.add(itemId);
+    setSentWhatsAppIds(nextSet);
+    localStorage.setItem('sent_whatsapp_ids', JSON.stringify(Array.from(nextSet)));
+  };
+
+  const canUserEdit = useMemo(() => {
+    if (currentUser.role === 'admin') return true;
+    if (currentUser.canEditOwnInputs && task.createdByUid === currentUser.id) return true;
+    if (currentUser.canSeeGlobalOverview && currentUser.canEditGlobalOverview) return true;
+    return false;
+  }, [currentUser, task]);
+
+  useEffect(() => {
+    setEditData(task);
+  }, [task]);
+  
+  const handleAddUpdate = async () => {
+    if(!newUpdate.trim()) return;
+    const finalLinks = newUpdateLinks.filter(lnk => lnk.trim());
+    const ev: TimelineItem = {
+      id: generateUid(),
+      type: 'update',
+      time: getNow(),
+      by: currentUser.name,
+      text: newUpdate,
+      link: finalLinks[0] || undefined,
+      links: finalLinks.length > 0 ? finalLinks : undefined
+    };
+    await updateTask(task.id, { timeline: [...task.timeline, ev] });
+    
+    if (saveAsTemplate) {
+      await addTemplate(newUpdate);
+    }
+    
+    setNewUpdate('');
+    setNewUpdateLinks(['']);
+    setSaveAsTemplate(false);
+  };
+
+  const handleSaveEdit = async () => {
+    let updatedTimeline = [...task.timeline];
+    const oldAssigned = [...task.assignedTo].sort().join(',');
+    const newAssigned = [...editData.assignedTo].sort().join(',');
+    
+    if (oldAssigned !== newAssigned) {
+      const newNames = editData.assignedTo
+        .map(id => users.find(u => u.id === id)?.name || id)
+        .join(', ');
+      updatedTimeline.push({
+        id: generateUid(),
+        type: 'transfer',
+        time: getNow(),
+        by: currentUser.name,
+        text: `Task reassigned to: ${newNames || 'Nobody'}`
+      });
+    }
+
+    let updatedOfficerStatuses = { ...task.officerStatuses };
+    if (editData.status !== task.status) {
+      editData.assignedTo.forEach(id => {
+        updatedOfficerStatuses[id] = editData.status;
+      });
+      let actionType = 'update';
+      if (editData.status === 'Completed') actionType = 'completed';
+      else if (editData.status === 'Draft') actionType = 'draft';
+      else if (task.status === 'Completed' || task.status === 'Unsolved') actionType = 'reverted';
+      
+      updatedTimeline.push({
+        id: generateUid(),
+        type: actionType,
+        time: getNow(),
+        by: currentUser.name,
+        text: `Global status changed to ${editData.status}.`
+      });
+    }
+
+    await updateTask(task.id, {
+      subject: editData.subject,
+      description: editData.description,
+      status: editData.status,
+      priority: editData.priority,
+      category: editData.category,
+      assignedTo: editData.assignedTo,
+      personalDetails: editData.personalDetails,
+      officerStatuses: updatedOfficerStatuses,
+      timeline: updatedTimeline
+    });
+    setIsEditMode(false);
+  };
+
+  const handleDeleteTimelineItem = (itemId: string) => {
+    triggerConfirm(
+      "Confirm Note Deletion",
+      "Are you sure you want to delete this timeline entry?",
+      async () => {
+        await updateTask(task.id, {
+          timeline: task.timeline.filter(t => t.id !== itemId)
+        });
+      },
+      true,
+      "Delete Entry"
+    );
+  };
+
+  const saveTimelineEdit = async (item: TimelineItem) => {
+    const updatedTimeline = task.timeline.map(t =>
+      t.id === item.id ? { ...t, text: timelineEditText } : t
+    );
+    await updateTask(task.id, { timeline: updatedTimeline });
+    setEditingTimelineId(null);
+  };
+
+  const handleReassign = async () => {
+    const oldAssigned = [...task.assignedTo];
+    const newAssigned = [...reassignAssignedTo];
+    
+    if (oldAssigned.sort().join(',') === newAssigned.sort().join(',')) {
+      setShowReassign(false);
+      return;
+    }
+
+    const addedUsers = newAssigned.filter(id => !task.assignedTo.includes(id));
+    const removedUsers = task.assignedTo.filter(id => !newAssigned.includes(id));
+
+    let updatedOfficerStatuses = { ...task.officerStatuses };
+    let updatedReassignedFrom = { ...(task.reassignedFrom || {}) };
+
+    addedUsers.forEach(id => {
+      updatedOfficerStatuses[id] = 'Pending';
+      updatedReassignedFrom[id] = currentUser.id;
+    });
+
+    removedUsers.forEach(id => {
+      delete updatedOfficerStatuses[id];
+      delete updatedReassignedFrom[id];
+    });
+
+    const newNames = newAssigned.map(id => users.find(u => u.id === id)?.name || id).join(', ');
+    const timelineEvent: TimelineItem = {
+      id: generateUid(),
+      type: 'transfer',
+      time: getNow(),
+      by: currentUser.name,
+      text: `Task reassigned to: ${newNames || 'Nobody'}`
+    };
+
+    await updateTask(task.id, {
+      assignedTo: newAssigned,
+      officerStatuses: updatedOfficerStatuses,
+      reassignedFrom: updatedReassignedFrom,
+      timeline: [...task.timeline, timelineEvent]
+    });
+    
+    setShowReassign(false);
+  };
+
+  const handleReject = () => {
+    triggerConfirm(
+      "Reject Task",
+      "Are you sure you want to reject this task? It will be returned to the officer who assigned it to you.",
+      async () => {
+        const previousOfficerId = task.reassignedFrom?.[currentUser.id];
+        if (!previousOfficerId) return;
+
+        const previousOfficer = users.find(u => u.id === previousOfficerId);
+        
+        let updatedAssignedTo = task.assignedTo.filter(id => id !== currentUser.id);
+        if (!updatedAssignedTo.includes(previousOfficerId)) {
+          updatedAssignedTo.push(previousOfficerId);
+        }
+
+        let updatedOfficerStatuses = { ...task.officerStatuses };
+        delete updatedOfficerStatuses[currentUser.id];
+        updatedOfficerStatuses[previousOfficerId] = 'Pending';
+
+        let updatedReassignedFrom = { ...(task.reassignedFrom || {}) };
+        delete updatedReassignedFrom[currentUser.id];
+
+        const timelineEvent: TimelineItem = {
+          id: generateUid(),
+          type: 'transfer',
+          time: getNow(),
+          by: currentUser.name,
+          text: `Task rejected and returned to ${previousOfficer?.name || previousOfficerId}.`
+        };
+
+        await updateTask(task.id, {
+          assignedTo: updatedAssignedTo,
+          officerStatuses: updatedOfficerStatuses,
+          reassignedFrom: updatedReassignedFrom,
+          timeline: [...task.timeline, timelineEvent]
+        });
+      },
+      true,
+      "Reject Task"
+    );
+  };
+
+  const isAssigned = task.assignedTo.includes(currentUser.id);
+  const isAdmin = currentUser.role === 'admin';
+  const reassignedFromUser = task.reassignedFrom?.[currentUser.id];
+  
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => a.localeCompare(b));
+  }, [categories]);
+
+  const cardBg = task.isSelfMode ? 'bg-yellow-50/70 border-yellow-200' : 'bg-slate-50 border-slate-200';
+
+  return (
+    <div id="task-details-modal" className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex justify-end">
+      <div className="w-full max-w-2xl bg-white h-full overflow-y-auto animate-in slide-in-from-right flex flex-col shadow-2xl custom-scrollbar">
+        <div className="bg-slate-900 p-6 text-white flex justify-between items-center sticky top-0 z-10">
+          <div>
+            <h2 className="text-xl font-black flex items-center gap-2">
+              <FileText size={20}/> Task Details 
+              {task.isSelfMode && (
+                <span className="ml-2 bg-yellow-400 text-yellow-900 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-widest font-black">
+                  Self Mode
+                </span>
+              )}
+            </h2>
+            <p className="text-xs text-slate-400 font-medium tracking-widest uppercase mt-1">Ref: {task.id}</p>
+          </div>
+          <div className="flex items-center gap-3">
+             {canUserEdit && (
+               isEditMode ? (
+                 <>
+                   <button 
+                     onClick={handleSaveEdit} 
+                     className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                   >
+                     <Check size={14}/> Save
+                   </button>
+                   <button 
+                     onClick={() => { setIsEditMode(false); setEditData(task); }} 
+                     className="px-3 py-1.5 bg-slate-600 hover:bg-slate-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                   >
+                     <X size={14}/> Cancel
+                   </button>
+                 </>
+               ) : (
+                 <button 
+                   onClick={() => setIsEditMode(true)} 
+                   className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shadow-sm"
+                 >
+                   <Edit size={14}/> Edit Task
+                 </button>
+               )
+             )}
+             {!isEditMode && (
+               <>
+                 <button 
+                   onClick={() => triggerDetailsPrint(task)} 
+                   className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-white" 
+                   title="Print Details"
+                 >
+                   <Printer size={18}/>
+                 </button>
+                 <button 
+                   onClick={() => triggerDownloadPDF(task)} 
+                   className="p-2 bg-indigo-900 hover:bg-indigo-800 rounded-lg transition-colors text-indigo-200 hover:text-white" 
+                   title="Download PDF"
+                 >
+                   <Download size={18}/>
+                 </button>
+               </>
+             )}
+             <button 
+               onClick={onClose} 
+               className="p-2 bg-red-500/20 hover:bg-red-500 rounded-lg transition-colors text-red-200 hover:text-white ml-2"
+             >
+               <X size={20}/>
+             </button>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-8 flex-1">
+          {task.status === 'Completed' && (
+             <div className="bg-green-50 border border-green-200 p-4 rounded-xl flex flex-wrap justify-between items-center gap-4">
+                <div>
+                  <h4 className="font-bold text-green-900 flex items-center gap-2"><CheckCircle size={18}/> Task is Completed</h4>
+                  <p className="text-xs text-green-700 font-medium mt-1">This issue has been successfully resolved.</p>
+                </div>
+                <div className="flex gap-2">
+                   {canUserEdit && !task.isSignedByMLA && (
+                     <button 
+                       onClick={() => updateTask(task.id, { isSignedByMLA: true })} 
+                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2"
+                     >
+                       <PenTool size={16}/> Sign Completion Letter
+                     </button>
+                   )}
+                   <button 
+                     onClick={() => triggerDetailsPrint({ ...task, isCompletionLetter: true })} 
+                     className={`px-4 py-2 text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2 ${task.isSignedByMLA ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-500 hover:bg-slate-600'}`}
+                   >
+                     <FileSignature size={16}/> {task.isSignedByMLA ? 'Print / PDF Completion Letter' : 'Print Draft (Unverified)'}
+                   </button>
+                </div>
+             </div>
+          )}
+
+          <div className="flex flex-wrap gap-4 justify-between items-start bg-slate-50 p-4 rounded-xl border border-slate-200">
+             <div>
+               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Status</p>
+               {isEditMode ? (
+                 <select 
+                   value={editData.status} 
+                   onChange={e => setEditData({...editData, status: e.target.value})} 
+                   className="border border-slate-300 rounded p-1 text-sm font-bold bg-white outline-none"
+                 >
+                   <option value="Pending">Pending</option>
+                   <option value="Received">Received</option>
+                   <option value="In Progress">In Progress</option>
+                   <option value="Draft">Draft</option>
+                   <option value="Completed">Completed</option>
+                   <option value="Unsolved">Unsolved</option>
+                 </select>
+               ) : (
+                 <span className={`px-3 py-1 rounded font-black text-sm uppercase tracking-wider ${task.status==='Completed'?'bg-green-100 text-green-700':task.status==='In Progress'?'bg-amber-100 text-amber-700':task.status==='Draft'?'bg-purple-100 text-purple-700':task.status==='Unsolved'?'bg-slate-200 text-slate-500':'bg-red-100 text-red-700'}`}>
+                   {task.status}
+                 </span>
+               )}
+             </div>
+             <div className="text-right">
+               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Created On</p>
+               <p className="font-bold text-slate-800">{formatDate(task.createdAt)}</p>
+               <p className="text-xs font-semibold text-slate-500">{formatTime(task.createdAt)}</p>
+             </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-8">
+            <div className={`p-4 rounded-xl border ${cardBg}`}>
+               <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                 <User size={16} className="text-blue-600"/> {task.isSelfMode ? 'Application Info' : 'Citizen Profile'}
+               </h3>
+               <div className="space-y-3 text-sm">
+                 {isEditMode ? (
+                   <div className="space-y-2.5">
+                     <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Citizen Name</label>
+                       <input
+                         type="text"
+                         value={editData.personalDetails.name || ''}
+                         onChange={e => setEditData({
+                           ...editData,
+                           personalDetails: { ...editData.personalDetails, name: e.target.value }
+                         })}
+                         className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                       />
+                     </div>
+                     <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Designation</label>
+                       <input
+                         type="text"
+                         value={editData.personalDetails.designation || ''}
+                         onChange={e => setEditData({
+                           ...editData,
+                           personalDetails: { ...editData.personalDetails, designation: e.target.value }
+                         })}
+                         className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                       />
+                     </div>
+                     <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Referral Person</label>
+                       <input
+                         type="text"
+                         value={editData.personalDetails.referralPerson || ''}
+                         onChange={e => setEditData({
+                           ...editData,
+                           personalDetails: { ...editData.personalDetails, referralPerson: e.target.value }
+                         })}
+                         className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                       />
+                     </div>
+                     {!task.isSelfMode && (
+                       <>
+                         <div>
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Mobile Number</label>
+                           <input
+                             type="text"
+                             value={editData.personalDetails.mobileNumber || ''}
+                             onChange={e => setEditData({
+                               ...editData,
+                               personalDetails: { ...editData.personalDetails, mobileNumber: e.target.value }
+                             })}
+                             className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                           />
+                         </div>
+                         <div>
+                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">WhatsApp Number</label>
+                           <input
+                             type="text"
+                             value={editData.personalDetails.whatsappNumber || ''}
+                             onChange={e => setEditData({
+                               ...editData,
+                               personalDetails: { ...editData.personalDetails, whatsappNumber: e.target.value }
+                             })}
+                             className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                           />
+                         </div>
+                       </>
+                     )}
+                     <div>
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">House Name</label>
+                       <input
+                         type="text"
+                         value={editData.personalDetails.houseName || ''}
+                         onChange={e => setEditData({
+                           ...editData,
+                           personalDetails: { ...editData.personalDetails, houseName: e.target.value }
+                         })}
+                         className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                       />
+                     </div>
+                     <div className="grid grid-cols-2 gap-2">
+                       <div>
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Place</label>
+                         <input
+                           type="text"
+                           value={editData.personalDetails.place || ''}
+                           onChange={e => setEditData({
+                             ...editData,
+                             personalDetails: { ...editData.personalDetails, place: e.target.value }
+                           })}
+                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                         />
+                       </div>
+                       <div>
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Ward Number</label>
+                         <input
+                           type="text"
+                           value={editData.personalDetails.wardNumber || ''}
+                           onChange={e => setEditData({
+                             ...editData,
+                             personalDetails: { ...editData.personalDetails, wardNumber: e.target.value }
+                           })}
+                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                         />
+                       </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-2">
+                       <div>
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Post Office</label>
+                         <input
+                           type="text"
+                           value={editData.personalDetails.postOffice || ''}
+                           onChange={e => setEditData({
+                             ...editData,
+                             personalDetails: { ...editData.personalDetails, postOffice: e.target.value }
+                           })}
+                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                         />
+                       </div>
+                       <div>
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Pin Code</label>
+                         <input
+                           type="text"
+                           value={editData.personalDetails.pinCode || ''}
+                           onChange={e => setEditData({
+                             ...editData,
+                             personalDetails: { ...editData.personalDetails, pinCode: e.target.value }
+                           })}
+                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-white text-slate-800 outline-none focus:border-indigo-500"
+                         />
+                       </div>
+                     </div>
+                   </div>
+                 ) : (
+                   <>
+                     <p><span className="font-bold text-slate-500">Name:</span> <span className="font-bold text-slate-800">{task.personalDetails.name}</span> {task.personalDetails.gender && `(${task.personalDetails.gender})`}</p>
+                     {task.personalDetails.designation && <p><span className="font-bold text-slate-500">Desig:</span> {task.personalDetails.designation}</p>}
+                     {task.personalDetails.referralPerson && <p><span className="font-bold text-slate-500">Ref:</span> {task.personalDetails.referralPerson}</p>}
+                     {!task.isSelfMode && <p className="flex items-center gap-2"><span className="font-bold text-slate-500">Mobile:</span> <a href={`tel:${task.personalDetails.mobileNumber}`} className="font-bold text-blue-600 hover:underline">{task.personalDetails.mobileNumber}</a></p>}
+                     {task.personalDetails.whatsappNumber && !task.isSelfMode && <p className="flex items-center gap-2"><span className="font-bold text-slate-500">WA:</span> <a href={`https://wa.me/${formatWhatsAppNumber(task.personalDetails.whatsappNumber)}`} target="_blank" rel="noreferrer" className="font-bold text-green-600 hover:underline">{task.personalDetails.whatsappNumber}</a></p>}
+                     <p className="pt-2"><span className="font-bold text-slate-500 block mb-1">Address:</span> <span className="font-medium text-slate-700">{[task.personalDetails.houseName, task.personalDetails.place, task.personalDetails.postOffice, task.personalDetails.pinCode, task.personalDetails.localBody, task.personalDetails.wardNumber ? `Ward ${task.personalDetails.wardNumber}` : ''].filter(Boolean).join(', ')}</span></p>
+                   </>
+                 )}
+               </div>
+            </div>
+            <div>
+               <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                 <FileText size={16} className="text-indigo-600"/> Task Details
+               </h3>
+               <div className="space-y-3 text-sm">
+                 <p className="flex items-center gap-2">
+                   <span className="font-bold text-slate-500">Category:</span> 
+                   {isEditMode ? (
+                     <select 
+                       value={editData.category} 
+                       onChange={e => setEditData({...editData, category: e.target.value})} 
+                       className="border border-slate-300 rounded p-1 text-xs font-bold bg-white outline-none w-full max-w-[200px]"
+                     >
+                       {sortedCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                       {task.taskType === 'direct' && <option value="Direct Assignment">Direct Assignment</option>}
+                     </select>
+                   ) : (
+                     <span className="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded">{task.category}</span>
+                   )}
+                 </p>
+                 <p><span className="font-bold text-slate-500">Source:</span> {task.types.join(', ')}</p>
+                 <p className="flex items-center gap-2">
+                   <span className="font-bold text-slate-500">Priority:</span> 
+                   {isEditMode ? (
+                     <select 
+                       value={editData.priority} 
+                       onChange={e => setEditData({...editData, priority: e.target.value})} 
+                       className="border border-slate-300 rounded p-1 text-xs font-bold bg-white outline-none"
+                     >
+                       <option value="Low">Low</option>
+                       <option value="Medium">Medium</option>
+                       <option value="High">High</option>
+                     </select>
+                   ) : (
+                     <span className={`font-bold ${task.priority==='High'?'text-red-600':task.priority==='Low'?'text-slate-600':'text-amber-600'}`}>{task.priority || 'Medium'}</span>
+                   )}
+                 </p>
+                 {task.programDate && <p><span className="font-bold text-slate-500">Event Date:</span> <span className="font-bold text-indigo-600">{formatDate(task.programDate)} {formatTime(task.programDate)}</span></p>}
+                 <div className="pt-2">
+                   <span className="font-bold text-slate-500 block mb-1">Assigned Officers:</span>
+                   {isEditMode ? (
+                     <div className="grid grid-cols-2 gap-2 mt-2 bg-slate-50 p-2 rounded border border-slate-200">
+                       {users.map(u => (
+                         <label key={u.id} className="flex items-center gap-1 text-xs cursor-pointer font-bold text-slate-700">
+                           <input 
+                             type="checkbox" 
+                             checked={editData.assignedTo.includes(u.id)} 
+                             onChange={e => {
+                               const newAssigned = e.target.checked 
+                                 ? [...editData.assignedTo, u.id] 
+                                 : editData.assignedTo.filter(id => id !== u.id);
+                               setEditData({...editData, assignedTo: newAssigned});
+                             }} 
+                             className="rounded text-indigo-600 w-3 h-3" 
+                           /> 
+                           {u.name}
+                         </label>
+                       ))}
+                     </div>
+                   ) : (
+                      <div className="flex flex-col gap-1">
+                        {task.assignedTo.map(id => {
+                          const name = users.find(u => u.id === id)?.name || id;
+                          const stat = task.officerStatuses[id] || 'Pending';
+                          return (
+                            <div key={id} className="flex justify-between items-center bg-slate-50 px-2 py-1 rounded text-xs">
+                              <span className="font-bold">{name}</span>
+                              <span className={`font-black uppercase tracking-wider ${stat==='Completed'?'text-green-600':stat==='In Progress'?'text-amber-600':stat==='Draft'?'text-purple-600':'text-red-500'}`}>
+                                {stat}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {isAssigned && task.status !== 'Completed' && task.status !== 'Unsolved' && currentUser.canReassign !== false && (
+                          <div className="mt-2 flex gap-2">
+                            <button 
+                              onClick={() => { setReassignAssignedTo([...task.assignedTo]); setShowReassign(true); }}
+                              className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded shadow-sm border border-indigo-100 hover:bg-indigo-100 flex-1"
+                            >
+                              Re-assign
+                            </button>
+                            {reassignedFromUser && (
+                              <button 
+                                onClick={handleReject}
+                                className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded shadow-sm border border-red-100 hover:bg-red-100 flex-1"
+                              >
+                                Reject Task
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        {showReassign && (
+                          <div className="mt-2 bg-slate-100 p-2 rounded-lg border border-slate-200">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Select Officers for Re-assignment</p>
+                            <div className="max-h-32 overflow-y-auto custom-scrollbar flex flex-col gap-1 mb-2">
+                              {users.map(u => (
+                                <label key={u.id} className="flex items-center gap-1 text-xs cursor-pointer font-bold text-slate-700">
+                                  <input 
+                                    type="checkbox" 
+                                    checked={reassignAssignedTo.includes(u.id)} 
+                                    onChange={e => {
+                                      const newAssigned = e.target.checked 
+                                        ? [...reassignAssignedTo, u.id] 
+                                        : reassignAssignedTo.filter(id => id !== u.id);
+                                      setReassignAssignedTo(newAssigned);
+                                    }} 
+                                    className="rounded text-indigo-600 w-3 h-3" 
+                                  /> 
+                                  {u.name}
+                                </label>
+                              ))}
+                            </div>
+                            <div className="flex justify-end gap-1">
+                              <button onClick={() => setShowReassign(false)} className="px-2 py-1 bg-slate-200 text-slate-700 text-[10px] font-bold rounded">Cancel</button>
+                              <button onClick={handleReassign} className="px-2 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded">Confirm</button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                   )}
+                 </div>
+               </div>
+            </div>
+          </div>
+
+          <div>
+             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex justify-between items-center">
+               <span>Subject & Description</span>
+               <div className="flex gap-2 flex-wrap">
+                 {task.attachment && (
+                   <a 
+                     href={task.attachment.url} 
+                     target="_blank" 
+                     rel="noreferrer" 
+                     className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold hover:bg-indigo-200 transition-colors normal-case tracking-normal"
+                   >
+                     <ExternalLink size={14}/> View Attached Link
+                   </a>
+                 )}
+                 {task.attachments?.map((att, idx) => (
+                   <a 
+                     key={idx} 
+                     href={att.url} 
+                     target="_blank" 
+                     rel="noreferrer" 
+                     className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold hover:bg-indigo-200 transition-colors normal-case tracking-normal"
+                   >
+                     <ExternalLink size={14}/> Link {idx + 1}
+                   </a>
+                 ))}
+               </div>
+             </h3>
+             {isEditMode ? (
+               <input 
+                 type="text" 
+                 value={editData.subject} 
+                 onChange={e => setEditData({...editData, subject: e.target.value})} 
+                 className="w-full font-black text-lg text-slate-800 mb-2 border border-slate-300 rounded p-2 outline-none focus:border-indigo-500 bg-white" 
+               />
+             ) : (
+               <p className="font-black text-lg text-slate-800 mb-2">{task.subject}</p>
+             )}
+             {isEditMode ? (
+               <textarea 
+                 value={editData.description} 
+                 onChange={e => setEditData({...editData, description: e.target.value})} 
+                 className="w-full bg-slate-50 p-4 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 whitespace-pre-wrap outline-none focus:border-indigo-500 h-32" 
+               />
+             ) : (
+               task.description && (
+                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 whitespace-pre-wrap">
+                   {task.description}
+                 </div>
+               )
+             )}
+          </div>
+
+          <div>
+             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+               <Activity size={16} className="text-green-600"/> Progress Timeline
+             </h3>
+             <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                {task.timeline.map((item) => (
+                  <div key={item.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-100 text-slate-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm relative z-10">
+                      <TimelineIcon type={item.type} />
+                    </div>
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-md relative">
+                      <div className="flex items-center justify-between space-x-2 mb-2">
+                         <div className="font-black text-slate-800 text-sm">{item.by}</div>
+                         <div className="flex items-center gap-2">
+                           <div className="text-[10px] font-bold text-slate-400">{formatDate(item.time)} {formatTime(item.time)}</div>
+                           {(item.type === 'update' || item.type === 'completed' || item.type === 'draft') && !task.isSelfMode && (
+                             <button 
+                               onClick={() => handleSendWAStatus(item.id, item.text, item.link)} 
+                               disabled={sentWhatsAppIds.has(item.id)}
+                               title={sentWhatsAppIds.has(item.id) ? "Sent to WhatsApp" : "Send Update to WhatsApp"} 
+                               className={`p-1.5 rounded-md transition-all ${sentWhatsAppIds.has(item.id) ? 'text-gray-400 bg-gray-100 cursor-not-allowed opacity-50' : 'text-green-600 hover:bg-green-100 bg-green-50'}`}
+                             >
+                               <MessageSquare size={14}/>
+                             </button>
+                           )}
+                         </div>
+                      </div>
+                      {editingTimelineId === item.id ? (
+                        <div className="flex flex-col gap-2">
+                          <textarea 
+                            value={timelineEditText} 
+                            onChange={e => setTimelineEditText(e.target.value)} 
+                            className="w-full border border-slate-300 rounded p-2 text-sm outline-none focus:border-indigo-500 h-20 bg-white shadow-inner"
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <button 
+                              onClick={() => setEditingTimelineId(null)} 
+                              className="px-3 py-1 bg-slate-200 text-slate-700 text-xs font-bold rounded"
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              onClick={() => saveTimelineEdit(item)} 
+                              className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm font-medium text-slate-600 leading-relaxed">
+                          {item.text}
+                          {item.link && (
+                            <a 
+                              href={item.link} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="block mt-2 text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline"
+                            >
+                              <ExternalLink size={12}/> View Attached Update Document
+                            </a>
+                          )}
+                          {item.links && item.links.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {item.links.map((lnk, lIdx) => (
+                                <a 
+                                  key={lIdx}
+                                  href={lnk} 
+                                  target="_blank" 
+                                  rel="noreferrer" 
+                                  className="block text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline card-link"
+                                >
+                                  <ExternalLink size={12}/> View Attached Link {lIdx + 1}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {canUserEdit && !isEditMode && editingTimelineId !== item.id && (
+                        <div className="mt-3 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => { setEditingTimelineId(item.id); setTimelineEditText(item.text); }} 
+                            className="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded hover:bg-blue-100 flex items-center gap-1"
+                          >
+                            <Edit size={10}/> Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteTimelineItem(item.id)} 
+                            className="px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded hover:bg-red-100 flex items-center gap-1"
+                          >
+                            <Trash2 size={10}/> Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+          {((isAssigned && task.status !== 'Completed' && task.status !== 'Unsolved') || canUserEdit) && !isEditMode && (
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-8">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2"><MessageSquare size={16}/> Add Progress Note</h4>
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Update Message</label>
+                  {templates && templates.length > 0 && (
+                    <select 
+                      className="text-[10px] bg-slate-100 border border-slate-200 text-slate-700 rounded px-2 py-0.5 outline-none focus:border-indigo-400 font-bold max-w-[150px]"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setNewUpdate(e.target.value);
+                        }
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Load from template...</option>
+                      {templates.map((tpl, idx) => (
+                        <option key={idx} value={tpl}>{tpl.length > 30 ? tpl.substring(0, 30) + '...' : tpl}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+                <textarea 
+                  value={newUpdate} 
+                  onChange={e => setNewUpdate(e.target.value)} 
+                  placeholder="Type progress update or response here..." 
+                  className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-medium bg-white text-slate-800 outline-none focus:border-indigo-500 h-28 resize-none mb-3"
+                />
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <input 
+                    type="checkbox" 
+                    id="saveAsTemplate" 
+                    checked={saveAsTemplate}
+                    onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                    className="rounded text-indigo-600 w-3.5 h-3.5"
+                  />
+                  <label htmlFor="saveAsTemplate" className="text-[10px] font-bold text-slate-600 cursor-pointer uppercase tracking-wide">
+                    Save as Template
+                  </label>
+                </div>
+                
+                <div className="space-y-2 mt-1">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Attach Update Links</span>
+                  {newUpdateLinks.map((lnk, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <input 
+                        type="url" 
+                        value={lnk} 
+                        onChange={e => {
+                          const nextLinks = [...newUpdateLinks];
+                          nextLinks[idx] = e.target.value;
+                          setNewUpdateLinks(nextLinks);
+                        }} 
+                        placeholder="Attach Document Link (Optional)" 
+                        className="flex-1 px-4 py-2 rounded-lg border border-blue-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white text-slate-800"
+                        onKeyDown={e => e.key === 'Enter' && handleAddUpdate()} 
+                      />
+                      {newUpdateLinks.length > 1 && (
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setNewUpdateLinks(newUpdateLinks.filter((_, i) => i !== idx));
+                          }}
+                          className="px-3 bg-red-50 text-red-650 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold"
+                        >
+                          <X size={14}/>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    type="button" 
+                    onClick={() => setNewUpdateLinks([...newUpdateLinks, ''])}
+                    className="text-xs bg-blue-105 text-blue-700 font-extrabold px-3 py-1 text-[11px] rounded-lg hover:bg-blue-200 transition-colors inline-flex items-center gap-1 mt-1"
+                  >
+                    <Plus size={11}/> Add Link
+                  </button>
+                </div>
+
+                <div className="flex justify-end pt-2 border-t border-blue-150 mt-1">
+                  <button 
+                    onClick={handleAddUpdate} 
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-colors shadow-sm text-sm"
+                  >
+                    Post Update
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MLA Office Management System",
+  "description": "PK Navas MLA Office Tanur Management System of Tanur Constituency for tracking grievances, complaints, visitors, and direct assignments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

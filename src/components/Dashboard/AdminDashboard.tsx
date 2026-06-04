@@ -87,12 +87,19 @@ export function AdminDashboard({
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('alerts');
   const [globalSearch, setGlobalSearch] = useState('');
+  const [initialOfficerFilter, setInitialOfficerFilter] = useState('');
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [officerModalOpen, setOfficerModalOpen] = useState<User | null>(null);
 
   const jumpToTask = (tab: string, taskId: string) => {
     setGlobalSearch(taskId);
+    setInitialOfficerFilter('');
     setActiveTab(tab === 'tasks' ? 'overview' : tab);
+  };
+
+  const handleOfficerClick = (u: User) => {
+    setInitialOfficerFilter(u.id);
+    setActiveTab('overview');
   };
 
   const analyticsTasks = useFilteredTasks(tasks, globalFilters, '', null, null);
@@ -138,7 +145,7 @@ export function AdminDashboard({
           <Bell size={13}/> Recent
         </button>
         <button 
-          onClick={() => { setActiveTab('overview'); setGlobalSearch(''); }} 
+          onClick={() => { setActiveTab('overview'); setGlobalSearch(''); setInitialOfficerFilter(''); }} 
           className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'overview' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Global Overview
@@ -190,6 +197,7 @@ export function AdminDashboard({
           jumpToTask={jumpToTask} 
           users={users}
           setImpersonatedUser={setImpersonatedUser}
+          onOfficerClick={handleOfficerClick}
           updateTask={updateTask}
         />
       )}
@@ -228,6 +236,7 @@ export function AdminDashboard({
             triggerDetailsDownload={triggerDetailsDownload} 
             categories={categories} 
             initialSearch={globalSearch} 
+            initialOfficerFilter={initialOfficerFilter}
             triggerConfirm={triggerConfirm} 
           />
         </div>

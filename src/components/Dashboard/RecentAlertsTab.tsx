@@ -9,10 +9,11 @@ interface RecentAlertsTabProps {
   jumpToTask: (tab: string, taskId: string) => void;
   users?: User[];
   setImpersonatedUser?: (u: User) => void;
+  onOfficerClick?: (u: User) => void;
   updateTask?: (taskId: string, updates: Partial<Task>) => Promise<void>;
 }
 
-export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser, updateTask }: RecentAlertsTabProps) {
+export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser, onOfficerClick, updateTask }: RecentAlertsTabProps) {
   // Determine active tasks based on whether the user is MLA (admin) or an Officer
   const activeTasks = useMemo(() => {
     if (user.role === 'admin') {
@@ -122,7 +123,13 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
               return (
                 <button 
                   key={u.id} 
-                  onClick={() => setImpersonatedUser(u)}
+                  onClick={() => {
+                    if (onOfficerClick) {
+                      onOfficerClick(u);
+                    } else if (setImpersonatedUser) {
+                      setImpersonatedUser(u);
+                    }
+                  }}
                   className="flex flex-col items-stretch justify-center gap-1 md:gap-1.5 p-2 md:p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-full min-w-0"
                 >
                   <div className="flex items-start md:items-center justify-between gap-1 md:gap-3 w-full">

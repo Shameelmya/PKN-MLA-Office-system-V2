@@ -20,6 +20,7 @@ interface AdminGlobalViewProps {
   triggerDetailsDownload: (task: Task) => void;
   categories: string[];
   initialSearch?: string;
+  initialOfficerFilter?: string;
   triggerConfirm: (
     title: string,
     message: string,
@@ -44,17 +45,22 @@ export function AdminGlobalView({
   triggerDetailsDownload,
   categories,
   initialSearch,
+  initialOfficerFilter,
   triggerConfirm
 }: AdminGlobalViewProps) {
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('All');
-  const [officerFilter, setOfficerFilter] = useState('All');
+  const [officerFilter, setOfficerFilter] = useState(initialOfficerFilter || 'All');
   const [visibleCount, setVisibleCount] = useState(50);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); 
 
   useEffect(() => {
     if (initialSearch) setSearch(initialSearch);
   }, [initialSearch]);
+
+  useEffect(() => {
+    if (initialOfficerFilter) setOfficerFilter(initialOfficerFilter);
+  }, [initialOfficerFilter]);
 
   const filtered = useFilteredTasks(tasks, globalFilters, search, catFilter, officerFilter);
   const displayed = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);

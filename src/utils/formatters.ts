@@ -31,7 +31,16 @@ export const formatMalayalamDate = (dateString: string | null | undefined): stri
   if (!dateString) return 'N/A';
   const date = new Date(dateString);
   const months = ['ജനുവരി', 'ഫെബ്രുവരി', 'മാർച്ച്', 'ഏപ്രിൽ', 'മെയ്', 'ജൂൺ', 'ജൂലൈ', 'ഓഗസ്റ്റ്', 'സെപ്റ്റംബർ', 'ഒക്ടോബർ', 'നവംബർ', 'ഡിസംബർ'];
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  const days = ['ഞായറാഴ്ച', 'തിങ്കളാഴ്ച', 'ചൊവ്വാഴ്ച', 'ബുധനാഴ്ച', 'വ്യാഴാഴ്ച', 'വെള്ളിയാഴ്ച', 'ശനിയാഴ്ച'];
+  return `${date.getFullYear()} ${months[date.getMonth()]} ${date.getDate()} ${days[date.getDay()]}`;
+};
+
+export const formatLetterSendingDate = (): string => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 export const formatTime = (dateString: string | null | undefined): string => {

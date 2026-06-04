@@ -1,5 +1,5 @@
 import { Task, User } from '../../types';
-import { formatDate, formatTime, formatMalayalamDate } from '../../utils/formatters';
+import { formatDate, formatTime, formatMalayalamDate, formatLetterSendingDate } from '../../utils/formatters';
 
 // 1. Print Acknowledge Slip
 interface PrintAcknowledgeSlipProps {
@@ -35,7 +35,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
             {!task.isSelfMode && <p>Phone: {task.personalDetails.mobileNumber}</p>}
           </div>
           <div className="text-right">
-            <p style={{ fontFamily: "'Noto Serif Malayalam', serif" }}><span className="font-bold text-gray-600">തിയ്യതി:</span> {formatMalayalamDate(task.createdAt)}</p>
+            <p><span className="font-bold text-gray-600">Date:</span> {formatLetterSendingDate()}</p>
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
@@ -44,14 +44,14 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         </div>
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
-           {formatMalayalamDate(task.createdAt)} തിയ്യതിയിൽ മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
+           {formatMalayalamDate(task.createdAt)} റഫറൻസ് നമ്പർ {task.id} ആയി മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
            എം.എൽ.എ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
         </div>
         <div className="mt-12 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           <div className="mt-8 text-right">
             <p className="font-bold text-black uppercase text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>എം.എൽ.എ ഓഫീസ്</p>
-            <p className="text-xs text-gray-600">Phone: 9037032002</p>
+            <p className="text-sm font-normal text-gray-600">Phone: 9037032002</p>
           </div>
         </div>
       </div>
@@ -102,7 +102,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
             {!task.isSelfMode && <p>Phone: {task.personalDetails.mobileNumber}</p>}
           </div>
           <div className="text-right">
-            <p style={{ fontFamily: "'Noto Serif Malayalam', serif" }}><span className="font-bold text-gray-600">തിയ്യതി:</span> {formatMalayalamDate(new Date().toISOString())}</p>
+            <p><span className="font-bold text-gray-600">Date:</span> {formatLetterSendingDate()}</p>
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         </div>
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
-           {formatMalayalamDate(task.createdAt)} തിയ്യതിയിൽ മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
+           {formatMalayalamDate(task.createdAt)} റഫറൻസ് നമ്പർ {task.id} ആയി മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
            കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും ഞങ്ങളെ ബന്ധപ്പെടാവുന്നതാണ്.
         </div>
         <div className="mt-8 text-right">
@@ -144,7 +144,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
           )}
           <div className="mt-4 border-t border-slate-100 pt-2 inline-block text-right">
             <p className="font-bold text-black text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>പി.കെ നവാസ്</p>
-            <p className="text-xs text-gray-600 mb-1">Member of Legislative Assembly (MLA)</p>
+            <p className="text-sm font-normal text-gray-600 mb-1">Member of Legislative Assembly (MLA)</p>
           </div>
         </div>
       </div>

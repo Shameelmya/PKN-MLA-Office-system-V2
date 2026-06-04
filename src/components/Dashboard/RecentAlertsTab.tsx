@@ -146,7 +146,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                   return (
                     <tr 
                       key={t.id} 
-                      className={`border-b border-[#F1F5F9] hover:bg-slate-50/80 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-50/40' : ''}`}
+                      className={`border-b border-[#F1F5F9] hover:bg-slate-50/80 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-100' : ''}`}
                       onContextMenu={(e) => {
                         if (user.role === 'admin' && updateTask && t.isReadByAdmin) {
                           e.preventDefault();
@@ -197,7 +197,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
               return (
                 <div 
                   key={t.id} 
-                  className={`p-5 flex flex-col gap-4 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-50/40' : ''}`}
+                  className={`p-5 flex flex-col gap-4 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-100' : ''}`}
                   onContextMenu={(e) => {
                     if (user.role === 'admin' && updateTask && t.isReadByAdmin) {
                       e.preventDefault();

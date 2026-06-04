@@ -320,7 +320,7 @@ const AdminTaskCard = React.memo(({
   const cardBg = t.isSelfMode 
     ? 'bg-yellow-50/70 border-yellow-300' 
     : t.isReadByAdmin 
-      ? 'bg-blue-50/40 border-blue-200' 
+      ? 'bg-blue-100 border-blue-300' 
       : 'bg-white border-slate-200';
 
   return (

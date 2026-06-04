@@ -64,9 +64,9 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
       </div>
 
       {user.role === 'admin' && users && setImpersonatedUser ? (
-        <div className="flex flex-col md:flex-row gap-6 mb-8 max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8 mb-8 max-w-max mx-auto items-center justify-center">
           {/* Big Pending Box */}
-          <div className="bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm flex flex-col items-center justify-center min-w-[200px]">
+          <div className="bg-white border border-[#FEE2E2] rounded-[24px] py-6 px-10 shadow-sm flex flex-col items-center justify-center shrink-0">
             <div className="text-6xl font-black text-[#EF4444] tracking-tight leading-none mb-2">
               {pendingTasks.length}
             </div>
@@ -78,7 +78,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
           </div>
 
           {/* Officer Grid */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {users.filter(u => u.enabled).map(u => {
               const count = tasks.filter(t => 
                 t.assignedTo.includes(u.id) && 
@@ -89,9 +89,9 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                 <button 
                   key={u.id} 
                   onClick={() => setImpersonatedUser(u)}
-                  className="flex items-center justify-between gap-2 p-2 px-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer h-fit"
+                  className="flex items-center justify-between gap-3 p-2 px-4 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-[180px]"
                 >
-                  <div className="text-xs font-bold text-slate-800 truncate">{u.name}</div>
+                  <div className="text-xs font-bold text-slate-800 truncate text-left">{u.name}</div>
                   <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
                     {count}
                   </div>

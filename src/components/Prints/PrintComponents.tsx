@@ -112,7 +112,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
            {formatMalayalamDate(task.createdAt)} റഫറൻസ് നമ്പർ {task.id} ആയി മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
-           കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും ഞങ്ങളെ ബന്ധപ്പെടാവുന്നതാണ്.
+           കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും വീണ്ടും ബന്ധപ്പെടാവുന്നതാണ്.
         </div>
         <div className="mt-8 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>

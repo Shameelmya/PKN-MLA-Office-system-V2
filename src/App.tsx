@@ -17,7 +17,7 @@ import {
 import { 
   Task, User as UserType, BackupMeta, GlobalFilters, ConfirmModalState 
 } from './types';
-import html2pdf from 'html2pdf.js';
+import * as html2pdfPkg from 'html2pdf.js';
 
 // Structured Sub-Components
 import { LiveClock } from './components/Shared/LiveClock';
@@ -269,23 +269,31 @@ export default function App() {
       
       setTimeout(async () => { 
         try { 
+          const html2pdfFunc = typeof html2pdfPkg === 'function' ? html2pdfPkg : (html2pdfPkg as any).default;
+          if (typeof html2pdfFunc !== 'function') {
+            throw new Error("html2pdf is not a function. Check import.");
+          }
+
           const opt = {
             margin: 0,
             filename: `${filename}.pdf`,
             image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
           };
           
-          await html2pdf().set(opt).from(el).save();
+          await html2pdfFunc().set(opt).from(el).save();
           
-        } catch (error) { 
+        } catch (error: any) { 
           console.error("PDF Generation Failed:", error); 
+          alert("Failed to generate PDF. Error: " + (error.message || String(error)));
         } finally {
+          // Cleanup any stuck html2canvas/html2pdf overlays
+          document.querySelectorAll('.html2canvas-container').forEach(c => c.remove());
           cleanDownloadState(); 
         }
-      }, 500); 
+      }, 1500); // 1.5s wait to ensure background images are fully loaded
     }; 
     
     const cleanDownloadState = () => { 

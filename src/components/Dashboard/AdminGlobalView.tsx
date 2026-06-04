@@ -137,7 +137,7 @@ export function AdminGlobalView({
             className="px-4 py-2.5 border border-slate-300 rounded-xl font-medium outline-none bg-white focus:ring-2 focus:ring-blue-500 min-w-[150px] font-bold text-slate-700"
           >
             <option value="All">All Assigned Officers</option>
-            {users.filter(u => u.role !== 'admin').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
           </select>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 h-fit">

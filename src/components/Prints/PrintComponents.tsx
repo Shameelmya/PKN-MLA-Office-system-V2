@@ -50,7 +50,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         <div className="mt-12 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           <div className="mt-8 text-right">
-            <p className="font-bold text-black uppercase text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>എം.എൽ.എ ഓഫീസ്</p>
+            <p className="font-bold text-black uppercase text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>എം.എൽ.എ ഓഫീസ്, താനൂർ</p>
             <p className="text-sm font-normal text-black">Phone: 9037032002</p>
           </div>
         </div>

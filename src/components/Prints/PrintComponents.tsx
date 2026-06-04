@@ -1,5 +1,5 @@
 import { Task, User } from '../../types';
-import { formatDate, formatTime } from '../../utils/formatters';
+import { formatDate, formatTime, formatMalayalamDate } from '../../utils/formatters';
 
 // 1. Print Acknowledge Slip
 interface PrintAcknowledgeSlipProps {
@@ -17,7 +17,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         minHeight: '1123px', 
         width: '794px', 
         boxSizing: 'border-box', 
-        paddingTop: '180px', 
+        paddingTop: '230px', 
         paddingBottom: '50px', 
         paddingLeft: '100px', 
         paddingRight: '100px', 
@@ -34,7 +34,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
             {!task.isSelfMode && <p>Phone: {task.personalDetails.mobileNumber}</p>}
           </div>
           <div className="text-right">
-            <p><span className="font-bold text-gray-600">Date:</span> {formatDate(task.createdAt)}</p>
+            <p style={{ fontFamily: "'Noto Serif Malayalam', serif" }}><span className="font-bold text-gray-600">തിയ്യതി:</span> {formatMalayalamDate(task.createdAt)}</p>
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
@@ -43,7 +43,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         </div>
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
-           {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
+           {formatMalayalamDate(task.createdAt)} തിയ്യതിയിൽ മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
            എം.എൽ.എ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
         </div>
         <div className="mt-12 text-right">
@@ -76,7 +76,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         minHeight: '1123px', 
         width: '794px', 
         boxSizing: 'border-box', 
-        paddingTop: '180px', 
+        paddingTop: '230px', 
         paddingBottom: '50px', 
         paddingLeft: '100px', 
         paddingRight: '100px', 
@@ -100,7 +100,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
             {!task.isSelfMode && <p>Phone: {task.personalDetails.mobileNumber}</p>}
           </div>
           <div className="text-right">
-            <p><span className="font-bold text-gray-600">Date:</span> {new Date().toLocaleDateString('en-IN')}</p>
+            <p style={{ fontFamily: "'Noto Serif Malayalam', serif" }}><span className="font-bold text-gray-600">തിയ്യതി:</span> {formatMalayalamDate(new Date().toISOString())}</p>
             <p><span className="font-bold text-gray-600">Ref ID:</span> <span className="font-black">{task.id}</span></p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         </div>
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
-           {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
+           {formatMalayalamDate(task.createdAt)} തിയ്യതിയിൽ മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
            കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും ഞങ്ങളെ ബന്ധപ്പെടാവുന്നതാണ്.
         </div>
         <div className="mt-8 text-right">

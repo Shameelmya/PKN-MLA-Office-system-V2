@@ -27,6 +27,13 @@ export const formatDate = (dateString: string | null | undefined): string => {
   });
 };
 
+export const formatMalayalamDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  const months = ['ജനുവരി', 'ഫെബ്രുവരി', 'മാർച്ച്', 'ഏപ്രിൽ', 'മെയ്', 'ജൂൺ', 'ജൂലൈ', 'ഓഗസ്റ്റ്', 'സെപ്റ്റംബർ', 'ഒക്ടോബർ', 'നവംബർ', 'ഡിസംബർ'];
+  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+};
+
 export const formatTime = (dateString: string | null | undefined): string => {
   if (!dateString) return '';
   return new Date(dateString).toLocaleTimeString('en-IN', {

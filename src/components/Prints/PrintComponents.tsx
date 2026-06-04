@@ -9,8 +9,9 @@ interface PrintAcknowledgeSlipProps {
 export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
   return (
     <div 
-      className="w-full bg-white text-black font-sans relative" 
+      className="w-full bg-white text-black font-serif relative" 
       style={{ 
+        fontFamily: "'Noto Serif Malayalam', serif",
         backgroundImage: "url('/letterpad.jpg')", 
         backgroundSize: '100% 100%', 
         backgroundRepeat: 'no-repeat', 
@@ -68,8 +69,9 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
   const isVerified = task.isSignedByMLA;
   return (
     <div 
-      className="w-full bg-white text-black font-sans relative flex flex-col overflow-hidden z-0" 
+      className="w-full bg-white text-black font-serif relative flex flex-col overflow-hidden z-0" 
       style={{ 
+        fontFamily: "'Noto Serif Malayalam', serif",
         backgroundImage: "url('/letterpad.jpg')", 
         backgroundSize: '100% 100%', 
         backgroundRepeat: 'no-repeat', 

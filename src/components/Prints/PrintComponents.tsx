@@ -27,7 +27,7 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
     >
       <div className="relative z-10 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-8 text-sm font-medium">
-          <div>
+          <div className="uppercase">
             <p className="font-bold text-black mb-1">To,</p>
             <p className="text-black">{task.personalDetails.name}</p>
             {task.personalDetails.houseName && <p>{task.personalDetails.houseName}</p>}
@@ -45,13 +45,13 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
         <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
            ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
            {formatMalayalamDate(task.createdAt)} റഫറൻസ് നമ്പർ {task.id} ആയി മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
-           എം.എൽ.എ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
+           പി കെ നവാസ് എം എൽ എയുടെ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
         </div>
         <div className="mt-12 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           <div className="mt-8 text-right">
             <p className="font-bold text-black uppercase text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>എം.എൽ.എ ഓഫീസ്</p>
-            <p className="text-sm font-normal text-gray-600">Phone: 9037032002</p>
+            <p className="text-sm font-normal text-black">Phone: 9037032002</p>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
       )}
       <div className="relative z-10 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-8 text-sm font-medium">
-          <div>
+          <div className="uppercase">
             <p className="font-bold text-black mb-1">To,</p>
             <p className="text-black">{task.personalDetails.name}</p>
             {task.personalDetails.houseName && <p>{task.personalDetails.houseName}</p>}
@@ -144,7 +144,8 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
           )}
           <div className="mt-4 border-t border-slate-100 pt-2 inline-block text-right">
             <p className="font-bold text-black text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>പി.കെ നവാസ്</p>
-            <p className="text-sm font-normal text-gray-600 mb-1">Member of Legislative Assembly (MLA)</p>
+            <p className="text-sm font-normal text-black mb-1">Member of Legislative Assembly (MLA)</p>
+            <p className="text-sm font-normal text-black">Phone: 9037032002</p>
           </div>
         </div>
       </div>

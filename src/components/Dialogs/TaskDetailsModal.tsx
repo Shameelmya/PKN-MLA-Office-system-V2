@@ -212,11 +212,14 @@ export function TaskDetailsModal({
       text: `Task reassigned to: ${newNames || 'Nobody'}`
     };
 
+    const newStatus = task.status === 'Rejected' ? 'Pending' : task.status;
+
     await updateTask(task.id, {
       assignedTo: newAssigned,
       officerStatuses: updatedOfficerStatuses,
       reassignedFrom: updatedReassignedFrom,
-      timeline: [...task.timeline, timelineEvent]
+      timeline: [...task.timeline, timelineEvent],
+      ...(task.status === 'Rejected' ? { status: 'Pending' } : {})
     });
     
     setShowReassign(false);

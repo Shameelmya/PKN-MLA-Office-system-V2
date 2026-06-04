@@ -56,11 +56,18 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
 
   return (
     <div id="recent-alerts-tab" className="bg-[#FFF5F5] border border-[#FECDD3] rounded-[32px] p-6 md:p-8 shadow-sm relative overflow-hidden animate-in fade-in duration-200">
-      <div className="flex items-center gap-2 mb-6">
-        <Bell className="text-[#DC2626] shrink-0 fill-current animate-pulse" size={24} />
-        <h2 className="text-[#991B1B] font-black tracking-tight text-xl sm:text-2xl uppercase">
-          URGENT & PENDING ACTIONS
-        </h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Bell className="text-[#DC2626] shrink-0 fill-current animate-pulse" size={24} />
+          <h2 className="text-[#991B1B] font-black tracking-tight text-xl sm:text-2xl uppercase">
+            URGENT & PENDING ACTIONS
+          </h2>
+        </div>
+        {overdueCount > 0 && (
+          <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-3 py-1 rounded-full">
+            {overdueCount} Overdues
+          </div>
+        )}
       </div>
 
       {/* Compact Officer Pending Grid (Only for Admin) */}

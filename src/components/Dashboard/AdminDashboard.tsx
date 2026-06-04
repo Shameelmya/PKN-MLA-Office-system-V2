@@ -188,6 +188,8 @@ export function AdminDashboard({
           user={users.find(u => u.role === 'admin')!} 
           tasks={tasks} 
           jumpToTask={jumpToTask} 
+          users={users}
+          setImpersonatedUser={setImpersonatedUser}
         />
       )}
       

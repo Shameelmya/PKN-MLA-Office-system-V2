@@ -7,9 +7,11 @@ interface RecentAlertsTabProps {
   user: User;
   tasks: Task[];
   jumpToTask: (tab: string, taskId: string) => void;
+  users?: User[];
+  setImpersonatedUser?: (u: User) => void;
 }
 
-export function RecentAlertsTab({ user, tasks, jumpToTask }: RecentAlertsTabProps) {
+export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser }: RecentAlertsTabProps) {
   // Determine pending tasks based on whether the user is MLA (admin) or an Officer
   const pendingTasks = useMemo(() => {
     if (user.role === 'admin') {
@@ -61,22 +63,59 @@ export function RecentAlertsTab({ user, tasks, jumpToTask }: RecentAlertsTabProp
         </h2>
       </div>
 
-      {/* Centered single pending box as per user request */}
-      <div className="max-w-md mx-auto bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm text-center mb-8">
-        <div className="text-5xl md:text-6xl font-black text-[#EF4444] tracking-tight mb-1">
-          {pendingTasks.length}
-        </div>
-        <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
-          ACTIVE / PENDING ASSIGNMENTS
-        </div>
-        {overdueCount > 0 ? (
-          <div className="text-sm font-black text-red-600 animate-pulse tracking-wide inline-flex items-center gap-1.5 bg-red-50 px-4 py-1.5 rounded-full border border-red-100">
-            <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-bounce shrink-0" />
-            Out of which {overdueCount} {overdueCount === 1 ? 'is' : 'are'} Overdue now
+      {/* Centered single pending box as per user request, and Officer pending list for Admin */}
+      <div className="flex flex-col md:flex-row gap-6 mb-8 max-w-4xl mx-auto">
+        <div className="flex-1 bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm text-center flex flex-col justify-center">
+          <div className="text-5xl md:text-6xl font-black text-[#EF4444] tracking-tight mb-1">
+            {pendingTasks.length}
           </div>
-        ) : (
-          <div className="text-xs font-bold text-slate-400">
-            All tasks are currently within deadline
+          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+            ACTIVE / PENDING ASSIGNMENTS
+          </div>
+          {overdueCount > 0 ? (
+            <div className="text-sm font-black text-red-600 animate-pulse tracking-wide inline-flex items-center justify-center gap-1.5 bg-red-50 px-4 py-1.5 rounded-full border border-red-100 mx-auto w-fit">
+              <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-bounce shrink-0" />
+              Out of which {overdueCount} {overdueCount === 1 ? 'is' : 'are'} Overdue now
+            </div>
+          ) : (
+            <div className="text-xs font-bold text-slate-400">
+              All tasks are currently within deadline
+            </div>
+          )}
+        </div>
+
+        {/* Officer Pending List (Only for Admin) */}
+        {user.role === 'admin' && users && setImpersonatedUser && (
+          <div className="flex-1 bg-white border border-slate-200 rounded-[24px] p-5 shadow-sm max-h-48 overflow-y-auto custom-scrollbar">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pb-2 border-b border-slate-100">Pending by Officer</h3>
+            <div className="space-y-2">
+              {users.filter(u => u.role === 'officer' && u.enabled).map(officer => {
+                const officerPendingCount = tasks.filter(t => 
+                  t.assignedTo.includes(officer.id) && 
+                  (t.officerStatuses[officer.id] === 'Pending' || !t.officerStatuses[officer.id] || t.officerStatuses[officer.id] === 'Rejected')
+                ).length;
+
+                return (
+                  <div 
+                    key={officer.id} 
+                    onClick={() => setImpersonatedUser(officer)}
+                    className="flex justify-between items-center p-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-colors group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-[10px]">
+                        {officer.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{officer.name}</div>
+                      </div>
+                    </div>
+                    <div className={`px-2 py-0.5 rounded text-xs font-bold ${officerPendingCount > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                      {officerPendingCount}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

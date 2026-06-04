@@ -17,8 +17,7 @@ import {
 import { 
   Task, User as UserType, BackupMeta, GlobalFilters, ConfirmModalState 
 } from './types';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+import html2pdf from 'html2pdf.js';
 
 // Structured Sub-Components
 import { LiveClock } from './components/Shared/LiveClock';
@@ -270,31 +269,20 @@ export default function App() {
       
       setTimeout(async () => { 
         try { 
-          // Use html2canvas directly to ensure we don't hit html2pdf.js freezing bugs
-          const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 794
-          });
-
-          const imgData = canvas.toDataURL('image/jpeg', 1.0);
-          const pdf = new jsPDF('p', 'mm', 'a4');
+          const opt = {
+            margin: 0,
+            filename: `${filename}.pdf`,
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          };
           
-          // A4 size: 210 x 297 mm
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-          
-          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save(`${filename}.pdf`);
+          await html2pdf().set(opt).from(el).save();
           
         } catch (error) { 
           console.error("PDF Generation Failed:", error); 
         } finally {
-          // Cleanup any stuck html2canvas containers if they failed
-          document.querySelectorAll('.html2canvas-container').forEach(c => c.remove());
           cleanDownloadState(); 
         }
       }, 500); 

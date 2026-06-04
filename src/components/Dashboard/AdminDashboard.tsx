@@ -130,53 +130,53 @@ export function AdminDashboard({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200 w-fit print-hidden max-w-full">
+      <div className="flex flex-wrap items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200 w-full print-hidden">
         <button 
           onClick={() => { setActiveTab('alerts'); setGlobalSearch(''); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'alerts' ? 'bg-red-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'alerts' ? 'bg-red-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Bell size={13}/> Recent
         </button>
         <button 
           onClick={() => { setActiveTab('overview'); setGlobalSearch(''); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'overview' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'overview' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           Global Overview
         </button>
         <button 
           onClick={() => { setActiveTab('input'); setGlobalSearch(''); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'input' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'input' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Plus size={13}/> Register Input
         </button>
         <button 
           onClick={() => { setActiveTab('citizens'); setGlobalSearch(''); loadArchive(); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'citizens' ? 'bg-teal-605 text-teal-700 bg-teal-50 border border-teal-100 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'citizens' ? 'bg-teal-605 text-teal-700 bg-teal-50 border border-teal-100 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Users size={13}/> Citizen Info
         </button>
         <button 
           onClick={() => { setActiveTab('direct'); setGlobalSearch(''); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'direct' ? 'bg-indigo-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'direct' ? 'bg-indigo-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Zap size={13}/> Direct Desk
         </button>
         <button 
           onClick={() => { setActiveTab('users'); setGlobalSearch(''); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'users' ? 'bg-purple-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'users' ? 'bg-purple-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Eye size={13}/> Manage Officers
         </button>
         <button 
           onClick={() => { setActiveTab('database'); setGlobalSearch(''); loadArchive(); }} 
-          className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'database' ? 'bg-red-600 hover:bg-red-700 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'database' ? 'bg-red-600 hover:bg-red-700 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
           <Database size={13}/> DB & Backup
         </button>
         {adminRejectedTasks.length > 0 && (
           <button 
             onClick={() => { setActiveTab('rejected'); setGlobalSearch(''); }} 
-            className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${activeTab === 'rejected' ? 'bg-orange-600 text-white shadow' : 'text-orange-600 hover:bg-orange-50 bg-orange-50/75 border border-orange-100'}`}
+            className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'rejected' ? 'bg-orange-600 text-white shadow' : 'text-orange-600 hover:bg-orange-50 bg-orange-50/75 border border-orange-100'}`}
           >
             <Ban size={13} className="animate-pulse" /> Rejected ({adminRejectedTasks.length})
           </button>

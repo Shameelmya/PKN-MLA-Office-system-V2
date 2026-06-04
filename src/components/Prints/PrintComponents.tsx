@@ -121,7 +121,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
               <img 
                 src={livesign} 
                 alt="MLA Signature" 
-                className="h-24 object-contain" 
+                className="h-20 object-contain" 
                 onError={(e) => { 
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none'; 

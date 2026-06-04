@@ -83,13 +83,10 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
               <button 
                 key={u.id} 
                 onClick={() => setImpersonatedUser(u)}
-                className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer"
+                className="flex items-center justify-between gap-2 p-2 px-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer"
               >
-                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-black text-[10px] group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
-                  {u.name.charAt(0)}
-                </div>
-                <div className="text-xs font-bold text-slate-800 text-left flex-1 truncate">{u.name}</div>
-                <div className={`px-2 py-0.5 rounded text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
+                <div className="text-xs font-bold text-slate-800 truncate">{u.name}</div>
+                <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
                   {count}
                 </div>
               </button>

@@ -56,42 +56,63 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
 
   return (
     <div id="recent-alerts-tab" className="bg-[#FFF5F5] border border-[#FECDD3] rounded-[32px] p-6 md:p-8 shadow-sm relative overflow-hidden animate-in fade-in duration-200">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Bell className="text-[#DC2626] shrink-0 fill-current animate-pulse" size={24} />
-          <h2 className="text-[#991B1B] font-black tracking-tight text-xl sm:text-2xl uppercase">
-            URGENT & PENDING ACTIONS
-          </h2>
-        </div>
-        {overdueCount > 0 && (
-          <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-3 py-1 rounded-full">
-            {overdueCount} Overdues
-          </div>
-        )}
+      <div className="flex items-center gap-2 mb-6">
+        <Bell className="text-[#DC2626] shrink-0 fill-current animate-pulse" size={24} />
+        <h2 className="text-[#991B1B] font-black tracking-tight text-xl sm:text-2xl uppercase">
+          URGENT & PENDING ACTIONS
+        </h2>
       </div>
 
-      {/* Compact Officer Pending Grid (Only for Admin) */}
-      {user.role === 'admin' && users && setImpersonatedUser && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6 max-w-3xl mx-auto">
-          {users.filter(u => u.enabled).map(u => {
-            const count = tasks.filter(t => 
-              t.assignedTo.includes(u.id) && 
-              (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
-            ).length;
+      {user.role === 'admin' && users && setImpersonatedUser ? (
+        <div className="flex flex-col md:flex-row gap-6 mb-8 max-w-5xl mx-auto">
+          {/* Big Pending Box */}
+          <div className="bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm flex flex-col items-center justify-center min-w-[200px]">
+            <div className="text-6xl font-black text-[#EF4444] tracking-tight leading-none mb-2">
+              {pendingTasks.length}
+            </div>
+            {overdueCount > 0 && (
+              <div className="text-red-600 font-black text-xs uppercase bg-red-100 px-3 py-1 rounded-full">
+                {overdueCount} Overdues
+              </div>
+            )}
+          </div>
 
-            return (
-              <button 
-                key={u.id} 
-                onClick={() => setImpersonatedUser(u)}
-                className="flex items-center justify-between gap-2 p-2 px-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer"
-              >
-                <div className="text-xs font-bold text-slate-800 truncate">{u.name}</div>
-                <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
-                  {count}
-                </div>
-              </button>
-            );
-          })}
+          {/* Officer Grid */}
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-2">
+            {users.filter(u => u.enabled).map(u => {
+              const count = tasks.filter(t => 
+                t.assignedTo.includes(u.id) && 
+                (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
+              ).length;
+
+              return (
+                <button 
+                  key={u.id} 
+                  onClick={() => setImpersonatedUser(u)}
+                  className="flex items-center justify-between gap-2 p-2 px-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer h-fit"
+                >
+                  <div className="text-xs font-bold text-slate-800 truncate">{u.name}</div>
+                  <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {count}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-md mx-auto bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm text-center mb-8">
+          <div className="text-6xl font-black text-[#EF4444] tracking-tight mb-2">
+            {pendingTasks.length}
+          </div>
+          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+            ACTIVE / PENDING ASSIGNMENTS
+          </div>
+          {overdueCount > 0 && (
+            <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-4 py-1 rounded-full inline-block">
+              {overdueCount} Overdues
+            </div>
+          )}
         </div>
       )}
 

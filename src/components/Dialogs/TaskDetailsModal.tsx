@@ -350,12 +350,30 @@ export function TaskDetailsModal({
                   <p className="text-xs text-green-700 font-medium mt-1">This issue has been successfully resolved.</p>
                 </div>
                 <div className="flex gap-2">
-                   {canUserEdit && !task.isSignedByMLA && (
+                   {canUserEdit && (
                      <button 
-                       onClick={() => updateTask(task.id, { isSignedByMLA: true })} 
-                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2"
+                       onClick={() => {
+                         if (task.isSignedByMLA) {
+                           triggerConfirm(
+                             "Remove MLA Signature?",
+                             "This will remove the verification signature from the completion letter. Are you sure?",
+                             () => updateTask(task.id, { isSignedByMLA: false }),
+                             true,
+                             "Yes, Remove Signature"
+                           );
+                         } else {
+                           triggerConfirm(
+                             "Verify Completion Letter?",
+                             "This will officially add the MLA signature to the completion letter. Proceed?",
+                             () => updateTask(task.id, { isSignedByMLA: true }),
+                             false,
+                             "Yes, Sign Letter"
+                           );
+                         }
+                       }} 
+                       className={`px-4 py-2 text-white text-sm font-bold rounded-lg shadow-sm flex items-center gap-2 ${task.isSignedByMLA ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                      >
-                       <PenTool size={16}/> Sign Completion Letter
+                       <PenTool size={16}/> {task.isSignedByMLA ? 'Remove MLA Signature' : 'Sign Completion Letter'}
                      </button>
                    )}
                    <button 

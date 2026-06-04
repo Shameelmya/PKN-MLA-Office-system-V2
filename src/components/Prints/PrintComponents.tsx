@@ -117,11 +117,11 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
         <div className="mt-8 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           {isVerified ? (
-            <div className="my-4 flex flex-col items-end">
+            <div className="mt-2 mb-0 flex flex-col items-end">
               <img 
                 src={livesign} 
                 alt="MLA Signature" 
-                className="h-16 mb-2" 
+                className="h-24 object-contain" 
                 onError={(e) => { 
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none'; 
@@ -138,11 +138,11 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
               </div>
             </div>
           ) : (
-            <div className="my-4 h-16 flex justify-end items-end">
-              <span className="text-gray-400 italic text-sm">(Draft Copy - Signature Pending)</span>
+            <div className="mt-4 mb-2 h-24 flex justify-end items-end">
+              <span className="text-gray-400 italic text-sm mb-4">(Draft Copy - Signature Pending)</span>
             </div>
           )}
-          <div className="mt-4 border-t border-slate-100 pt-2 inline-block text-right">
+          <div className="mt-0 border-t border-slate-100 pt-1 inline-block text-right">
             <p className="font-bold text-black text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>പി.കെ നവാസ്</p>
             <p className="text-sm font-normal text-black mb-1">Member of Legislative Assembly (MLA)</p>
             <p className="text-sm font-normal text-black">Phone: 9037032002</p>

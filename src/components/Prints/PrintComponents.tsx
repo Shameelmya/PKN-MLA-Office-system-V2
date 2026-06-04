@@ -39,17 +39,17 @@ export function PrintAcknowledgeSlip({ task }: PrintAcknowledgeSlipProps) {
           </div>
         </div>
         <div className="mb-8 text-base font-semibold" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
-          <span className="font-bold text-black mr-2">Sub:</span> {task.subject} - Acknowledgement
+          <span className="font-bold text-black mr-2">വിഷയം:</span> {task.subject}
         </div>
-        <div className="mb-12 text-[15px] leading-loose text-black font-medium" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
-           Bahu. {task.personalDetails.name}, <br/><br/>
+        <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
+           ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
            {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽപ്പറഞ്ഞ വിഷയത്തിൽ താങ്കൾ നൽകിയ അപേക്ഷ / പരാതി സ്വീകരിച്ച് ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്. <br/><br/>
            എം.എൽ.എ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി.
         </div>
         <div className="mt-12 text-right">
           <p className="font-medium text-black mb-2" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>സ്നേഹത്തോടെ,</p>
           <div className="mt-8 text-right">
-            <p className="font-bold text-black uppercase text-sm">MLA Office</p>
+            <p className="font-bold text-black uppercase text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>എം.എൽ.എ ഓഫീസ്</p>
             <p className="text-xs text-gray-600">Phone: 9037032002</p>
           </div>
         </div>
@@ -105,10 +105,10 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
           </div>
         </div>
         <div className="mb-8 text-base font-semibold" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
-          <span className="font-bold text-black mr-2">Sub:</span> {task.subject}
+          <span className="font-bold text-black mr-2">വിഷയം:</span> {task.subject}
         </div>
-        <div className="mb-12 text-[15px] leading-loose text-black font-medium" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
-           Bahu. {task.personalDetails.name}, <br/><br/>
+        <div className="mb-12 text-[15px] leading-loose text-black font-medium text-justify" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>
+           ബഹു. {task.personalDetails.name.toUpperCase()}, <br/><br/>
            {formatDate(task.createdAt)} തിയ്യതിയിൽ മേൽ വിഷയവുമായി ബന്ധപ്പെട്ട് നിങ്ങൾ നൽകിയ അപേക്ഷ/പരാതി വിജയകരമായി പരിഹരിച്ച വിവരം സന്തോഷപൂർവം പങ്കുവെക്കുന്നു. <br/><br/>
            കൂടുതൽ വിവരങ്ങൾക്കോ സഹായങ്ങൾക്കോ എപ്പോൾ വേണമെങ്കിലും ഞങ്ങളെ ബന്ധപ്പെടാവുന്നതാണ്.
         </div>
@@ -141,7 +141,7 @@ export function PrintCompletionLetter({ task }: PrintCompletionLetterProps) {
             </div>
           )}
           <div className="mt-4 border-t border-slate-100 pt-2 inline-block text-right">
-            <p className="font-bold text-black uppercase text-sm">P.K Navas</p>
+            <p className="font-bold text-black text-sm" style={{ fontFamily: "'Noto Serif Malayalam', serif" }}>പി.കെ നവാസ്</p>
             <p className="text-xs text-gray-600 mb-1">Member of Legislative Assembly (MLA)</p>
           </div>
         </div>

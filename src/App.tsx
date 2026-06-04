@@ -17,7 +17,8 @@ import {
 import { 
   Task, User as UserType, BackupMeta, GlobalFilters, ConfirmModalState 
 } from './types';
-import * as html2pdfPkg from 'html2pdf.js';
+import * as htmlToImage from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 // Structured Sub-Components
 import { LiveClock } from './components/Shared/LiveClock';
@@ -269,21 +270,19 @@ export default function App() {
       
       setTimeout(async () => { 
         try { 
-          const html2pdfFunc = typeof html2pdfPkg === 'function' ? html2pdfPkg : (html2pdfPkg as any).default;
-          if (typeof html2pdfFunc !== 'function') {
-            throw new Error("html2pdf is not a function. Check import.");
-          }
+          const dataUrl = await htmlToImage.toJpeg(el, {
+            quality: 1.0,
+            pixelRatio: 2,
+            backgroundColor: '#ffffff',
+            style: { margin: '0' }
+          });
 
-          const opt = {
-            margin: 0,
-            filename: `${filename}.pdf`,
-            image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-          };
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (el.offsetHeight * pdfWidth) / el.offsetWidth;
           
-          await html2pdfFunc().set(opt).from(el).save();
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`${filename}.pdf`);
           
         } catch (error: any) { 
           console.error("PDF Generation Failed:", error); 

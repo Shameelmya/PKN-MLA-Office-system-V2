@@ -9,9 +9,10 @@ interface RecentAlertsTabProps {
   jumpToTask: (tab: string, taskId: string) => void;
   users?: User[];
   setImpersonatedUser?: (u: User) => void;
+  updateTask?: (taskId: string, updates: Partial<Task>) => Promise<void>;
 }
 
-export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser }: RecentAlertsTabProps) {
+export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser, updateTask }: RecentAlertsTabProps) {
   // Determine pending tasks based on whether the user is MLA (admin) or an Officer
   const pendingTasks = useMemo(() => {
     if (user.role === 'admin') {
@@ -40,6 +41,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
 
   const handleShowTask = (t: Task) => {
     if (user.role === 'admin') {
+      if (updateTask) updateTask(t.id, { isReadByAdmin: true });
       if (t.taskType === 'direct') {
         jumpToTask('direct', t.id);
       } else {
@@ -142,7 +144,16 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                 {pendingTasks.map((t) => {
                   const isTaskOverdue = t.status !== 'Completed' && t.status !== 'Draft' && t.status !== 'Unsolved' && t.deadline && new Date(t.deadline).getTime() < Date.now();
                   return (
-                    <tr key={t.id} className="border-b border-[#F1F5F9] hover:bg-slate-50/50 transition-colors">
+                    <tr 
+                      key={t.id} 
+                      className={`border-b border-[#F1F5F9] hover:bg-slate-50/80 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-50/40' : ''}`}
+                      onContextMenu={(e) => {
+                        if (user.role === 'admin' && updateTask && t.isReadByAdmin) {
+                          e.preventDefault();
+                          updateTask(t.id, { isReadByAdmin: false });
+                        }
+                      }}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1.5">
                           <span className="bg-[#E2E8F0] text-[#1E293B] text-[10px] font-extrabold px-2.5 py-0.5 rounded shadow-sm w-fit uppercase tracking-wider">
@@ -184,7 +195,16 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
             {pendingTasks.map((t) => {
               const isTaskOverdue = t.status !== 'Completed' && t.status !== 'Draft' && t.status !== 'Unsolved' && t.deadline && new Date(t.deadline).getTime() < Date.now();
               return (
-                <div key={t.id} className="p-5 flex flex-col gap-4">
+                <div 
+                  key={t.id} 
+                  className={`p-5 flex flex-col gap-4 transition-colors ${user.role === 'admin' && t.isReadByAdmin ? 'bg-blue-50/40' : ''}`}
+                  onContextMenu={(e) => {
+                    if (user.role === 'admin' && updateTask && t.isReadByAdmin) {
+                      e.preventDefault();
+                      updateTask(t.id, { isReadByAdmin: false });
+                    }
+                  }}
+                >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex flex-col gap-1">
                       <span className="bg-[#E2E8F0] text-[#1E293B] text-[10px] font-extrabold px-2 px-2.5 py-0.5 rounded shadow-sm w-fit uppercase tracking-wider">

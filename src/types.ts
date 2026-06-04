@@ -73,6 +73,7 @@ export interface Task {
   createdByUid: string;
   timeline: TimelineItem[];
   isCompletionLetter?: boolean;
+  isReadByAdmin?: boolean;
 }
 
 export interface GlobalFilters {

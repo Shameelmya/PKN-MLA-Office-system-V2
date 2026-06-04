@@ -170,6 +170,7 @@ export function AdminGlobalView({
               togglePriority={togglePriority} 
               triggerViewDetails={triggerViewDetails} 
               deleteTask={deleteTask} 
+              updateTask={updateTask}
             />
           ))}
           {displayed.length === 0 && (
@@ -217,7 +218,10 @@ export function AdminGlobalView({
                   </td>
                   <td className="px-4 py-3 flex items-center gap-2">
                     <button 
-                      onClick={() => triggerViewDetails(t)} 
+                      onClick={() => {
+                        updateTask(t.id, { isReadByAdmin: true });
+                        triggerViewDetails(t);
+                      }} 
                       title="Detailed Report" 
                       className="text-slate-600 hover:bg-slate-200 p-2 rounded-lg transition-colors bg-slate-100"
                     >
@@ -286,6 +290,7 @@ interface AdminTaskCardProps {
   togglePriority: (task: Task) => void;
   triggerViewDetails: (task: Task) => void;
   deleteTask: (taskId: string) => void;
+  updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
 }
 
 const AdminTaskCard = React.memo(({
@@ -295,7 +300,8 @@ const AdminTaskCard = React.memo(({
   quickCompleteTask,
   togglePriority,
   triggerViewDetails,
-  deleteTask
+  deleteTask,
+  updateTask
 }: AdminTaskCardProps) => {
   const getPriorityColor = (p?: string) => {
     if (p === 'High') return 'bg-red-100 text-red-700 border border-red-200 hover:bg-red-200';
@@ -311,10 +317,20 @@ const AdminTaskCard = React.memo(({
     return 'text-red-600';
   };
 
-  const cardBg = t.isSelfMode ? 'bg-yellow-50/70 border-yellow-300' : 'bg-white border-slate-200';
+  const cardBg = t.isSelfMode 
+    ? 'bg-yellow-50/70 border-yellow-300' 
+    : t.isReadByAdmin 
+      ? 'bg-blue-50/40 border-blue-200' 
+      : 'bg-white border-slate-200';
 
   return (
-    <div className={`${cardBg} rounded-2xl p-5 border shadow-sm flex flex-col transition-all relative overflow-hidden ${t.status === 'Unsolved' ? 'border-slate-300 bg-slate-50 opacity-75 grayscale' : 'hover:shadow-md hover:border-blue-300'}`}>
+    <div 
+      className={`${cardBg} rounded-2xl p-5 border shadow-sm flex flex-col transition-all relative overflow-hidden ${t.status === 'Unsolved' ? 'border-slate-300 bg-slate-50 opacity-75 grayscale' : 'hover:shadow-md hover:border-blue-300'}`}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        if (t.isReadByAdmin) updateTask(t.id, { isReadByAdmin: false });
+      }}
+    >
       {t.status === 'Unsolved' && (
         <div className="absolute top-4 right-4 bg-slate-800 text-white text-[10px] font-black px-2 py-1 rounded shadow-sm uppercase z-10">
           <Lock size={10} className="inline mr-1"/>Unsolved
@@ -434,7 +450,10 @@ const AdminTaskCard = React.memo(({
       </div>
       <div className="pt-3 border-t border-slate-100/50 flex flex-wrap gap-2">
         <button 
-          onClick={() => triggerViewDetails(t)} 
+          onClick={() => {
+            updateTask(t.id, { isReadByAdmin: true });
+            triggerViewDetails(t);
+          }} 
           className="flex-1 min-w-[70px] bg-slate-800 text-white font-bold py-2 rounded-xl text-xs hover:bg-black transition-colors flex items-center justify-center gap-1"
         >
           <Eye size={14}/> Details

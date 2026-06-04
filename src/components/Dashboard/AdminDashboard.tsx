@@ -190,6 +190,7 @@ export function AdminDashboard({
           jumpToTask={jumpToTask} 
           users={users}
           setImpersonatedUser={setImpersonatedUser}
+          updateTask={updateTask}
         />
       )}
       

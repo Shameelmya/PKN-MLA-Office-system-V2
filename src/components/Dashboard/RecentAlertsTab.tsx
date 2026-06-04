@@ -13,31 +13,34 @@ interface RecentAlertsTabProps {
 }
 
 export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonatedUser, updateTask }: RecentAlertsTabProps) {
-  // Determine pending tasks based on whether the user is MLA (admin) or an Officer
-  const pendingTasks = useMemo(() => {
+  // Determine active tasks based on whether the user is MLA (admin) or an Officer
+  const activeTasks = useMemo(() => {
     if (user.role === 'admin') {
       return tasks
-        .filter(t => t.status === 'Pending')
+        .filter(t => t.status === 'Pending' || t.status === 'In Progress')
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } else {
-      // Officer sees tasks assigned to them where officer status is Pending or undefined
+      // Officer sees tasks assigned to them where officer status is Pending, In Progress, or undefined
       return tasks
         .filter(t => 
           t.assignedTo.includes(user.id) && 
-          (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id] || t.officerStatuses[user.id] === 'Rejected')
+          (t.officerStatuses[user.id] === 'Pending' || t.officerStatuses[user.id] === 'In Progress' || !t.officerStatuses[user.id] || t.officerStatuses[user.id] === 'Rejected')
         )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
   }, [tasks, user]);
 
+  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id] || t.officerStatuses[user.id] === 'Rejected')).length;
+  const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : t.officerStatuses[user.id] === 'In Progress').length;
+
   const overdueCount = useMemo(() => {
     // Tasks are overdue if deadline is in the past, excluding Completed/Draft/Unsolved tasks
-    return pendingTasks.filter(t => {
+    return activeTasks.filter(t => {
       if (t.status === 'Completed' || t.status === 'Draft' || t.status === 'Unsolved') return false;
       const d = t.deadline ? new Date(t.deadline).getTime() : 0;
       return d > 0 && d < Date.now();
     }).length;
-  }, [pendingTasks]);
+  }, [activeTasks]);
 
   const handleShowTask = (t: Task) => {
     if (user.role === 'admin') {
@@ -78,19 +81,26 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
       <div className="flex items-center gap-2 mb-6">
         <Bell className="text-[#DC2626] shrink-0 fill-current animate-pulse" size={24} />
         <h2 className="text-[#991B1B] font-black tracking-tight text-xl sm:text-2xl uppercase">
-          URGENT & PENDING ACTIONS
+          URGENT & ACTIVE ACTIONS
         </h2>
       </div>
 
       {user.role === 'admin' && users && setImpersonatedUser ? (
         <div className="flex flex-col md:flex-row gap-8 mb-8 max-w-max mx-auto items-center justify-center">
-          {/* Big Pending Box */}
+          {/* Big Active Box */}
           <div className="bg-white border border-[#FEE2E2] rounded-[24px] py-6 px-10 shadow-sm flex flex-col items-center justify-center shrink-0">
             <div className="text-6xl font-black text-[#EF4444] tracking-tight leading-none mb-2">
-              {pendingTasks.length}
+              {activeTasks.length}
+            </div>
+            <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+              ACTIVE ACTIONS
+            </div>
+            <div className="flex gap-4 text-[10px] font-bold mt-1">
+              <span className="text-red-500">{pendingCount} Pending</span>
+              <span className="text-orange-500">{inProgressCount} In Progress</span>
             </div>
             {overdueCount > 0 && (
-              <div className="text-red-600 font-black text-xs uppercase bg-red-100 px-3 py-1 rounded-full">
+              <div className="text-red-600 font-black text-xs uppercase bg-red-100 px-3 py-1 rounded-full mt-3">
                 {overdueCount} Overdues
               </div>
             )}
@@ -99,20 +109,31 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
           {/* Officer Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {users.filter(u => u.enabled).map(u => {
-              const count = tasks.filter(t => 
+              const uPending = tasks.filter(t => 
                 t.assignedTo.includes(u.id) && 
                 (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
               ).length;
+              const uInProgress = tasks.filter(t => 
+                t.assignedTo.includes(u.id) && 
+                t.officerStatuses[u.id] === 'In Progress'
+              ).length;
+              const uActive = uPending + uInProgress;
 
               return (
                 <button 
                   key={u.id} 
                   onClick={() => setImpersonatedUser(u)}
-                  className="flex items-center justify-between gap-3 p-2 px-4 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-[180px]"
+                  className="flex flex-col items-stretch justify-center gap-1.5 p-3 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer w-[180px]"
                 >
-                  <div className="text-xs font-bold text-slate-800 truncate text-left">{u.name}</div>
-                  <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
-                    {count}
+                  <div className="flex items-center justify-between gap-3 w-full">
+                    <div className="text-xs font-bold text-slate-800 truncate text-left">{u.name}</div>
+                    <div className={`w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black shrink-0 ${uActive > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
+                      {uActive}
+                    </div>
+                  </div>
+                  <div className="flex justify-between w-full text-[10px] font-bold">
+                    <span className="text-red-500">{uPending} Pend</span>
+                    <span className="text-orange-500">{uInProgress} Prog</span>
                   </div>
                 </button>
               );
@@ -122,22 +143,26 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
       ) : (
         <div className="max-w-md mx-auto bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm text-center mb-8">
           <div className="text-6xl font-black text-[#EF4444] tracking-tight mb-2">
-            {pendingTasks.length}
+            {activeTasks.length}
           </div>
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
-            ACTIVE / PENDING ASSIGNMENTS
+            ACTIVE ACTIONS
+          </div>
+          <div className="flex justify-center gap-4 text-[10px] font-bold mt-1">
+            <span className="text-red-500">{pendingCount} Pending</span>
+            <span className="text-orange-500">{inProgressCount} In Progress</span>
           </div>
           {overdueCount > 0 && (
-            <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-4 py-1 rounded-full inline-block">
+            <div className="text-red-600 font-black text-sm uppercase bg-red-100 px-4 py-1 rounded-full inline-block mt-3">
               {overdueCount} Overdues
             </div>
           )}
         </div>
       )}
 
-      {pendingTasks.length === 0 ? (
+      {activeTasks.length === 0 ? (
         <div className="text-slate-500 font-medium py-12 text-center bg-white/60 rounded-2xl border border-red-100/50">
-          No pending assignments found in this view.
+          No active assignments found in this view.
         </div>
       ) : (
         <div className="bg-white border border-[#F1F5F9] rounded-[24px] overflow-hidden shadow-sm">
@@ -158,7 +183,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                 </tr>
               </thead>
               <tbody>
-                {pendingTasks.map((t) => {
+                {activeTasks.map((t) => {
                   const isTaskOverdue = t.status !== 'Completed' && t.status !== 'Draft' && t.status !== 'Unsolved' && t.deadline && new Date(t.deadline).getTime() < Date.now();
                   return (
                     <tr 
@@ -212,7 +237,7 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
 
           {/* Mobile Card-style View */}
           <div className="block md:hidden divide-y divide-[#F1F5F9]">
-            {pendingTasks.map((t) => {
+            {activeTasks.map((t) => {
               const isTaskOverdue = t.status !== 'Completed' && t.status !== 'Draft' && t.status !== 'Unsolved' && t.deadline && new Date(t.deadline).getTime() < Date.now();
               return (
                 <div 

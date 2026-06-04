@@ -86,33 +86,29 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
 
         {/* Officer Pending List (Only for Admin) */}
         {user.role === 'admin' && users && setImpersonatedUser && (
-          <div className="flex-1 bg-white border border-slate-200 rounded-[24px] p-5 shadow-sm max-h-48 overflow-y-auto custom-scrollbar">
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 pb-2 border-b border-slate-100">Pending by Officer</h3>
-            <div className="space-y-2">
-              {users.filter(u => u.role === 'officer' && u.enabled).map(officer => {
-                const officerPendingCount = tasks.filter(t => 
-                  t.assignedTo.includes(officer.id) && 
-                  (t.officerStatuses[officer.id] === 'Pending' || !t.officerStatuses[officer.id] || t.officerStatuses[officer.id] === 'Rejected')
+          <div className="flex-[2] bg-white border border-slate-200 rounded-[24px] p-5 shadow-sm">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">Pending by Officer</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {users.filter(u => u.enabled).map(u => {
+                const count = tasks.filter(t => 
+                  t.assignedTo.includes(u.id) && 
+                  (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
                 ).length;
 
                 return (
-                  <div 
-                    key={officer.id} 
-                    onClick={() => setImpersonatedUser(officer)}
-                    className="flex justify-between items-center p-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-colors group"
+                  <button 
+                    key={u.id} 
+                    onClick={() => setImpersonatedUser(u)}
+                    className="flex flex-col items-center justify-center p-3 rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all group cursor-pointer shadow-sm hover:shadow"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-[10px]">
-                        {officer.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{officer.name}</div>
-                      </div>
+                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-black text-xs mb-2 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      {u.name.charAt(0)}
                     </div>
-                    <div className={`px-2 py-0.5 rounded text-xs font-bold ${officerPendingCount > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {officerPendingCount}
+                    <div className="text-xs font-bold text-slate-800 text-center leading-tight mb-2 line-clamp-1">{u.name}</div>
+                    <div className={`px-2 py-1 rounded-lg text-[10px] font-black w-full text-center ${count > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
+                      {count} PENDING
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

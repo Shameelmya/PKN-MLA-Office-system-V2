@@ -63,58 +63,33 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
         </h2>
       </div>
 
-      {/* Centered single pending box as per user request, and Officer pending list for Admin */}
-      <div className="flex flex-col md:flex-row gap-6 mb-8 max-w-4xl mx-auto">
-        <div className="flex-1 bg-white border border-[#FEE2E2] rounded-[24px] p-6 shadow-sm text-center flex flex-col justify-center">
-          <div className="text-5xl md:text-6xl font-black text-[#EF4444] tracking-tight mb-1">
-            {pendingTasks.length}
-          </div>
-          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
-            ACTIVE / PENDING ASSIGNMENTS
-          </div>
-          {overdueCount > 0 ? (
-            <div className="text-sm font-black text-red-600 animate-pulse tracking-wide inline-flex items-center justify-center gap-1.5 bg-red-50 px-4 py-1.5 rounded-full border border-red-100 mx-auto w-fit">
-              <span className="w-2.5 h-2.5 bg-red-600 rounded-full animate-bounce shrink-0" />
-              Out of which {overdueCount} {overdueCount === 1 ? 'is' : 'are'} Overdue now
-            </div>
-          ) : (
-            <div className="text-xs font-bold text-slate-400">
-              All tasks are currently within deadline
-            </div>
-          )}
+      {/* Compact Officer Pending Grid (Only for Admin) */}
+      {user.role === 'admin' && users && setImpersonatedUser && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6 max-w-3xl mx-auto">
+          {users.filter(u => u.enabled).map(u => {
+            const count = tasks.filter(t => 
+              t.assignedTo.includes(u.id) && 
+              (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
+            ).length;
+
+            return (
+              <button 
+                key={u.id} 
+                onClick={() => setImpersonatedUser(u)}
+                className="flex items-center gap-2 p-2 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all shadow-sm group cursor-pointer"
+              >
+                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-black text-[10px] group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
+                  {u.name.charAt(0)}
+                </div>
+                <div className="text-xs font-bold text-slate-800 text-left flex-1 truncate">{u.name}</div>
+                <div className={`px-2 py-0.5 rounded text-[10px] font-black shrink-0 ${count > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {count}
+                </div>
+              </button>
+            );
+          })}
         </div>
-
-        {/* Officer Pending List (Only for Admin) */}
-        {user.role === 'admin' && users && setImpersonatedUser && (
-          <div className="flex-[2] bg-white border border-slate-200 rounded-[24px] p-5 shadow-sm">
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">Pending by Officer</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {users.filter(u => u.enabled).map(u => {
-                const count = tasks.filter(t => 
-                  t.assignedTo.includes(u.id) && 
-                  (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
-                ).length;
-
-                return (
-                  <button 
-                    key={u.id} 
-                    onClick={() => setImpersonatedUser(u)}
-                    className="flex flex-col items-center justify-center p-3 rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-all group cursor-pointer shadow-sm hover:shadow"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-black text-xs mb-2 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                      {u.name.charAt(0)}
-                    </div>
-                    <div className="text-xs font-bold text-slate-800 text-center leading-tight mb-2 line-clamp-1">{u.name}</div>
-                    <div className={`px-2 py-1 rounded-lg text-[10px] font-black w-full text-center ${count > 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {count} PENDING
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {pendingTasks.length === 0 ? (
         <div className="text-slate-500 font-medium py-12 text-center bg-white/60 rounded-2xl border border-red-100/50">

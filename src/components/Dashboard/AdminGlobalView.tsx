@@ -317,6 +317,23 @@ const AdminTaskCard = React.memo(({
     return 'text-red-600';
   };
 
+  const pressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startPress = () => {
+    if (t.isReadByAdmin) {
+      pressTimer.current = setTimeout(() => {
+        updateTask(t.id, { isReadByAdmin: false });
+      }, 500);
+    }
+  };
+
+  const clearPress = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  };
+
   const cardBg = t.isSelfMode 
     ? 'bg-yellow-50/70 border-yellow-300' 
     : t.isReadByAdmin 
@@ -330,6 +347,9 @@ const AdminTaskCard = React.memo(({
         e.preventDefault();
         if (t.isReadByAdmin) updateTask(t.id, { isReadByAdmin: false });
       }}
+      onPointerDown={startPress}
+      onPointerUp={clearPress}
+      onPointerLeave={clearPress}
     >
       {t.status === 'Unsolved' && (
         <div className="absolute top-4 right-4 bg-slate-800 text-white text-[10px] font-black px-2 py-1 rounded shadow-sm uppercase z-10">

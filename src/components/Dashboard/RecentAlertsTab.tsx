@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Bell, ChevronRight, Clock } from 'lucide-react';
 import { Task, User } from '../../types';
 import { formatDate, formatTime } from '../../utils/formatters';
@@ -53,6 +53,23 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
       } else {
         jumpToTask('worker', t.id);
       }
+    }
+  };
+
+  const timersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const startPress = (t: Task) => {
+    if (user.role === 'admin' && updateTask && t.isReadByAdmin) {
+      timersRef.current[t.id] = setTimeout(() => {
+        updateTask(t.id, { isReadByAdmin: false });
+      }, 500);
+    }
+  };
+
+  const clearPress = (id: string) => {
+    if (timersRef.current[id]) {
+      clearTimeout(timersRef.current[id]);
+      delete timersRef.current[id];
     }
   };
 
@@ -153,6 +170,9 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                           updateTask(t.id, { isReadByAdmin: false });
                         }
                       }}
+                      onPointerDown={() => startPress(t)}
+                      onPointerUp={() => clearPress(t.id)}
+                      onPointerLeave={() => clearPress(t.id)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col gap-1.5">
@@ -204,6 +224,9 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
                       updateTask(t.id, { isReadByAdmin: false });
                     }
                   }}
+                  onPointerDown={() => startPress(t)}
+                  onPointerUp={() => clearPress(t.id)}
+                  onPointerLeave={() => clearPress(t.id)}
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex flex-col gap-1">

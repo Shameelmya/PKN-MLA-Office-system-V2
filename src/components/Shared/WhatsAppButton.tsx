@@ -10,6 +10,7 @@ interface WhatsAppButtonProps {
 export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsAppButtonProps) {
   const [isSent, setIsSent] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  const ignoreNextClick = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -21,6 +22,7 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
     if (!isSent) return;
     pressTimer.current = setTimeout(() => {
       setIsSent(false); // Re-enable after 3 seconds
+      ignoreNextClick.current = true; // Prevent immediate click event on release
     }, 3000);
   };
 
@@ -33,6 +35,10 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (ignoreNextClick.current) {
+      ignoreNextClick.current = false;
+      return;
+    }
     if (isSent) return;
     setIsSent(true);
     onSend();
@@ -55,13 +61,6 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
     >
       <div className="flex items-center justify-center pointer-events-none">
         <MessageSquare size={iconSize} />
-        {isSent && (
-          <div className="absolute inset-0 bg-slate-100/50 flex items-center justify-center">
-            <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
       </div>
     </button>
   );

@@ -804,6 +804,24 @@ export function TaskDetailsModal({
                               <ExternalLink size={12}/> View Attached Update Document
                             </a>
                           )}
+                          {item.attachment && (
+                            <div className="mt-3">
+                              <AttachmentRenderer 
+                                attachment={item.attachment}
+                                currentUser={currentUser}
+                                index={0}
+                                onDeleteSuccess={() => {
+                                  const newTimeline = task.timeline.map(t => {
+                                    if (t.id === item.id) {
+                                      return { ...t, attachment: undefined };
+                                    }
+                                    return t;
+                                  });
+                                  updateTask(task.id, { timeline: newTimeline });
+                                }}
+                              />
+                            </div>
+                          )}
                           {item.links && item.links.length > 0 && (
                             <div className="mt-3 flex flex-wrap gap-2">
                               {item.links.map((lnk, lIdx) => (

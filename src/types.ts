@@ -24,6 +24,7 @@ export interface TimelineItem {
   text: string;
   link?: string; // Legacy
   links?: (string | Attachment)[];
+  attachment?: Attachment;
 }
 
 export interface PersonalDetails {

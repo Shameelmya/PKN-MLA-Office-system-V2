@@ -3,7 +3,7 @@ import {
   Plus, Search, Filter, Activity, ArrowDownUp, CheckCircle, 
   Paperclip, Clock, Eye, Trash2, ExternalLink, MessageSquare, X 
 } from 'lucide-react';
-import { Task, User, GlobalFilters } from '../../types';
+import { Task, User, GlobalFilters, Attachment, TimelineItem } from '../../types';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { AwarenessGraph } from '../Charts/AwarenessGraph';
 import { 
@@ -12,6 +12,7 @@ import {
 import { sendWhatsAppUpdate } from '../../utils/whatsapp';
 import { WhatsAppButton } from '../Shared/WhatsAppButton';
 import { AttachmentRenderer } from '../Shared/AttachmentRenderer';
+import { FileUploadButton } from '../Shared/FileUploadButton';
 
 interface WorkerTabProps {
   user: User;
@@ -227,7 +228,7 @@ const WorkerTaskCard = React.memo(({
 }: WorkerTaskCardProps) => {
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [updateText, setUpdateText] = useState('');
-  const [updateLink, setUpdateLink] = useState('');
+  const [updateAttachment, setUpdateAttachment] = useState<Attachment | null>(null);
   const [sentUpdates, setSentUpdates] = useState<Record<string, boolean>>({});
   
   const status = task.officerStatuses[user.id] || 'Pending';
@@ -268,14 +269,14 @@ const WorkerTaskCard = React.memo(({
   };
 
   const handleSaveUpdate = () => {
-    if(!updateText.trim()) return;
-    const ev = {
+    if(!updateText.trim() && !updateAttachment) return;
+    const ev: TimelineItem = {
       id: generateUid(),
       type: 'update',
       time: getNow(),
       by: user.name,
       text: updateText,
-      link: updateLink || undefined
+      attachment: updateAttachment || undefined
     };
     if (status !== 'In Progress' && status !== 'Draft') {
       changeStatus('In Progress', ev);
@@ -283,7 +284,7 @@ const WorkerTaskCard = React.memo(({
       updateTask(task.id, { timeline: [...task.timeline, ev] });
     }
     setUpdateText('');
-    setUpdateLink('');
+    setUpdateAttachment(null);
     setShowProgressModal(false);
   };
 
@@ -499,11 +500,16 @@ const WorkerTaskCard = React.memo(({
                     <ExternalLink size={10}/> View Link
                   </a>
                 )}
+                {up.attachment && (
+                  <div className="mt-2">
+                    <AttachmentRenderer attachment={up.attachment} currentUser={user} index={0} />
+                  </div>
+                )}
               </div>
               <div className="absolute right-1 top-1 flex flex-col gap-1">
                 {!task.isSelfMode && (
                   <WhatsAppButton 
-                    onSend={() => sendWhatsAppUpdate(task, up.text, up.link)}
+                    onSend={() => sendWhatsAppUpdate(task, up.text, up.attachment?.url || up.link)}
                     className="p-1 rounded"
                     iconSize={10}
                   />
@@ -535,13 +541,25 @@ const WorkerTaskCard = React.memo(({
                  placeholder="What action did you take?..." 
                  className="w-full px-4 py-3 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-500 h-32 mb-3 bg-white text-slate-800"
                ></textarea>
-               <input 
-                 type="url" 
-                 value={updateLink} 
-                 onChange={e => setUpdateLink(e.target.value)} 
-                 placeholder="Attach Document Link (Optional)" 
-                 className="w-full px-4 py-3 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-500 mb-4 bg-white text-slate-805" 
-               />
+               {updateAttachment ? (
+                 <div className="mb-4">
+                   <AttachmentRenderer 
+                     attachment={updateAttachment} 
+                     currentUser={user} 
+                     index={0} 
+                     onDeleteSuccess={() => setUpdateAttachment(null)}
+                   />
+                 </div>
+               ) : (
+                 <div className="mb-4">
+                   <FileUploadButton 
+                     onUploadSuccess={(att) => setUpdateAttachment(att)} 
+                     onManualLinkAdd={(url) => setUpdateAttachment({ name: 'External Document Link', url, type: 'link', id: generateUid() } as Attachment)}
+                     uploaderId={user.id}
+                   />
+                   <p className="text-[10px] text-slate-400 mt-1 text-center font-medium">Supports Images (JPEG/PNG) and PDFs. Max size: 2MB.</p>
+                 </div>
+               )}
                <button 
                  onClick={handleSaveUpdate} 
                  className="w-full bg-blue-600 text-white font-black py-3 rounded-xl hover:bg-blue-700 transition-colors shadow"

@@ -4,6 +4,7 @@ import {
   Download, Trash2, Activity, UserX, Lock, Phone, MessageSquare, ExternalLink 
 } from 'lucide-react';
 import { Task, User, GlobalFilters } from '../../types';
+import { AttachmentRenderer } from '../Shared/AttachmentRenderer';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
 
@@ -429,25 +430,25 @@ const AdminTaskCard = React.memo(({
           </div>
           <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
             {t.attachment && (
-              <a 
-                href={t.attachment.url} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="shrink-0 px-3 bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded text-[10px] font-black text-center uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
-              >
-                <Eye size={10}/> View
-              </a>
+              <AttachmentRenderer 
+                attachment={t.attachment as any} 
+                currentUser={currentUser}
+                index={0}
+              />
             )}
             {t.attachments?.map((att, idx) => (
-              <a 
-                key={idx} 
-                href={att.url} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="shrink-0 px-3 bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded text-[10px] font-black text-center uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
-              >
-                <Eye size={10}/> L{idx+1}
-              </a>
+              <AttachmentRenderer 
+                key={idx}
+                attachment={att}
+                currentUser={currentUser}
+                index={t.attachment ? idx + 1 : idx}
+                onDeleteSuccess={() => {
+                  if (t.attachments) {
+                    const newAtts = t.attachments.filter((_, i) => i !== idx);
+                    updateTask(t.id, { attachments: newAtts });
+                  }
+                }}
+              />
             ))}
           </div>
         </div>

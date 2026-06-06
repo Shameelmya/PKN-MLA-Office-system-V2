@@ -10,6 +10,8 @@ import {
   formatDate, getNow, generateUid, formatWhatsAppNumber 
 } from '../../utils/formatters';
 import { sendWhatsAppUpdate } from '../../utils/whatsapp';
+import { WhatsAppButton } from '../Shared/WhatsAppButton';
+import { AttachmentRenderer } from '../Shared/AttachmentRenderer';
 
 interface WorkerTabProps {
   user: User;
@@ -343,25 +345,25 @@ const WorkerTaskCard = React.memo(({
           </div>
           <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
             {task.attachment && (
-              <a 
-                href={task.attachment.url} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="shrink-0 px-2 bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded-md text-[10px] font-black text-center uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
-              >
-                <Eye size={10} /> View
-              </a>
+              <AttachmentRenderer 
+                attachment={task.attachment as any} 
+                currentUser={user}
+                index={0}
+              />
             )}
             {task.attachments?.map((att, idx) => (
-              <a 
-                key={idx} 
-                href={att.url} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="shrink-0 px-2 bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded-md text-[10px] font-black text-center uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
-              >
-                <Eye size={10} /> Link {idx + 1}
-              </a>
+              <AttachmentRenderer 
+                key={idx}
+                attachment={att}
+                currentUser={user}
+                index={task.attachment ? idx + 1 : idx}
+                onDeleteSuccess={() => {
+                  if (task.attachments) {
+                    const newAtts = task.attachments.filter((_, i) => i !== idx);
+                    updateTask(task.id, { attachments: newAtts });
+                  }
+                }}
+              />
             ))}
           </div>
         </div>
@@ -500,17 +502,11 @@ const WorkerTaskCard = React.memo(({
               </div>
               <div className="absolute right-1 top-1 flex flex-col gap-1">
                 {!task.isSelfMode && (
-                  <button 
-                    onClick={() => {
-                      sendWhatsAppUpdate(task, up.text, up.link);
-                      setSentUpdates(prev => ({ ...prev, [up.id]: true }));
-                    }} 
-                    disabled={!!sentUpdates[up.id]}
-                    title={sentUpdates[up.id] ? "WhatsApp Update Sent" : "Send Update to WhatsApp"} 
-                    className={`p-1 rounded transition-colors ${sentUpdates[up.id] ? 'opacity-35 text-slate-400 bg-slate-100 cursor-not-allowed' : 'text-green-600 bg-green-100/50 hover:bg-green-200'}`}
-                  >
-                    <MessageSquare size={10}/>
-                  </button>
+                  <WhatsAppButton 
+                    onSend={() => sendWhatsAppUpdate(task, up.text, up.link)}
+                    className="p-1 rounded"
+                    iconSize={10}
+                  />
                 )}
                 <button 
                   onClick={() => deleteUpdate(up.id)} 

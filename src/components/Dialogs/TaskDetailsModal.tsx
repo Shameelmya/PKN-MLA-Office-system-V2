@@ -6,6 +6,9 @@ import {
 import { Task, User as UserType, TimelineItem } from '../../types';
 import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
 import { sendWhatsAppUpdate } from '../../utils/whatsapp';
+import { WhatsAppButton } from '../Shared/WhatsAppButton';
+import { FileUploadButton } from '../Shared/FileUploadButton';
+import { deleteFromGoogleDrive } from '../../utils/fileUpload';
 import { TimelineIcon } from '../Layout/TimelineIcon';
 
 interface TaskDetailsModalProps {
@@ -47,10 +50,8 @@ export function TaskDetailsModal({
 }: TaskDetailsModalProps) {
   if (!task) return null;
   const [newUpdate, setNewUpdate] = useState('');
-  const [newUpdateLinks, setNewUpdateLinks] = useState<string[]>(['']);
+  const [newUpdateLinks, setNewUpdateLinks] = useState<(string | Attachment)[]>([]);
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
-  const newUpdateLink = newUpdateLinks[0] || '';
-  const setNewUpdateLink = (val: string) => setNewUpdateLinks([val]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState<Task>(task);
   const [editingTimelineId, setEditingTimelineId] = useState<string | null>(null);
@@ -58,18 +59,6 @@ export function TaskDetailsModal({
   
   const [showReassign, setShowReassign] = useState(false);
   const [reassignAssignedTo, setReassignAssignedTo] = useState<string[]>([]);
-
-  const [sentWhatsAppIds, setSentWhatsAppIds] = useState<Set<string>>(() => {
-    return new Set(JSON.parse(localStorage.getItem('sent_whatsapp_ids') || '[]'));
-  });
-
-  const handleSendWAStatus = (itemId: string, itemText: string, itemLink?: string) => {
-    sendWhatsAppUpdate(task, itemText, itemLink);
-    const nextSet = new Set(sentWhatsAppIds);
-    nextSet.add(itemId);
-    setSentWhatsAppIds(nextSet);
-    localStorage.setItem('sent_whatsapp_ids', JSON.stringify(Array.from(nextSet)));
-  };
 
   const canUserEdit = useMemo(() => {
     if (currentUser.role === 'admin') return true;
@@ -84,14 +73,26 @@ export function TaskDetailsModal({
   
   const handleAddUpdate = async () => {
     if(!newUpdate.trim()) return;
-    const finalLinks = newUpdateLinks.filter(lnk => lnk.trim());
+    const finalLinks = newUpdateLinks.filter(lnk => {
+      if (typeof lnk === 'string') return lnk.trim() !== '';
+      return true;
+    });
+    
+    // Support the legacy `link` property for the first item if it's a string
+    let firstLinkStr = undefined;
+    if (finalLinks.length > 0 && typeof finalLinks[0] === 'string') {
+      firstLinkStr = finalLinks[0];
+    } else if (finalLinks.length > 0 && typeof finalLinks[0] !== 'string') {
+      firstLinkStr = finalLinks[0].url;
+    }
+
     const ev: TimelineItem = {
       id: generateUid(),
       type: 'update',
       time: getNow(),
       by: currentUser.name,
       text: newUpdate,
-      link: finalLinks[0] || undefined,
+      link: firstLinkStr,
       links: finalLinks.length > 0 ? finalLinks : undefined
     };
     await updateTask(task.id, { timeline: [...task.timeline, ev] });
@@ -697,25 +698,25 @@ export function TaskDetailsModal({
                <span>Subject & Description</span>
                <div className="flex gap-2 flex-wrap">
                  {task.attachment && (
-                   <a 
-                     href={task.attachment.url} 
-                     target="_blank" 
-                     rel="noreferrer" 
-                     className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold hover:bg-indigo-200 transition-colors normal-case tracking-normal"
-                   >
-                     <ExternalLink size={14}/> View Attached Link
-                   </a>
+                   <AttachmentRenderer 
+                     attachment={task.attachment as any} 
+                     currentUser={currentUser}
+                     index={0}
+                   />
                  )}
                  {task.attachments?.map((att, idx) => (
-                   <a 
-                     key={idx} 
-                     href={att.url} 
-                     target="_blank" 
-                     rel="noreferrer" 
-                     className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1 font-bold hover:bg-indigo-200 transition-colors normal-case tracking-normal"
-                   >
-                     <ExternalLink size={14}/> Link {idx + 1}
-                   </a>
+                   <AttachmentRenderer 
+                     key={idx}
+                     attachment={att}
+                     currentUser={currentUser}
+                     index={task.attachment ? idx + 1 : idx}
+                     onDeleteSuccess={() => {
+                       if (task.attachments) {
+                         const newAtts = task.attachments.filter((_, i) => i !== idx);
+                         updateTask(task.id, { attachments: newAtts });
+                       }
+                     }}
+                   />
                  ))}
                </div>
              </h3>
@@ -760,14 +761,10 @@ export function TaskDetailsModal({
                          <div className="flex items-center gap-2">
                            <div className="text-[10px] font-bold text-slate-400">{formatDate(item.time)} {formatTime(item.time)}</div>
                            {(item.type === 'update' || item.type === 'completed' || item.type === 'draft') && !task.isSelfMode && (
-                             <button 
-                               onClick={() => handleSendWAStatus(item.id, item.text, item.link)} 
-                               disabled={sentWhatsAppIds.has(item.id)}
-                               title={sentWhatsAppIds.has(item.id) ? "Sent to WhatsApp" : "Send Update to WhatsApp"} 
-                               className={`p-1.5 rounded-md transition-all ${sentWhatsAppIds.has(item.id) ? 'text-gray-400 bg-gray-100 cursor-not-allowed opacity-50' : 'text-green-600 hover:bg-green-100 bg-green-50'}`}
-                             >
-                               <MessageSquare size={14}/>
-                             </button>
+                             <WhatsAppButton 
+                               onSend={() => sendWhatsAppUpdate(task, item.text, item.link)} 
+                               className="p-1.5 rounded-md"
+                             />
                            )}
                          </div>
                       </div>
@@ -807,17 +804,24 @@ export function TaskDetailsModal({
                             </a>
                           )}
                           {item.links && item.links.length > 0 && (
-                            <div className="mt-2 space-y-1">
+                            <div className="mt-3 flex flex-wrap gap-2">
                               {item.links.map((lnk, lIdx) => (
-                                <a 
+                                <AttachmentRenderer 
                                   key={lIdx}
-                                  href={lnk} 
-                                  target="_blank" 
-                                  rel="noreferrer" 
-                                  className="block text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline card-link"
-                                >
-                                  <ExternalLink size={12}/> View Attached Link {lIdx + 1}
-                                </a>
+                                  attachment={lnk}
+                                  currentUser={currentUser}
+                                  index={lIdx}
+                                  onDeleteSuccess={() => {
+                                    const newLinks = item.links!.filter((_, i) => i !== lIdx);
+                                    const newTimeline = task.timeline.map(t => {
+                                      if (t.id === item.id) {
+                                        return { ...t, links: newLinks };
+                                      }
+                                      return t;
+                                    });
+                                    updateTask(task.id, { timeline: newTimeline });
+                                  }}
+                                />
                               ))}
                             </div>
                           )}
@@ -887,41 +891,41 @@ export function TaskDetailsModal({
                 </div>
                 
                 <div className="space-y-2 mt-1">
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Attach Update Links</span>
-                  {newUpdateLinks.map((lnk, idx) => (
-                    <div key={idx} className="flex gap-2">
-                      <input 
-                        type="url" 
-                        value={lnk} 
-                        onChange={e => {
-                          const nextLinks = [...newUpdateLinks];
-                          nextLinks[idx] = e.target.value;
-                          setNewUpdateLinks(nextLinks);
-                        }} 
-                        placeholder="Attach Document Link (Optional)" 
-                        className="flex-1 px-4 py-2 rounded-lg border border-blue-300 outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white text-slate-800"
-                        onKeyDown={e => e.key === 'Enter' && handleAddUpdate()} 
-                      />
-                      {newUpdateLinks.length > 1 && (
-                        <button 
-                          type="button" 
-                          onClick={() => {
-                            setNewUpdateLinks(newUpdateLinks.filter((_, i) => i !== idx));
-                          }}
-                          className="px-3 bg-red-50 text-red-650 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold"
-                        >
-                          <X size={14}/>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    onClick={() => setNewUpdateLinks([...newUpdateLinks, ''])}
-                    className="text-xs bg-blue-105 text-blue-700 font-extrabold px-3 py-1 text-[11px] rounded-lg hover:bg-blue-200 transition-colors inline-flex items-center gap-1 mt-1"
-                  >
-                    <Plus size={11}/> Add Link
-                  </button>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Attach Documents</span>
+                  <div className="space-y-2">
+                    {newUpdateLinks.map((lnk, idx) => {
+                      const isString = typeof lnk === 'string';
+                      const name = isString ? `Link ${idx + 1}` : lnk.name;
+                      const url = isString ? lnk : lnk.url;
+                      return (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-xl">
+                          <span className="text-xs font-medium text-slate-700 truncate max-w-[60%]">{name}</span>
+                          <div className="flex gap-2">
+                            <a href={url} target="_blank" rel="noreferrer" className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                              <ExternalLink size={14}/>
+                            </a>
+                            <button 
+                              type="button"
+                              onClick={async () => {
+                                if (!isString && lnk.driveId) {
+                                  await deleteFromGoogleDrive(lnk.driveId);
+                                }
+                                setNewUpdateLinks(newUpdateLinks.filter((_, i) => i !== idx));
+                              }}
+                              className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                            >
+                              <X size={14}/>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <FileUploadButton 
+                    uploaderId={currentUser.id}
+                    onUploadSuccess={(att) => setNewUpdateLinks([...newUpdateLinks, att])}
+                    onManualLinkAdd={(url) => setNewUpdateLinks([...newUpdateLinks, url])}
+                  />
                 </div>
 
                 <div className="flex justify-end pt-2 border-t border-blue-150 mt-1">

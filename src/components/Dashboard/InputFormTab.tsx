@@ -3,8 +3,10 @@ import {
   Plus, Filter, FileText, User, ExternalLink, CalendarPlus, Users, 
   Clock, Send, Check, CheckCircle, Printer, Download, MessageSquare, X 
 } from 'lucide-react';
-import { Task, User as UserType, GlobalFilters } from '../../types';
+import { Task, User as UserType, GlobalFilters, Attachment } from '../../types';
 import { SearchableCategorySelect } from '../Forms/SearchableCategorySelect';
+import { FileUploadButton } from '../Shared/FileUploadButton';
+import { deleteFromGoogleDrive } from '../../utils/fileUpload';
 import { 
   generateId, generateUid, getNow, getNextDayISO, 
   formatDate, formatTime, formatWhatsAppNumber 
@@ -32,7 +34,7 @@ interface FormState {
   programDate: string;
   subject: string;
   customDeadline: string;
-  attachmentLinks: string[];
+  attachments: (string | Attachment)[];
   personal: {
     name: string;
     designation: string;
@@ -73,7 +75,7 @@ export function InputFormTab({
     programDate: '',
     subject: '',
     customDeadline: '',
-    attachmentLinks: [''],
+    attachments: [],
     personal: {
       name: '',
       designation: '',
@@ -239,13 +241,12 @@ export function InputFormTab({
       ? `Custom deadline set to ${formatDate(finalDeadline)} ${formatTime(finalDeadline)}` 
       : `Default deadline set to ${formatDate(defaultDeadline)} ${formatTime(defaultDeadline)}`;
     
-    const attachmentsData = form.attachmentLinks
-      .filter(link => link.trim())
-      .map((link, idx) => ({
-        name: `External Document Link ${idx + 1}`,
-        url: link.trim(),
-        type: 'link'
-      }));
+    const attachmentsData = form.attachments.map((att, idx) => {
+      if (typeof att === 'string') {
+        return { name: `External Document Link ${idx + 1}`, url: att.trim(), type: 'link' };
+      }
+      return att;
+    });
     const taskTypes = form.isSelfMode ? ['Self Application'] : form.types;
 
     const newTask: Task = {
@@ -676,48 +677,47 @@ export function InputFormTab({
             </div>
             
             <div className="mb-6 p-5 bg-white border border-slate-300 rounded-xl">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-4">
                 <h3 className="font-black text-slate-800 flex items-center gap-2 text-sm">
-                  <ExternalLink className="text-indigo-600"/> Attach Document Links (Optional)
+                  <ExternalLink className="text-indigo-600"/> Attach Documents (Optional)
                 </h3>
-                <button 
-                  type="button" 
-                  onClick={() => setForm(f => ({ ...f, attachmentLinks: [...f.attachmentLinks, ''] }))} 
-                  className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-100 flex items-center gap-1 transition-colors"
-                >
-                  <Plus size={14}/> Add Link
-                </button>
               </div>
-              <p className="text-xs text-slate-500 font-medium mb-3">Paste a link to Google Drive, OneDrive, or any other external document.</p>
-              <div className="space-y-3">
-                {form.attachmentLinks.map((link, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <input 
-                      type="url" 
-                      value={link} 
-                      onChange={e => {
-                        const newLinks = [...form.attachmentLinks];
-                        newLinks[idx] = e.target.value;
-                        setForm(f => ({ ...f, attachmentLinks: newLinks }));
-                      }} 
-                      className="flex-1 px-4 py-3 border border-slate-300 rounded-xl text-sm font-medium outline-none focus:border-indigo-500 bg-white text-slate-805" 
-                      placeholder="https://drive.google.com/..." 
-                    />
-                    {form.attachmentLinks.length > 1 && (
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          const newLinks = form.attachmentLinks.filter((_, i) => i !== idx);
-                          setForm(f => ({ ...f, attachmentLinks: newLinks }));
-                        }} 
-                        className="px-4 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
-                      >
-                        <X size={16}/>
-                      </button>
-                    )}
-                  </div>
-                ))}
+              <div className="space-y-3 mb-4">
+                {form.attachments.map((att, idx) => {
+                  const isString = typeof att === 'string';
+                  const name = isString ? `Link ${idx + 1}` : att.name;
+                  const url = isString ? att : att.url;
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <span className="text-sm font-medium text-slate-700 truncate max-w-[60%]">{name}</span>
+                      <div className="flex gap-2">
+                        <a href={url} target="_blank" rel="noreferrer" className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                          <ExternalLink size={16}/>
+                        </a>
+                        <button 
+                          type="button"
+                          onClick={async () => {
+                            if (!isString && att.driveId) {
+                                // For simplicity, in input form we can just let them remove from array and delete from drive.
+                                await deleteFromGoogleDrive(att.driveId);
+                            }
+                            const newAtts = form.attachments.filter((_, i) => i !== idx);
+                            setForm(f => ({ ...f, attachments: newAtts }));
+                          }}
+                          className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <X size={16}/>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+              <FileUploadButton 
+                uploaderId={creator.id}
+                onUploadSuccess={(att) => setForm(f => ({ ...f, attachments: [...f.attachments, att] }))}
+                onManualLinkAdd={(url) => setForm(f => ({ ...f, attachments: [...f.attachments, url] }))}
+              />
             </div>
 
             {isInvitation && (

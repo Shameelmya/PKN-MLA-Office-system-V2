@@ -22,8 +22,8 @@ export interface TimelineItem {
   time: string;
   by: string;
   text: string;
-  link?: string;
-  links?: string[];
+  link?: string; // Legacy
+  links?: (string | Attachment)[];
 }
 
 export interface PersonalDetails {
@@ -47,6 +47,9 @@ export interface Attachment {
   name: string;
   url: string;
   type: string;
+  driveId?: string;
+  uploaderId?: string;
+  uploadedAt?: string;
 }
 
 export interface Task {

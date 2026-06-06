@@ -68,6 +68,8 @@ export function TaskDetailsModal({
     return false;
   }, [currentUser, task]);
 
+  const isPendingForCurrentUser = task.assignedTo.includes(currentUser.id) && (task.officerStatuses[currentUser.id] || 'Pending') === 'Pending';
+
   useEffect(() => {
     setEditData(task);
   }, [task]);
@@ -746,11 +748,12 @@ export function TaskDetailsModal({
              )}
           </div>
 
-          <div>
-             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
-               <Activity size={16} className="text-green-600"/> Progress Timeline
-             </h3>
-             <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+          {!isPendingForCurrentUser && (
+            <div>
+               <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest border-b border-slate-200 pb-2 mb-4 flex items-center gap-2">
+                 <Activity size={16} className="text-green-600"/> Progress Timeline
+               </h3>
+               <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
                 {task.timeline.map((item) => (
                   <div key={item.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-100 text-slate-500 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm relative z-10">
@@ -866,8 +869,9 @@ export function TaskDetailsModal({
                   </div>
                 ))}
              </div>
-          </div>
-          {((isAssigned && task.status !== 'Completed' && task.status !== 'Unsolved') || canUserEdit) && !isEditMode && (
+            </div>
+          )}
+          {!isPendingForCurrentUser && ((isAssigned && task.status !== 'Completed' && task.status !== 'Unsolved') || canUserEdit) && !isEditMode && (
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-8">
               <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2"><MessageSquare size={16}/> Add Progress Note</h4>
               <div className="flex flex-col gap-3">

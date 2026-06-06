@@ -370,7 +370,7 @@ const WorkerTaskCard = React.memo(({
         </div>
       )}
 
-      {!isUnsolved && (
+      {!isUnsolved && status !== 'Pending' && (
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100/50">
           {/* Receive and Reject buttons have been moved to TaskDetailsModal */}
           {(status === 'Received' || status === 'In Progress' || status === 'Draft') && (
@@ -433,7 +433,7 @@ const WorkerTaskCard = React.memo(({
         </div>
       )}
 
-      <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100/50">
+      <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100/50">
         <button 
           onClick={() => triggerViewDetails(task)} 
           className="flex-1 bg-slate-100 text-slate-700 font-bold py-2 rounded-xl text-xs hover:bg-slate-200 transition-colors flex items-center justify-center gap-1"

@@ -959,7 +959,7 @@ export function TaskDetailsModal({
               </div>
             </div>
           )}
-          {task.assignedTo.includes(currentUser.id) && task.officerStatuses[currentUser.id] === 'Pending' && (
+          {task.assignedTo.includes(currentUser.id) && (task.officerStatuses[currentUser.id] || 'Pending') === 'Pending' && (
             <div className="mt-6 pt-4 border-t border-slate-200 flex gap-4">
               <button 
                 onClick={() => {

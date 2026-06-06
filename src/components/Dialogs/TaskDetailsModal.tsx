@@ -3,12 +3,13 @@ import {
   FileText, Check, X, Edit, Printer, Download, PenTool, 
   FileSignature, User, Activity, MessageSquare, ExternalLink, Trash2, CheckCircle, Plus 
 } from 'lucide-react';
-import { Task, User as UserType, TimelineItem } from '../../types';
+import { Task, User as UserType, TimelineItem, Attachment } from '../../types';
 import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
 import { sendWhatsAppUpdate } from '../../utils/whatsapp';
 import { WhatsAppButton } from '../Shared/WhatsAppButton';
 import { FileUploadButton } from '../Shared/FileUploadButton';
 import { deleteFromGoogleDrive } from '../../utils/fileUpload';
+import { AttachmentRenderer } from '../Shared/AttachmentRenderer';
 import { TimelineIcon } from '../Layout/TimelineIcon';
 
 interface TaskDetailsModalProps {

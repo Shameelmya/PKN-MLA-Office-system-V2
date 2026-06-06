@@ -9,12 +9,12 @@ import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
 
 interface AdminGlobalViewProps {
-  currentUser: UserType;
+  currentUser: User;
   tasks: Task[];
   globalFilters: GlobalFilters;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => void;
-  users: UserType[];
+  users: User[];
   triggerPrint: (task: Task) => void;
   triggerDetailsPrint: (task: Task) => void;
   triggerViewDetails: (task: Task) => void;
@@ -172,6 +172,7 @@ export function AdminGlobalView({
           {displayed.map((t, i) => (
             <AdminTaskCard 
               key={`${t.id}-${i}`} 
+              currentUser={currentUser}
               t={t} 
               users={users} 
               toggleUnsolved={toggleUnsolved} 
@@ -292,6 +293,7 @@ export function AdminGlobalView({
 
 // AdminTaskCard Component
 interface AdminTaskCardProps {
+  currentUser: User;
   t: Task;
   users: User[];
   toggleUnsolved: (task: Task) => void;
@@ -303,6 +305,7 @@ interface AdminTaskCardProps {
 }
 
 const AdminTaskCard = React.memo(({
+  currentUser,
   t,
   users,
   toggleUnsolved,

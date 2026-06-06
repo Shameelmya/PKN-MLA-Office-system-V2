@@ -4,6 +4,7 @@ import { Attachment, User } from '../../types';
 import { deleteFromGoogleDrive } from '../../utils/fileUpload';
 
 interface AttachmentRendererProps {
+  key?: React.Key;
   attachment: string | Attachment;
   currentUser: User;
   onDeleteSuccess?: () => void;

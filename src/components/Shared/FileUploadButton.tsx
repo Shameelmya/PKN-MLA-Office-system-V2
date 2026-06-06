@@ -87,39 +87,44 @@ export function FileUploadButton({ onUploadSuccess, onManualLinkAdd, uploaderId 
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <input 
-        type="file" 
-        className="hidden" 
-        ref={fileInputRef}
-        onChange={handleFileSelect}
-        accept="image/jpeg, image/png, application/pdf"
-      />
-      <button
-        type="button"
-        disabled={isUploading}
-        onClick={() => fileInputRef.current?.click()}
-        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 border-2 border-dashed rounded-xl font-bold text-sm transition-all ${
-          isUploading 
-            ? 'border-blue-300 bg-blue-50 text-blue-500 cursor-wait' 
-            : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50 text-slate-600 hover:text-blue-600 bg-slate-50/50'
-        }`}
-      >
-        {isUploading ? (
-          <><Loader2 size={16} className="animate-spin" /> Uploading...</>
-        ) : (
-          <><UploadCloud size={16} /> Click to Upload File (PDF/Image)</>
-        )}
-      </button>
-      <button
-        type="button"
-        title="Use Manual Link (Plan B)"
-        disabled={isUploading}
-        onClick={() => setUseManualFallback(true)}
-        className="p-2.5 rounded-xl border-2 border-transparent hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-      >
-        <LinkIcon size={16} />
-      </button>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <input 
+          type="file" 
+          className="hidden" 
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept="image/jpeg, image/png, application/pdf"
+        />
+        <button
+          type="button"
+          disabled={isUploading}
+          onClick={() => fileInputRef.current?.click()}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 border-2 border-dashed rounded-xl font-bold text-sm transition-all ${
+            isUploading 
+              ? 'border-blue-300 bg-blue-50 text-blue-500 cursor-wait' 
+              : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50 text-slate-600 hover:text-blue-600 bg-slate-50/50'
+          }`}
+        >
+          {isUploading ? (
+            <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+          ) : (
+            <><UploadCloud size={16} /> Click to Upload File (PDF/Image)</>
+          )}
+        </button>
+        <button
+          type="button"
+          title="Use Manual Link (Plan B)"
+          disabled={isUploading}
+          onClick={() => setUseManualFallback(true)}
+          className="p-2.5 rounded-xl border-2 border-transparent hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <LinkIcon size={16} />
+        </button>
+      </div>
+      <p className="text-[10px] font-medium text-slate-500 px-1 leading-relaxed">
+        Supports Images (JPEG/PNG) and PDFs. <strong className="text-indigo-600 font-black">Max size: 2MB</strong>. Images are automatically compressed.
+      </p>
     </div>
   );
 }

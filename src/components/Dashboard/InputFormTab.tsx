@@ -698,8 +698,8 @@ export function InputFormTab({
                           type="button"
                           onClick={async () => {
                             if (!isString && att.driveId) {
-                                // For simplicity, in input form we can just let them remove from array and delete from drive.
-                                await deleteFromGoogleDrive(att.driveId);
+                              if (!confirm("Are you sure you want to permanently delete this file?")) return;
+                              await deleteFromGoogleDrive(att.driveId);
                             }
                             const newAtts = form.attachments.filter((_, i) => i !== idx);
                             setForm(f => ({ ...f, attachments: newAtts }));

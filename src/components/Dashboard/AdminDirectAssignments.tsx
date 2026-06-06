@@ -5,6 +5,7 @@ import { AdminGlobalView } from './AdminGlobalView';
 import { generateId, generateUid, getNow } from '../../utils/formatters';
 
 interface AdminDirectAssignmentsProps {
+  currentUser: User;
   users: User[];
   tasks: Task[];
   globalFilters: GlobalFilters;
@@ -29,6 +30,7 @@ interface AdminDirectAssignmentsProps {
 }
 
 export function AdminDirectAssignments({
+  currentUser,
   users,
   tasks,
   globalFilters,
@@ -118,6 +120,7 @@ export function AdminDirectAssignments({
         </div>
       </form>
       <AdminGlobalView 
+        currentUser={currentUser}
         tasks={tasks.filter(t => t.taskType === 'direct')} 
         globalFilters={globalFilters} 
         updateTask={updateTask} 

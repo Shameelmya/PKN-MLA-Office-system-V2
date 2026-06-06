@@ -224,6 +224,7 @@ export function AdminDashboard({
             <StatCard title="Pending" value={pend} color="red" icon={<Clock size={24}/>}/>
           </div>
           <AdminGlobalView 
+            currentUser={user}
             tasks={tasks.filter(t => (t.taskType || 'input') === 'input')} 
             globalFilters={globalFilters} 
             updateTask={updateTask} 
@@ -267,6 +268,7 @@ export function AdminDashboard({
       
       {activeTab === 'direct' && (
         <AdminDirectAssignments 
+          currentUser={user}
           users={users} 
           tasks={tasks} 
           globalFilters={globalFilters} 

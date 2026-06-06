@@ -9,11 +9,12 @@ import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { formatDate, formatTime, generateUid, getNow, formatWhatsAppNumber } from '../../utils/formatters';
 
 interface AdminGlobalViewProps {
+  currentUser: UserType;
   tasks: Task[];
   globalFilters: GlobalFilters;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => void;
-  users: User[];
+  users: UserType[];
   triggerPrint: (task: Task) => void;
   triggerDetailsPrint: (task: Task) => void;
   triggerViewDetails: (task: Task) => void;
@@ -34,6 +35,7 @@ interface AdminGlobalViewProps {
 }
 
 export function AdminGlobalView({
+  currentUser,
   tasks,
   globalFilters,
   updateTask,

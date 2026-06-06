@@ -184,6 +184,7 @@ export function OfficerDashboard({
             <p className="text-xs font-semibold text-slate-500">View and print all system-wide inputs based on permissions.</p>
           </div>
           <AdminGlobalView 
+            currentUser={user}
             tasks={tasks.filter(t => (t.taskType || 'input') === 'input')} 
             globalFilters={globalFilters} 
             updateTask={updateTask} 

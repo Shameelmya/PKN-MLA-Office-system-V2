@@ -243,7 +243,7 @@ export function InputFormTab({
     
     const attachmentsData = form.attachments.map((att, idx) => {
       if (typeof att === 'string') {
-        return { name: `External Document Link ${idx + 1}`, url: att.trim(), type: 'link' };
+        return { name: `Doc. ${idx + 1}`, url: att.trim(), type: 'link' };
       }
       return att;
     });

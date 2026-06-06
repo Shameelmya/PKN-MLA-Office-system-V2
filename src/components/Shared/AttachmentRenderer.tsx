@@ -13,7 +13,8 @@ interface AttachmentRendererProps {
 
 export function AttachmentRenderer({ attachment, currentUser, onDeleteSuccess, index }: AttachmentRendererProps) {
   const isString = typeof attachment === 'string';
-  const name = isString ? `Link ${index + 1}` : attachment.name;
+  let rawName = isString ? `Doc. ${index + 1}` : attachment.name;
+  const name = rawName.replace('External Document Link', 'Doc.');
   const url = isString ? attachment : attachment.url;
   const isImage = !isString && attachment.type?.startsWith('image/');
   const driveId = !isString ? attachment.driveId : undefined;

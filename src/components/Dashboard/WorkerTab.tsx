@@ -339,8 +339,8 @@ const WorkerTaskCard = React.memo(({
         <div className="mb-3 bg-indigo-50 border border-indigo-100 rounded-xl p-2 flex flex-col gap-2">
           <div className="flex items-center gap-2 text-indigo-900 truncate">
             <ExternalLink size={12} className="shrink-0 text-indigo-600" />
-            <span className="text-[10px] font-bold truncate" title={task.attachments && task.attachments.length > 0 ? `${task.attachments.length} Attached Links` : task.attachment?.name}>
-              {task.attachments && task.attachments.length > 0 ? `${task.attachments.length} Attached Links` : task.attachment?.name}
+            <span className="text-[10px] font-bold truncate" title={task.attachments && task.attachments.length > 0 ? `${task.attachments.length} Attached Docs` : task.attachment?.name}>
+              {task.attachments && task.attachments.length > 0 ? `${task.attachments.length} Attached Docs` : task.attachment?.name}
             </span>
           </div>
           <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-1">

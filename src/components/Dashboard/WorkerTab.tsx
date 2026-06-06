@@ -372,52 +372,7 @@ const WorkerTaskCard = React.memo(({
 
       {!isUnsolved && (
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100/50">
-          {status === 'Pending' && (
-            <div className="flex gap-2 w-full">
-              <button 
-                onClick={() => changeStatus('Received')} 
-                className="flex-1 bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-black transition-colors"
-              >
-                Receive Task
-              </button>
-              <button 
-                onClick={() => {
-                  triggerConfirm(
-                    "Reject Task",
-                    "Please enter a reason for rejecting this assigned task:",
-                    (reason: string) => {
-                      if (!reason || !reason.trim()) {
-                        alert("Reason is required to reject a task.");
-                        return;
-                      }
-                      const newOffStat = { ...task.officerStatuses, [user.id]: 'Rejected' };
-                      const evList = [
-                        {
-                          id: generateUid(),
-                          type: 'reverted',
-                          time: getNow(),
-                          by: user.name,
-                          text: `Rejected by ${user.name}. Reason: ${reason}`
-                        }
-                      ];
-                      updateTask(task.id, {
-                        officerStatuses: newOffStat,
-                        status: 'Rejected',
-                        timeline: [...task.timeline, ...evList]
-                      });
-                    },
-                    true,
-                    "Reject Task",
-                    true,
-                    "Why are you rejecting this task?..."
-                  );
-                }} 
-                className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-colors"
-              >
-                Reject Task
-              </button>
-            </div>
-          )}
+          {/* Receive and Reject buttons have been moved to TaskDetailsModal */}
           {(status === 'Received' || status === 'In Progress' || status === 'Draft') && (
             <div className="w-full space-y-2">
               <button 

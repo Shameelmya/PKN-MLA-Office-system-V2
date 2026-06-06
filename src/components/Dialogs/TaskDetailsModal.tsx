@@ -959,6 +959,70 @@ export function TaskDetailsModal({
               </div>
             </div>
           )}
+          {task.assignedTo.includes(currentUser.id) && task.officerStatuses[currentUser.id] === 'Pending' && (
+            <div className="mt-6 pt-4 border-t border-slate-200 flex gap-4">
+              <button 
+                onClick={() => {
+                  triggerConfirm(
+                    "Confirm Assignment",
+                    "You are taking this assignment. Did you read all details and do you confirm that this assignment is right for you?",
+                    () => {
+                      const newOffStat = { ...task.officerStatuses, [currentUser.id]: 'In Progress' };
+                      let globStat = task.status;
+                      if (globStat === 'Pending') globStat = 'In Progress';
+                      const ev = { id: generateUid(), type: 'update', time: getNow(), by: currentUser.name, text: 'Task Received and Started' };
+                      updateTask(task.id, {
+                        officerStatuses: newOffStat,
+                        status: globStat,
+                        timeline: [...task.timeline, ev]
+                      });
+                      onClose();
+                    },
+                    false,
+                    "Yes, I Confirm"
+                  );
+                }}
+                className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-black transition-colors shadow-sm"
+              >
+                Receive Task
+              </button>
+              <button 
+                onClick={() => {
+                  triggerConfirm(
+                    "Reject Task",
+                    "Why are you rejecting this task?",
+                    (reason: string) => {
+                      if (!reason || !reason.trim()) {
+                        alert("Reason is required to reject a task.");
+                        return;
+                      }
+                      const newOffStat = { ...task.officerStatuses, [currentUser.id]: 'Rejected' };
+                      const evList = [{
+                        id: generateUid(),
+                        type: 'reverted',
+                        time: getNow(),
+                        by: currentUser.name,
+                        text: `Rejected by ${currentUser.name}. Reason: ${reason}`
+                      }];
+                      updateTask(task.id, {
+                        officerStatuses: newOffStat,
+                        status: 'Rejected',
+                        timeline: [...task.timeline, ...evList]
+                      });
+                      onClose();
+                    },
+                    true,
+                    "Reject Task",
+                    true,
+                    "Reason for rejection..."
+                  );
+                }}
+                className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-3 rounded-xl font-black uppercase tracking-widest transition-colors shadow-sm"
+              >
+                Reject Task
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

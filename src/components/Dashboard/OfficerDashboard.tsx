@@ -221,7 +221,7 @@ export function OfficerDashboard({
       {/* 6. History & Reports Tab */}
       {activeTab === 'history' && (
         <AllTasksHistoryTab 
-          tasks={tasks} 
+          tasks={hasGlobalOverviewPermission ? tasks : tasks.filter(t => t.createdByUid === user.id)} 
           globalFilters={globalFilters} 
           categories={categories} 
           triggerPrint={triggerPrint} 

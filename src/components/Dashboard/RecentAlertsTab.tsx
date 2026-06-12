@@ -18,21 +18,21 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
   const activeTasks = useMemo(() => {
     if (user.role === 'admin') {
       return tasks
-        .filter(t => t.status === 'Pending' || t.status === 'In Progress')
+        .filter(t => t.status === 'Pending' || t.status === 'In Progress' || t.status === 'Rejected')
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } else {
-      // Officer sees tasks assigned to them where officer status is Pending, In Progress, or undefined
       return tasks
         .filter(t => 
-          t.assignedTo.includes(user.id) && 
-          (t.officerStatuses[user.id] === 'Pending' || t.officerStatuses[user.id] === 'In Progress' || !t.officerStatuses[user.id] || t.officerStatuses[user.id] === 'Rejected')
+          (t.assignedTo.includes(user.id) && (t.officerStatuses[user.id] === 'Pending' || t.officerStatuses[user.id] === 'In Progress' || !t.officerStatuses[user.id])) ||
+          (t.status === 'Rejected' && t.createdByUid === user.id)
         )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
   }, [tasks, user]);
 
-  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id] || t.officerStatuses[user.id] === 'Rejected')).length;
+  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id])).length;
   const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : t.officerStatuses[user.id] === 'In Progress').length;
+  const rejectedCount = activeTasks.filter(t => t.status === 'Rejected').length;
 
   const overdueCount = useMemo(() => {
     // Tasks are overdue if deadline is in the past, excluding Completed/Draft/Unsolved tasks
@@ -155,9 +155,12 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
           <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
             ACTIVE ACTIONS
           </div>
-          <div className="flex justify-center gap-4 text-sm font-black mt-1">
+          <div className="flex flex-wrap justify-center gap-3 text-sm font-black mt-1">
             <span className="text-red-500">{pendingCount} Pending</span>
             <span className="text-orange-500">{inProgressCount} In Progress</span>
+            {rejectedCount > 0 && (
+              <span className="text-orange-600">{rejectedCount} Rejected</span>
+            )}
           </div>
           {overdueCount > 0 && (
             <div className="text-red-600 font-black text-[10px] uppercase bg-red-100 px-3 py-1 rounded-full inline-block mt-3">

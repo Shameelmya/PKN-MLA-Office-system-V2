@@ -155,7 +155,8 @@ export function TaskDetailsModal({
       assignedTo: editData.assignedTo,
       personalDetails: editData.personalDetails,
       officerStatuses: updatedOfficerStatuses,
-      timeline: updatedTimeline
+      timeline: updatedTimeline,
+      attachments: editData.attachments
     });
     setIsEditMode(false);
   };
@@ -739,7 +740,11 @@ export function TaskDetailsModal({
                        setEditData({...editData, attachments: newAtts});
                      }}
                      onManualLinkAdd={(url) => {
-                       const att: Attachment = { name: `Attached Link ${(editData.attachments?.length || 0) + 1}`, url: url.trim(), type: 'link' };
+                       let finalUrl = url.trim();
+                       if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+                         finalUrl = 'https://' + finalUrl;
+                       }
+                       const att: Attachment = { name: `Attached Link ${(editData.attachments?.length || 0) + 1}`, url: finalUrl, type: 'link' };
                        const newAtts = [...(editData.attachments || []), att];
                        setEditData({...editData, attachments: newAtts});
                      }}

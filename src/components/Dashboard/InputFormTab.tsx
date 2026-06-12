@@ -105,6 +105,7 @@ export function InputFormTab({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [autoFilledMessage, setAutoFilledMessage] = useState('');
   const [formError, setFormError] = useState({ field: '', msg: '' });
+  const [addLinkLater, setAddLinkLater] = useState(false);
 
   const isInvitation = form.category === 'Invitation';
 
@@ -201,6 +202,10 @@ export function InputFormTab({
       return scrollToField('field-subject', 'Subject is mandatory.');
     }
 
+    if (form.attachments.length === 0 && !addLinkLater) {
+      return scrollToField('field-attachments', 'Please attach a document or link, or check the box to add it later.');
+    }
+
     const finalLocalBody = form.personal.localBody === 'Other' ? form.personal.otherLocalBody : form.personal.localBody;
     
     let finalAssignedTo = form.assignedTo;
@@ -243,7 +248,11 @@ export function InputFormTab({
     
     const attachmentsData = form.attachments.map((att, idx) => {
       if (typeof att === 'string') {
-        return { name: `Attached Link ${idx + 1}`, url: att.trim(), type: 'link' };
+        let finalUrl = att.trim();
+        if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+          finalUrl = 'https://' + finalUrl;
+        }
+        return { name: `Attached Link ${idx + 1}`, url: finalUrl, type: 'link' };
       }
       return att;
     });
@@ -718,6 +727,17 @@ export function InputFormTab({
                 onUploadSuccess={(att) => setForm(f => ({ ...f, attachments: [...f.attachments, att] }))}
                 onManualLinkAdd={(url) => setForm(f => ({ ...f, attachments: [...f.attachments, url] }))}
               />
+              {form.attachments.length === 0 && (
+                <label className="mt-3 flex items-center gap-2 cursor-pointer bg-slate-100 p-2.5 rounded-lg border border-slate-200">
+                  <input 
+                    type="checkbox" 
+                    checked={addLinkLater}
+                    onChange={(e) => setAddLinkLater(e.target.checked)}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  <span className="text-xs font-bold text-slate-600">I will add the document/link later</span>
+                </label>
+              )}
             </div>
 
             {isInvitation && (

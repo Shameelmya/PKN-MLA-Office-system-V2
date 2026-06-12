@@ -788,8 +788,16 @@ export function TaskDetailsModal({
                              <button 
                                type="button"
                                onClick={() => {
-                                 const newAtts = editData.attachments?.filter((_, i) => i !== idx);
-                                 setEditData({...editData, attachments: newAtts});
+                                 triggerConfirm(
+                                   "Remove Attachment",
+                                   "Are you sure you want to remove this attachment from the task?",
+                                   () => {
+                                     const newAtts = editData.attachments?.filter((_, i) => i !== idx);
+                                     setEditData({...editData, attachments: newAtts});
+                                   },
+                                   true,
+                                   "Remove"
+                                 );
                                }}
                                className="text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-colors"
                              >

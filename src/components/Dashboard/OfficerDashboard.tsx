@@ -127,7 +127,7 @@ export function OfficerDashboard({
         >
           History & Reports
         </button>
-        {hasInputPermission && rejectedTasks.length > 0 && (
+        {rejectedTasks.length > 0 && (
           <button 
             onClick={() => { setActiveTab('rejected'); setGlobalSearch(''); }} 
             className={`px-3 py-1.5 md:px-4 md:py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 ${activeTab === 'rejected' ? 'bg-orange-600 text-white shadow' : 'text-orange-550 hover:bg-orange-50 text-orange-600 bg-orange-50/60'}`}
@@ -237,7 +237,7 @@ export function OfficerDashboard({
       )}
 
       {/* 7. Rejected Tasks Tab (for creators/inputters to reassign) */}
-      {activeTab === 'rejected' && hasInputPermission && (
+      {activeTab === 'rejected' && (
         <div className="space-y-6 animate-in hover:fade-in duration-200">
           <div className="bg-orange-50 border border-orange-200 rounded-3xl p-6">
             <h2 className="text-xl font-black text-orange-900 flex items-center gap-2">

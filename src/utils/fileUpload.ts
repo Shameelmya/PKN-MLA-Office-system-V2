@@ -23,8 +23,8 @@ const convertBase64 = (file: File): Promise<string> => {
 export const uploadToGoogleDrive = async (file: File): Promise<{ url: string, id: string, name: string }> => {
   let fileToUpload = file;
 
-  // Compress images
-  if (file.type.startsWith('image/')) {
+  // Compress images larger than 500KB
+  if (file.type.startsWith('image/') && file.size > 500 * 1024) {
     const options = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,

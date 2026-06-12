@@ -724,12 +724,30 @@ export function TaskDetailsModal({
                </div>
              </h3>
              {isEditMode ? (
-               <input 
-                 type="text" 
-                 value={editData.subject} 
-                 onChange={e => setEditData({...editData, subject: e.target.value})} 
-                 className="w-full font-black text-lg text-slate-800 mb-2 border border-slate-300 rounded p-2 outline-none focus:border-indigo-500 bg-white" 
-               />
+               <div className="space-y-3 mb-4">
+                 <input 
+                   type="text" 
+                   value={editData.subject} 
+                   onChange={e => setEditData({...editData, subject: e.target.value})} 
+                   className="w-full font-black text-lg text-slate-800 border border-slate-300 rounded p-2 outline-none focus:border-indigo-500 bg-white" 
+                 />
+                 <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100">
+                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Add Document / Link (Edit Mode)</p>
+                   <FileUploadButton 
+                     onUploadSuccess={(att) => {
+                       const newAtts = [...(editData.attachments || []), att];
+                       setEditData({...editData, attachments: newAtts});
+                     }}
+                     onManualLinkAdd={(url) => {
+                       const att: Attachment = { name: `Attached Link ${(editData.attachments?.length || 0) + 1}`, url: url.trim(), type: 'link' };
+                       const newAtts = [...(editData.attachments || []), att];
+                       setEditData({...editData, attachments: newAtts});
+                     }}
+                     buttonText="Add Document / Link"
+                     className="w-full text-xs font-bold py-2 border-2 border-dashed border-indigo-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-100 text-indigo-600 transition-colors bg-white"
+                   />
+                 </div>
+               </div>
              ) : (
                <p className="font-black text-lg text-slate-800 mb-2">{task.subject}</p>
              )}
@@ -963,7 +981,7 @@ export function TaskDetailsModal({
               </div>
             </div>
           )}
-          {task.assignedTo.includes(currentUser.id) && (task.officerStatuses[currentUser.id] || 'Pending') === 'Pending' && (
+          {task.assignedTo.includes(currentUser.id) && currentUser.id !== task.createdByUid && (task.officerStatuses[currentUser.id] || 'Pending') === 'Pending' && (
             <div className="mt-6 pt-4 border-t border-slate-200 flex gap-4">
               <button 
                 onClick={() => {

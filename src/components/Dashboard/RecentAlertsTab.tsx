@@ -30,8 +30,8 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
     }
   }, [tasks, user]);
 
-  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id])).length;
-  const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : t.officerStatuses[user.id] === 'In Progress').length;
+  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.status !== 'Rejected' && (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id]))).length;
+  const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : (t.status !== 'Rejected' && t.officerStatuses[user.id] === 'In Progress')).length;
   const rejectedCount = activeTasks.filter(t => t.status === 'Rejected').length;
 
   const overdueCount = useMemo(() => {

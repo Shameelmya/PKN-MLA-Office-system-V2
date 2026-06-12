@@ -127,8 +127,22 @@ export function TaskDetailsModal({
       });
     }
 
+    let finalStatus = editData.status;
     let updatedOfficerStatuses = { ...task.officerStatuses };
-    if (editData.status !== task.status) {
+
+    if (task.status === 'Rejected') {
+      finalStatus = 'Pending';
+      editData.assignedTo.forEach(id => {
+        updatedOfficerStatuses[id] = 'Pending';
+      });
+      updatedTimeline.push({
+        id: generateUid(),
+        type: 'update',
+        time: getNow(),
+        by: currentUser.name,
+        text: `Task updated and resubmitted to assigned officers.`
+      });
+    } else if (editData.status !== task.status) {
       editData.assignedTo.forEach(id => {
         updatedOfficerStatuses[id] = editData.status;
       });
@@ -144,12 +158,18 @@ export function TaskDetailsModal({
         by: currentUser.name,
         text: `Global status changed to ${editData.status}.`
       });
+    } else {
+      editData.assignedTo.forEach(id => {
+        if (!task.assignedTo.includes(id)) {
+          updatedOfficerStatuses[id] = 'Pending';
+        }
+      });
     }
 
     await updateTask(task.id, {
       subject: editData.subject,
       description: editData.description,
-      status: editData.status,
+      status: finalStatus,
       priority: editData.priority,
       category: editData.category,
       assignedTo: editData.assignedTo,
@@ -751,6 +771,35 @@ export function TaskDetailsModal({
                      buttonText="Add Document / Link"
                      className="w-full text-xs font-bold py-2 border-2 border-dashed border-indigo-200 rounded-xl hover:border-indigo-400 hover:bg-indigo-100 text-indigo-600 transition-colors bg-white"
                    />
+                   {editData.attachments && editData.attachments.length > 0 && (
+                     <div className="mt-3 flex flex-col gap-2">
+                       {editData.attachments.map((att, idx) => (
+                         <div key={idx} className="flex items-center justify-between bg-white border border-slate-200 px-3 py-2 rounded-lg">
+                           <span className="text-xs font-bold text-slate-700 truncate max-w-[150px]" title={att.name}>{att.name}</span>
+                           <div className="flex gap-2">
+                             <a 
+                               href={att.url} 
+                               target="_blank" 
+                               rel="noreferrer" 
+                               className="text-white bg-indigo-500 hover:bg-indigo-600 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-colors"
+                             >
+                               View
+                             </a>
+                             <button 
+                               type="button"
+                               onClick={() => {
+                                 const newAtts = editData.attachments?.filter((_, i) => i !== idx);
+                                 setEditData({...editData, attachments: newAtts});
+                               }}
+                               className="text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider transition-colors"
+                             >
+                               Remove
+                             </button>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   )}
                  </div>
                </div>
              ) : (

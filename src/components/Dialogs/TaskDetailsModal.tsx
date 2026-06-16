@@ -98,10 +98,12 @@ export function TaskDetailsModal({
       time: getNow(),
       by: currentUser.name,
       text: updateText,
-      link: firstLinkStr,
-      links: finalLinks.length > 0 ? finalLinks : undefined
     };
-    await updateTask(task.id, { timeline: [...task.timeline, ev] });
+    
+    if (firstLinkStr) ev.link = firstLinkStr;
+    if (finalLinks.length > 0) ev.links = finalLinks;
+
+    await updateTask(task.id, { timeline: [...(task.timeline || []), ev] });
     
     if (saveAsTemplate) {
       await addTemplate(newUpdate);
@@ -899,7 +901,9 @@ export function TaskDetailsModal({
                                 onDeleteSuccess={() => {
                                   const newTimeline = task.timeline.map(t => {
                                     if (t.id === item.id) {
-                                      return { ...t, attachment: undefined };
+                                      const updatedT = { ...t };
+                                      delete updatedT.attachment;
+                                      return updatedT;
                                     }
                                     return t;
                                   });

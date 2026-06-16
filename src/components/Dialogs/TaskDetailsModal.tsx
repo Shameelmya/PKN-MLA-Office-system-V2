@@ -75,12 +75,15 @@ export function TaskDetailsModal({
   }, [task]);
   
   const handleAddUpdate = async () => {
-    if(!newUpdate.trim()) return;
     const finalLinks = newUpdateLinks.filter(lnk => {
       if (typeof lnk === 'string') return lnk.trim() !== '';
       return true;
     });
+
+    if(!newUpdate.trim() && finalLinks.length === 0) return;
     
+    const updateText = newUpdate.trim() || 'Added a new document or link.';
+
     // Support the legacy `link` property for the first item if it's a string
     let firstLinkStr = undefined;
     if (finalLinks.length > 0 && typeof finalLinks[0] === 'string') {
@@ -94,7 +97,7 @@ export function TaskDetailsModal({
       type: 'update',
       time: getNow(),
       by: currentUser.name,
-      text: newUpdate,
+      text: updateText,
       link: firstLinkStr,
       links: finalLinks.length > 0 ? finalLinks : undefined
     };

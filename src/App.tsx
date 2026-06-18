@@ -15,7 +15,7 @@ import {
   DEFAULT_CATEGORIES, DEFAULT_DESIGNATIONS, DEFAULT_USERS, ISLAMIC_QUOTES 
 } from './utils/constants';
 import { 
-  Task, User as UserType, BackupMeta, GlobalFilters, ConfirmModalState 
+  Task, User as UserType, BackupMeta, GlobalFilters, ConfirmModalState, UpdationReportConfig
 } from './types';
 import * as htmlToImage from 'html-to-image';
 import { jsPDF } from 'jspdf';
@@ -30,6 +30,7 @@ import {
   PrintMasterReport, 
   PrintOfficerReport, 
   PrintCitizenDirectory,
+  PrintUpdationReport,
   ReportConfig
 } from './components/Prints/PrintComponents';
 import { TaskDetailsModal } from './components/Dialogs/TaskDetailsModal';
@@ -110,6 +111,7 @@ export default function App() {
   const [masterReportConfigToDownload, setMasterReportConfigToDownload] = useState<ReportConfig | null>(null);
   const [citizenDirectoryToDownload, setCitizenDirectoryToDownload] = useState<any[] | null>(null);
   const [officerReportToDownload, setOfficerReportToDownload] = useState<any | null>(null);
+  const [updationReportToDownload, setUpdationReportToDownload] = useState<UpdationReportConfig | null>(null);
 
   useEffect(() => { 
     const initAuth = async () => { 
@@ -229,7 +231,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const downloadState = taskToDownload || taskDetailsToDownload || masterReportConfigToDownload || citizenDirectoryToDownload || officerReportToDownload;
+    const downloadState = taskToDownload || taskDetailsToDownload || masterReportConfigToDownload || citizenDirectoryToDownload || officerReportToDownload || updationReportToDownload;
     if (!downloadState) return;
     const isCompletionLetter = taskDetailsToDownload && taskDetailsToDownload.isCompletionLetter;
     
@@ -245,7 +247,9 @@ export default function App() {
               ? 'dl-officer-report' 
               : citizenDirectoryToDownload 
                 ? 'dl-citizen-dir' 
-                : null;
+                : updationReportToDownload
+                  ? 'dl-updation-report'
+                  : null;
     
     const filename = taskToDownload 
       ? `Acknowledge_${taskToDownload.id}` 
@@ -259,7 +263,9 @@ export default function App() {
               ? `Officer_Report_${officerReportToDownload.officer.name}` 
               : citizenDirectoryToDownload 
                 ? `Citizen_Directory` 
-                : 'Document';
+                : updationReportToDownload
+                  ? `Updation_Report_${updationReportToDownload.dateRange}`
+                  : 'Document';
 
     const generatePDF = () => { 
       const el = document.getElementById(targetId as string); 
@@ -301,10 +307,11 @@ export default function App() {
       setMasterReportConfigToDownload(null); 
       setCitizenDirectoryToDownload(null); 
       setOfficerReportToDownload(null); 
+      setUpdationReportToDownload(null);
     };
 
     generatePDF(); 
-  }, [taskToDownload, taskDetailsToDownload, masterReportConfigToDownload, citizenDirectoryToDownload, officerReportToDownload]);
+  }, [taskToDownload, taskDetailsToDownload, masterReportConfigToDownload, citizenDirectoryToDownload, officerReportToDownload, updationReportToDownload]);
 
   const handleLogin = (user: UserType) => { 
     setCurrentUser(user); 
@@ -514,6 +521,12 @@ export default function App() {
         </PDFCaptureWrapper>
       )}
 
+      {updationReportToDownload && (
+        <PDFCaptureWrapper id="dl-updation-report">
+          <PrintUpdationReport config={updationReportToDownload} tasks={allTasks} users={users} />
+        </PDFCaptureWrapper>
+      )}
+
       {viewingTask && !taskToPrint && (
         <TaskDetailsModal 
           task={allTasks.find(t => t.id === viewingTask.id) || viewingTask} 
@@ -633,6 +646,7 @@ export default function App() {
               triggerMasterDownload={setMasterReportConfigToDownload} 
               triggerOfficerReport={(config) => setOfficerReportToDownload(config)} 
               triggerOfficerDownload={setOfficerReportToDownload} 
+              triggerUpdationDownload={setUpdationReportToDownload}
               backupMeta={backupMeta} 
               updateBackupMeta={updateBackupMeta} 
               triggerCitizenPrint={(data) => setCitizenDirectoryToDownload(data)} 
@@ -658,6 +672,7 @@ export default function App() {
               triggerDetailsPrint={(task) => setTaskDetailsToDownload(task)} 
               triggerDetailsDownload={setTaskDetailsToDownload} 
               triggerViewDetails={setViewingTask} 
+              triggerUpdationDownload={setUpdationReportToDownload}
               isAdminOverride={currentUser!.role === 'admin'} 
               triggerConfirm={triggerConfirm} 
               globalFilters={globalFilters} 

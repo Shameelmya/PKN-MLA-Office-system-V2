@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, FileOutput, Printer, Download } from 'lucide-react';
 import { ReportConfig } from '../Prints/PrintComponents';
-import { User } from '../../types';
+import { User, UpdationReportConfig } from '../../types';
 
 interface ReportConfigModalProps {
   onClose: () => void;
@@ -173,3 +173,132 @@ export function OfficerReportConfigModal({ officer, onClose, onGenerate, trigger
     </div>
   );
 }
+
+interface UpdationReportConfigModalProps {
+  onClose: () => void;
+  onGenerate: (config: UpdationReportConfig) => void;
+  users: User[];
+}
+
+export function UpdationReportConfigModal({ onClose, onGenerate, users }: UpdationReportConfigModalProps) {
+  const [status, setStatus] = useState('Active');
+  const [dateRange, setDateRange] = useState('7days');
+  const [assignedOfficer, setAssignedOfficer] = useState('All');
+  const [addUpdations, setAddUpdations] = useState(true);
+  const [maxUpdations, setMaxUpdations] = useState(3);
+  const [addDescriptions, setAddDescriptions] = useState(true);
+
+  const handleGenerate = () => {
+    onGenerate({
+      status,
+      dateRange,
+      assignedOfficer,
+      addUpdations,
+      maxUpdations,
+      addDescriptions
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="bg-emerald-900 p-4 text-white flex justify-between items-center">
+          <h3 className="font-black text-lg flex items-center gap-2"><FileOutput size={20}/> Updation Report Configuration</h3>
+          <button onClick={onClose} className="text-white hover:text-slate-350 transition-colors"><X size={20}/></button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Status</label>
+            <select 
+              value={status} 
+              onChange={e => setStatus(e.target.value)} 
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="Active">Active Actions</option>
+              <option value="Completed">Completed</option>
+              <option value="Draft">Drafts</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Unsolved">Unsolved</option>
+              <option value="All">All Statuses</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Time Period</label>
+            <select 
+              value={dateRange} 
+              onChange={e => setDateRange(e.target.value)} 
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="7days">Last 7 Days</option>
+              <option value="1month">Last 1 Month</option>
+              <option value="6months">Last 6 Months</option>
+              <option value="1year">Last 1 Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Assigned Officers</label>
+            <select 
+              value={assignedOfficer} 
+              onChange={e => setAssignedOfficer(e.target.value)} 
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="All">All Officers</option>
+              {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+          </div>
+          
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-2 mb-2">
+              <input 
+                type="checkbox" 
+                id="addUpdationsCheck" 
+                checked={addUpdations} 
+                onChange={e => setAddUpdations(e.target.checked)} 
+                className="w-4 h-4 text-emerald-600 rounded"
+              />
+              <label htmlFor="addUpdationsCheck" className="text-sm font-bold text-slate-700 cursor-pointer">Add Updations</label>
+            </div>
+            {addUpdations && (
+              <div className="pl-6">
+                <select 
+                  value={maxUpdations} 
+                  onChange={e => setMaxUpdations(Number(e.target.value))} 
+                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded font-bold text-slate-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value={3}>Up to 3 updations</option>
+                  <option value={2}>Up to 2 updations</option>
+                  <option value={1}>Up to 1 updation</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="addDescriptionsCheck" 
+                checked={addDescriptions} 
+                onChange={e => setAddDescriptions(e.target.checked)} 
+                className="w-4 h-4 text-emerald-600 rounded"
+              />
+              <label htmlFor="addDescriptionsCheck" className="text-sm font-bold text-slate-700 cursor-pointer">Add Descriptions</label>
+            </div>
+          </div>
+
+          <div className="flex pt-4">
+            <button 
+              onClick={handleGenerate} 
+              className="w-full bg-emerald-600 text-white font-black py-3 rounded-xl hover:bg-emerald-700 flex items-center justify-center gap-2 shadow transition-colors"
+            >
+              <Download size={18}/> Generate Report PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -9,9 +9,10 @@ import { AdminCitizenDirectory } from './AdminCitizenDirectory';
 import { AdminDirectAssignments } from './AdminDirectAssignments';
 import { AdminSettings } from './AdminSettings';
 import { AdminDatabase } from './AdminDatabase';
-import { ReportConfigModal, OfficerReportConfigModal } from '../Dialogs/ReportModals';
+import { ReportConfigModal, OfficerReportConfigModal, UpdationReportConfigModal } from '../Dialogs/ReportModals';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { ReportConfig } from '../Prints/PrintComponents';
+import { UpdationReportConfig } from '../../types';
 import { formatDate } from '../../utils/formatters';
 
 interface AdminDashboardProps {
@@ -37,6 +38,7 @@ interface AdminDashboardProps {
   triggerMasterDownload: (config: ReportConfig) => void;
   triggerOfficerReport: (config: ReportConfig) => void;
   triggerOfficerDownload: (config: ReportConfig) => void;
+  triggerUpdationDownload: (config: UpdationReportConfig) => void;
   backupMeta: BackupMeta;
   updateBackupMeta: (updates: Partial<BackupMeta>) => Promise<void>;
   triggerCitizenPrint: (citizens: any[]) => void;
@@ -77,6 +79,7 @@ export function AdminDashboard({
   triggerMasterDownload,
   triggerOfficerReport,
   triggerOfficerDownload,
+  triggerUpdationDownload,
   backupMeta,
   updateBackupMeta,
   triggerCitizenPrint,
@@ -89,6 +92,7 @@ export function AdminDashboard({
   const [globalSearch, setGlobalSearch] = useState('');
   const [initialOfficerFilter, setInitialOfficerFilter] = useState('');
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [updationReportModalOpen, setUpdationReportModalOpen] = useState(false);
   const [officerModalOpen, setOfficerModalOpen] = useState<User | null>(null);
 
   const jumpToTask = (tab: string, taskId: string) => {
@@ -209,12 +213,22 @@ export function AdminDashboard({
               <h2 className="text-xl font-black text-slate-800">Analytics Dashboard</h2>
               <p className="text-sm font-medium text-slate-500">System wide tracking for active filters</p>
             </div>
-            <button 
-              onClick={() => { setReportModalOpen(true); loadArchive(); }} 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
-            >
-              <FileOutput size={18}/> Generate Master Report
-            </button>
+            <div className="flex gap-2">
+              {(users.find(u => u.role === 'admin') || {}).role === 'admin' && (
+                <button 
+                  onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+                >
+                  <FileOutput size={18}/> Updation Report
+                </button>
+              )}
+              <button 
+                onClick={() => { setReportModalOpen(true); loadArchive(); }} 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+              >
+                <FileOutput size={18}/> Generate Master Report
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatCard title="Total Inputs" value={total} color="blue" icon={<FileText size={24}/>}/>
@@ -376,6 +390,14 @@ export function AdminDashboard({
           onGenerate={(c) => { setOfficerModalOpen(null); triggerOfficerReport(c); }} 
           triggerDownloadPDF={(c) => { setOfficerModalOpen(null); triggerOfficerDownload(c); }} 
           loadArchive={loadArchive}
+        />
+      )}
+      
+      {updationReportModalOpen && (
+        <UpdationReportConfigModal 
+          onClose={() => setUpdationReportModalOpen(false)}
+          onGenerate={(c) => { setUpdationReportModalOpen(false); triggerUpdationDownload(c); }}
+          users={users}
         />
       )}
     </div>

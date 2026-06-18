@@ -9,6 +9,8 @@ import { AllTasksHistoryTab } from './AllTasksHistoryTab';
 import { InputFormTab } from './InputFormTab';
 import { RecentAlertsTab } from './RecentAlertsTab';
 import { AdminGlobalView } from './AdminGlobalView';
+import { UpdationReportConfigModal } from '../Dialogs/ReportModals';
+import { UpdationReportConfig } from '../../types';
 import { formatDate } from '../../utils/formatters';
 
 interface OfficerDashboardProps {
@@ -27,6 +29,7 @@ interface OfficerDashboardProps {
   triggerDetailsPrint: (task: Task) => void;
   triggerDetailsDownload: (task: Task) => void;
   triggerViewDetails: (task: Task) => void;
+  triggerUpdationDownload?: (config: UpdationReportConfig) => void;
   isAdminOverride: boolean;
   triggerConfirm: (
     title: string,
@@ -57,6 +60,7 @@ export function OfficerDashboard({
   triggerDetailsPrint,
   triggerDetailsDownload,
   triggerViewDetails,
+  triggerUpdationDownload,
   isAdminOverride,
   triggerConfirm,
   globalFilters,
@@ -73,6 +77,7 @@ export function OfficerDashboard({
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [globalSearch, setGlobalSearch] = useState('');
+  const [updationReportModalOpen, setUpdationReportModalOpen] = useState(false);
 
   // Handle jump/scroll to task card from Recent Alerts / Assignments
   const jumpToTask = (tab: string, taskId: string) => {
@@ -179,9 +184,19 @@ export function OfficerDashboard({
       {/* 4. Global Overview Tab */}
       {activeTab === 'overview' && hasGlobalOverviewPermission && (
         <div className="space-y-6 animate-in fade-in">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-            <h2 className="text-lg font-black text-slate-800">Global Overview</h2>
-            <p className="text-xs font-semibold text-slate-500">View and print all system-wide inputs based on permissions.</p>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-black text-slate-800">Global Overview</h2>
+              <p className="text-xs font-semibold text-slate-500">View and print all system-wide inputs based on permissions.</p>
+            </div>
+            {user.canGenerateUpdationReport && (
+              <button 
+                onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+              >
+                <FileOutput size={18}/> Updation Report
+              </button>
+            )}
           </div>
           <AdminGlobalView 
             currentUser={user}
@@ -289,6 +304,14 @@ export function OfficerDashboard({
             </div>
           )}
         </div>
+      )}
+
+      {updationReportModalOpen && (
+        <UpdationReportConfigModal 
+          onClose={() => setUpdationReportModalOpen(false)}
+          onGenerate={(c) => { setUpdationReportModalOpen(false); if (triggerUpdationDownload) triggerUpdationDownload(c); }}
+          users={users}
+        />
       )}
     </div>
   );

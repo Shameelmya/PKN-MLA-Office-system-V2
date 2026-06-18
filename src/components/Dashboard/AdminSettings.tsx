@@ -34,7 +34,8 @@ export function AdminSettings({
     canSeeDraftsView: false,
     canEditGlobalOverview: false,
     canEditOwnInputs: false,
-    canReassign: true
+    canReassign: true,
+    canGenerateUpdationReport: false
   });
 
   const handleToggle = (id: string, field: keyof User) => {
@@ -70,7 +71,8 @@ export function AdminSettings({
       canSeeDraftsView: newOffForm.canSeeDraftsView,
       canEditGlobalOverview: newOffForm.canEditGlobalOverview,
       canEditOwnInputs: newOffForm.canEditOwnInputs,
-      canReassign: newOffForm.canReassign
+      canReassign: newOffForm.canReassign,
+      canGenerateUpdationReport: newOffForm.canGenerateUpdationReport
     };
     await addUser(newUser);
     setNewOffForm({
@@ -85,7 +87,8 @@ export function AdminSettings({
       canSeeDraftsView: false,
       canEditGlobalOverview: false,
       canEditOwnInputs: false,
-      canReassign: true
+      canReassign: true,
+      canGenerateUpdationReport: false
     });
     alert("New officer successfully created.");
   };
@@ -239,6 +242,16 @@ export function AdminSettings({
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
+                  <label className="flex items-center justify-between cursor-pointer p-1">
+                    <span className="text-xs font-bold text-slate-700">Updation Report Access</span>
+                    <input 
+                      type="checkbox" 
+                      checked={!!u.canGenerateUpdationReport} 
+                      onChange={() => handleToggle(u.id, 'canGenerateUpdationReport')} 
+                      disabled={u.role==='admin'} 
+                      className="w-4 h-4 disabled:opacity-50"
+                    />
+                  </label>
                 </div>
                 <div className="flex flex-wrap gap-2">
                    {u.role !== 'admin' && (
@@ -358,6 +371,15 @@ export function AdminSettings({
                   className="rounded text-indigo-600 bg-white"
                 /> 
                 Can Re-assign Tasks
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-900">
+                <input 
+                  type="checkbox" 
+                  checked={newOffForm.canGenerateUpdationReport} 
+                  onChange={e => setNewOffForm({...newOffForm, canGenerateUpdationReport: e.target.checked})} 
+                  className="rounded text-indigo-600 bg-white"
+                /> 
+                Updation Report
               </label>
             </div>
             <div className="w-full flex justify-end mt-2 pt-2 border-t border-slate-100">

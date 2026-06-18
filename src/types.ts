@@ -12,6 +12,7 @@ export interface User {
   canEditGlobalOverview?: boolean;
   canEditOwnInputs?: boolean;
   canReassign?: boolean;
+  canGenerateUpdationReport?: boolean;
   phone: string;
   whatsapp: string;
 }
@@ -25,6 +26,7 @@ export interface TimelineItem {
   link?: string; // Legacy
   links?: (string | Attachment)[];
   attachment?: Attachment;
+  whatsappSent?: boolean;
 }
 
 export interface PersonalDetails {
@@ -104,6 +106,15 @@ export interface ConfirmModalState {
   showInput: boolean;
   inputPlaceholder: string;
   inputValue: string;
+}
+
+export interface UpdationReportConfig {
+  status: string;
+  dateRange: string;
+  assignedOfficer: string;
+  addUpdations: boolean;
+  maxUpdations: number;
+  addDescriptions: boolean;
 }
 
 // Global variable declarations

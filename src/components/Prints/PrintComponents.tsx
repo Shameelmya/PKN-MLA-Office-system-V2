@@ -534,6 +534,9 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
     filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
   }
 
+  // Sort tasks by Task Number (ID) ascending
+  filteredTasks.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
+
   const total = filteredTasks.length;
   const comp = filteredTasks.filter(t => t.status === 'Completed').length;
   const pend = filteredTasks.filter(t => t.status === 'Pending').length;

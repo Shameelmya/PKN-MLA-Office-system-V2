@@ -502,7 +502,9 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   let filteredTasks = tasks.filter(t => t.taskType !== 'direct');
 
   // Filter Status
-  if (config.status !== 'All') {
+  if (config.status === 'Active') {
+    filteredTasks = filteredTasks.filter(t => t.status === 'In Progress' || t.status === 'Pending');
+  } else if (config.status !== 'All') {
     filteredTasks = filteredTasks.filter(t => t.status === config.status);
   }
 
@@ -527,17 +529,20 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
     filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
   }
 
-  const total = tasks.filter(t => t.taskType !== 'direct').length;
-  const comp = tasks.filter(t => t.taskType !== 'direct' && t.status === 'Completed').length;
-  const pend = tasks.filter(t => t.taskType !== 'direct' && t.status === 'Pending').length;
-  const inprog = tasks.filter(t => t.taskType !== 'direct' && t.status === 'In Progress').length;
-  const draft = tasks.filter(t => t.taskType !== 'direct' && t.status === 'Draft').length;
+  const total = filteredTasks.length;
+  const comp = filteredTasks.filter(t => t.status === 'Completed').length;
+  const pend = filteredTasks.filter(t => t.status === 'Pending').length;
+  const inprog = filteredTasks.filter(t => t.status === 'In Progress').length;
+  const draft = filteredTasks.filter(t => t.status === 'Draft').length;
 
   return (
     <div className="w-full bg-white text-black p-8 box-border" style={{ fontFamily: "'Noto Serif Malayalam', serif", width: '794px' }}>
       <div className="text-center border-b-2 border-black pb-3 mb-4">
         <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
         <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Updation Report</h2>
+        <p className="mt-1 text-[10px] font-bold text-gray-500 uppercase">
+          Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
+        </p>
         <div className="flex justify-center gap-4 mt-2 text-[10px] font-bold text-gray-800 uppercase">
           <span>Total: {total}</span>
           <span>Pending: {pend}</span>

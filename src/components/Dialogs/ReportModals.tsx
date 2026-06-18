@@ -187,6 +187,8 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
   const [addUpdations, setAddUpdations] = useState(true);
   const [maxUpdations, setMaxUpdations] = useState(3);
   const [addDescriptions, setAddDescriptions] = useState(true);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
 
   const handleGenerate = () => {
     onGenerate({

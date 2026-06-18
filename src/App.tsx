@@ -285,9 +285,22 @@ export default function App() {
 
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
           const pdfHeight = (el.offsetHeight * pdfWidth) / el.offsetWidth;
           
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+          let heightLeft = pdfHeight;
+          let position = 0;
+
+          pdf.addImage(dataUrl, 'JPEG', 0, position, pdfWidth, pdfHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position = position - pageHeight;
+            pdf.addPage();
+            pdf.addImage(dataUrl, 'JPEG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+          }
+
           pdf.save(`${filename}.pdf`);
           
         } catch (error: any) { 

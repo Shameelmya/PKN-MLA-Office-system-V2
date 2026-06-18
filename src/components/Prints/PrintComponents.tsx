@@ -535,87 +535,110 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   const inprog = filteredTasks.filter(t => t.status === 'In Progress').length;
   const draft = filteredTasks.filter(t => t.status === 'Draft').length;
 
-  return (
-    <div className="w-full bg-white text-black p-8 box-border" style={{ fontFamily: "'Noto Serif Malayalam', serif", width: '794px' }}>
-      <div className="text-center border-b-2 border-black pb-3 mb-4">
-        <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
-        <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Updation Report</h2>
-        <p className="mt-1 text-[10px] font-bold text-gray-500 uppercase">
-          Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
-        </p>
-        <div className="flex justify-center gap-4 mt-2 text-[10px] font-bold text-gray-800 uppercase">
-          <span>Total: {total}</span>
-          <span>Pending: {pend}</span>
-          <span>Active (In Progress): {inprog}</span>
-          <span>Completed: {comp}</span>
-          <span>Drafts: {draft}</span>
-        </div>
-      </div>
-      <div className="flex flex-col gap-6">
-        {filteredTasks.map((t, idx) => {
-          // Get updates
-          let updates = t.timeline.filter(tl => tl.type === 'update' || tl.type === 'comment' || tl.type === 'completed' || tl.type === 'draft');
-          if (config.addUpdations) {
-            updates = updates.slice(-config.maxUpdations);
-          } else {
-            updates = [];
-          }
+  const chunks = [];
+  for (let i = 0; i < filteredTasks.length; i += 2) {
+    chunks.push(filteredTasks.slice(i, i + 2));
+  }
+  if (chunks.length === 0) chunks.push([]);
 
-          return (
-            <div key={t.id} className="border border-black p-4 break-inside-avoid relative" style={{ minHeight: '400px' }}>
-              <div className="flex justify-between items-start mb-2 border-b border-gray-300 pb-2">
-                <div>
-                  <span className="font-bold text-sm bg-black text-white px-2 py-0.5 mr-2">SL No: {idx + 1}</span>
-                  <span className="font-bold text-sm bg-gray-200 text-black px-2 py-0.5">Task No: {t.id}</span>
-                </div>
-                <div className="text-right text-[10px] font-bold text-gray-600">
-                  <p>Rec: {formatDate(t.createdAt)}</p>
-                  <p>Status: <span className="text-black uppercase">{t.status}</span></p>
-                </div>
+  return (
+    <div className="w-full bg-white text-black flex flex-col" style={{ width: '794px' }}>
+      {chunks.map((chunk, pageIdx) => (
+        <div key={pageIdx} className="bg-white p-8 box-border flex flex-col" style={{ width: '794px', height: '1123px', fontFamily: "'Noto Serif Malayalam', serif" }}>
+          {pageIdx === 0 ? (
+            <div className="text-center border-b-2 border-black pb-3 mb-4 shrink-0">
+              <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
+              <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Updation Report</h2>
+              <p className="mt-1 text-[10px] font-bold text-gray-500 uppercase">
+                Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
+              </p>
+              <div className="flex justify-center gap-4 mt-2 text-[10px] font-bold text-gray-800 uppercase">
+                <span>Total: {total}</span>
+                <span>Pending: {pend}</span>
+                <span>Active (In Progress): {inprog}</span>
+                <span>Completed: {comp}</span>
+                <span>Drafts: {draft}</span>
               </div>
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                  <p className="text-sm font-bold mb-1">{t.subject}</p>
-                  {config.addDescriptions && t.description && (
-                    <p className="text-[11px] text-gray-700 leading-tight mb-2">{t.description}</p>
-                  )}
-                  <p className="text-[11px]"><span className="font-bold">Assigned To:</span> {t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}</p>
-                </div>
-                <div className="text-right text-[11px]">
-                  <p className="font-bold text-base mb-1">{t.personalDetails.name}</p>
-                  {!t.isSelfMode && <p className="font-bold text-gray-800">{t.personalDetails.mobileNumber}</p>}
-                </div>
-              </div>
-              
-              {config.addUpdations && updates.length > 0 && (
-                <div className="mt-2 bg-gray-50 border border-gray-300 p-3">
-                  <p className="text-[10px] font-bold uppercase border-b border-gray-300 pb-1 mb-2 tracking-widest text-gray-600">Recent Updations</p>
-                  <div className="space-y-3">
-                    {updates.map((upd, uIdx) => (
-                      <div key={upd.id || uIdx} className="text-[11px] leading-snug">
-                        <div className="flex justify-between font-bold text-gray-800 mb-0.5">
-                          <span>{upd.by}</span>
-                          <div className="flex items-center gap-2">
-                            <span>{formatDate(upd.time)}</span>
-                            {upd.whatsappSent && <span className="bg-green-100 text-green-800 px-1 py-0.5 rounded text-[8px] uppercase">Sent via WA</span>}
-                          </div>
-                        </div>
-                        <p className="text-black">{upd.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {config.addUpdations && updates.length === 0 && (
-                <div className="mt-2 text-[10px] text-gray-500 italic font-bold">No updates recorded yet.</div>
-              )}
             </div>
-          );
-        })}
-        {filteredTasks.length === 0 && (
-          <div className="text-center p-8 font-bold text-gray-500">No tasks found matching these filters.</div>
-        )}
-      </div>
+          ) : (
+            <div className="text-center border-b-2 border-black pb-2 mb-4 shrink-0 flex justify-between items-end">
+              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Updation Report (Cont.)</span>
+              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Page {pageIdx + 1}</span>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-6 flex-1">
+            {chunk.map((t, idx) => {
+              // Get updates
+              let updates = t.timeline.filter(tl => tl.type === 'update' || tl.type === 'comment' || tl.type === 'completed' || tl.type === 'draft');
+              if (config.addUpdations) {
+                updates = updates.slice(-config.maxUpdations);
+              } else {
+                updates = [];
+              }
+              const globalIndex = (pageIdx * 2) + idx + 1;
+
+              return (
+                <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col" style={{ minHeight: '400px' }}>
+                  <div className="flex justify-between items-start mb-2 border-b border-gray-300 pb-2">
+                    <div>
+                      <span className="font-bold text-sm bg-black text-white px-2 py-0.5 mr-2">SL No: {globalIndex}</span>
+                      <span className="font-bold text-sm bg-gray-200 text-black px-2 py-0.5">Task No: {t.id}</span>
+                    </div>
+                    <div className="text-right text-[10px] font-bold text-gray-600">
+                      <p>Rec: {formatDate(t.createdAt)}</p>
+                      <p>Status: <span className="text-black uppercase">{t.status}</span></p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <p className="text-sm font-bold mb-1">{t.subject}</p>
+                      {config.addDescriptions && t.description && (
+                        <p className="text-[11px] text-gray-700 leading-tight mb-2">{t.description}</p>
+                      )}
+                      <p className="text-[11px]"><span className="font-bold">Assigned To:</span> {t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}</p>
+                    </div>
+                    <div className="text-right text-[11px]">
+                      <p className="font-bold text-base mb-1">{t.personalDetails.name}</p>
+                      {!t.isSelfMode && <p className="font-bold text-gray-800">{t.personalDetails.mobileNumber}</p>}
+                    </div>
+                  </div>
+                  
+                  {config.addUpdations && updates.length > 0 && (
+                    <div className="mt-2 bg-gray-50 border border-gray-300 p-3 flex-1 overflow-hidden">
+                      <p className="text-[10px] font-bold uppercase border-b border-gray-300 pb-1 mb-2 tracking-widest text-gray-600">Recent Updations</p>
+                      <div className="space-y-3">
+                        {updates.map((upd, uIdx) => (
+                          <div key={upd.id || uIdx} className="text-[11px] leading-snug">
+                            <div className="flex justify-between font-bold text-gray-800 mb-0.5">
+                              <span>{upd.by}</span>
+                              <div className="flex items-center gap-2">
+                                <span>{formatDate(upd.time)}</span>
+                                {upd.whatsappSent && <span className="bg-green-100 text-green-800 px-1 py-0.5 rounded text-[8px] uppercase">Sent via WA</span>}
+                              </div>
+                            </div>
+                            <p className="text-black">{upd.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {config.addUpdations && updates.length === 0 && (
+                    <div className="mt-2 text-[10px] text-gray-500 italic font-bold">No updates recorded yet.</div>
+                  )}
+                </div>
+              );
+            })}
+            {chunk.length === 0 && (
+              <div className="text-center p-8 font-bold text-gray-500">No tasks found matching these filters.</div>
+            )}
+          </div>
+
+          <div className="mt-auto border-t border-gray-300 pt-2 text-right text-[9px] font-bold text-gray-400 uppercase tracking-widest shrink-0">
+            Generated on {new Date().toLocaleString('en-IN')} | PK Navas MLA Office
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

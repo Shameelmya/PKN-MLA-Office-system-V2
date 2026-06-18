@@ -195,7 +195,9 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
       assignedOfficer,
       addUpdations,
       maxUpdations,
-      addDescriptions
+      addDescriptions,
+      customStartDate,
+      customEndDate
     });
   };
 
@@ -235,8 +237,21 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
               <option value="6months">Last 6 Months</option>
               <option value="1year">Last 1 Year</option>
               <option value="all">All Time</option>
+              <option value="custom">Custom Date Range</option>
             </select>
           </div>
+          {dateRange === 'custom' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">From Date</label>
+                <input type="date" value={customStartDate} onChange={e => setCustomStartDate(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"/>
+              </div>
+              <div>
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">To Date</label>
+                <input type="date" value={customEndDate} onChange={e => setCustomEndDate(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"/>
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Assigned Officers</label>
             <select 

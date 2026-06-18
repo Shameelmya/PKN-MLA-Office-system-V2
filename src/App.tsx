@@ -489,7 +489,25 @@ export default function App() {
          <option value="6months">Last 6 Months</option>
          <option value="1year">Last Year</option>
          <option value="all">All Time</option>
+         <option value="custom">Custom Date</option>
        </select>
+       {globalFilters.dateRange === 'custom' && (
+          <div className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-2 py-1">
+            <input 
+              type="date" 
+              value={globalFilters.customStartDate || ''} 
+              onChange={e => setGlobalFilters(p => ({...p, customStartDate: e.target.value}))} 
+              className="text-sm font-bold text-slate-700 outline-none bg-transparent" 
+            />
+            <span className="text-xs font-bold text-slate-400">to</span>
+            <input 
+              type="date" 
+              value={globalFilters.customEndDate || ''} 
+              onChange={e => setGlobalFilters(p => ({...p, customEndDate: e.target.value}))} 
+              className="text-sm font-bold text-slate-700 outline-none bg-transparent" 
+            />
+          </div>
+       )}
        <select 
          value={globalFilters.applicationMode} 
          onChange={e => setGlobalFilters(p => ({...p, applicationMode: e.target.value}))} 

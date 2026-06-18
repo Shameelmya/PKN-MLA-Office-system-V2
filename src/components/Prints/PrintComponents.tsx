@@ -514,18 +514,23 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   }
 
   // Filter Date
-  const now = new Date();
-  if (config.dateRange === '7days') {
-    const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
-  } else if (config.dateRange === '1month') {
-    const start = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
-  } else if (config.dateRange === '6months') {
-    const start = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-    filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
-  } else if (config.dateRange === '1year') {
-    const start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+  if (config.dateRange === 'custom') {
+    if (config.customStartDate) {
+      const start = new Date(config.customStartDate);
+      start.setHours(0,0,0,0);
+      filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
+    }
+    if (config.customEndDate) {
+      const end = new Date(config.customEndDate);
+      end.setHours(23,59,59,999);
+      filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) <= end);
+    }
+  } else if (config.dateRange !== 'all') {
+    const start = new Date();
+    if (config.dateRange === '7days') start.setDate(start.getDate() - 7);
+    else if (config.dateRange === '1month') start.setMonth(start.getMonth() - 1);
+    else if (config.dateRange === '6months') start.setMonth(start.getMonth() - 6);
+    else if (config.dateRange === '1year') start.setFullYear(start.getFullYear() - 1);
     filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
   }
 
@@ -550,7 +555,7 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
               <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Updation Report</h2>
               <p className="mt-1 text-[10px] font-bold text-gray-500 uppercase">
-                Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
+                Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === 'custom' ? `${config.customStartDate ? new Date(config.customStartDate).toLocaleDateString('en-GB') : 'Start'} to ${config.customEndDate ? new Date(config.customEndDate).toLocaleDateString('en-GB') : 'End'}` : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
               </p>
               <div className="flex justify-center gap-4 mt-2 text-[10px] font-bold text-gray-800 uppercase">
                 <span>Total: {total}</span>

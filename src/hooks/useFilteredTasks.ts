@@ -16,7 +16,18 @@ export const useFilteredTasks = (
       result = result.filter(t => t.status === globalFilters.status);
     }
 
-    if (globalFilters.dateRange !== 'all') {
+    if (globalFilters.dateRange === 'custom') {
+      if (globalFilters.customStartDate) {
+        const start = new Date(globalFilters.customStartDate);
+        start.setHours(0,0,0,0);
+        result = result.filter(t => new Date(t.createdAt) >= start);
+      }
+      if (globalFilters.customEndDate) {
+        const end = new Date(globalFilters.customEndDate);
+        end.setHours(23,59,59,999);
+        result = result.filter(t => new Date(t.createdAt) <= end);
+      }
+    } else if (globalFilters.dateRange !== 'all') {
       const cutoff = new Date();
       if (globalFilters.dateRange === '7days') cutoff.setDate(cutoff.getDate() - 7);
       else if (globalFilters.dateRange === '1month') cutoff.setMonth(cutoff.getMonth() - 1);

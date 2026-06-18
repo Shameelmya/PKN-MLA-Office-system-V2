@@ -86,6 +86,8 @@ export interface GlobalFilters {
   dateRange: string;
   status: string;
   applicationMode: string;
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 export interface BackupMeta {
@@ -115,6 +117,8 @@ export interface UpdationReportConfig {
   addUpdations: boolean;
   maxUpdations: number;
   addDescriptions: boolean;
+  customStartDate?: string;
+  customEndDate?: string;
 }
 
 // Global variable declarations

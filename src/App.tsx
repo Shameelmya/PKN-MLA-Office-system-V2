@@ -276,29 +276,48 @@ export default function App() {
       
       setTimeout(async () => { 
         try { 
-          const dataUrl = await htmlToImage.toJpeg(el, {
-            quality: 1.0,
-            pixelRatio: 2,
-            backgroundColor: '#ffffff',
-            style: { margin: '0' }
-          });
-
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
-          const pdfHeight = (el.offsetHeight * pdfWidth) / el.offsetWidth;
           
-          let heightLeft = pdfHeight;
-          let position = 0;
+          const pages = Array.from(el.querySelectorAll('.pdf-page-chunk')) as HTMLElement[];
+          
+          if (pages.length > 0) {
+            // Render each chunk as a separate high-quality image
+            for (let i = 0; i < pages.length; i++) {
+              const pageEl = pages[i];
+              const dataUrl = await htmlToImage.toJpeg(pageEl, {
+                quality: 1.0,
+                pixelRatio: 3,
+                backgroundColor: '#ffffff',
+                style: { margin: '0' }
+              });
+              const pdfHeight = (pageEl.offsetHeight * pdfWidth) / pageEl.offsetWidth;
+              if (i > 0) pdf.addPage();
+              pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            }
+          } else {
+            // Fallback for reports that don't use page chunks
+            const dataUrl = await htmlToImage.toJpeg(el, {
+              quality: 1.0,
+              pixelRatio: 3,
+              backgroundColor: '#ffffff',
+              style: { margin: '0' }
+            });
+            const pdfHeight = (el.offsetHeight * pdfWidth) / el.offsetWidth;
+            
+            let heightLeft = pdfHeight;
+            let position = 0;
 
-          pdf.addImage(dataUrl, 'JPEG', 0, position, pdfWidth, pdfHeight);
-          heightLeft -= pageHeight;
-
-          while (heightLeft > 0) {
-            position = position - pageHeight;
-            pdf.addPage();
             pdf.addImage(dataUrl, 'JPEG', 0, position, pdfWidth, pdfHeight);
             heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+              position = position - pageHeight;
+              pdf.addPage();
+              pdf.addImage(dataUrl, 'JPEG', 0, position, pdfWidth, pdfHeight);
+              heightLeft -= pageHeight;
+            }
           }
 
           pdf.save(`${filename}.pdf`);

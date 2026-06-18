@@ -851,11 +851,16 @@ export function TaskDetailsModal({
                            <div className="text-[10px] font-bold text-slate-400">{formatDate(item.time)} {formatTime(item.time)}</div>
                            {(item.type === 'update' || item.type === 'completed' || item.type === 'draft') && !task.isSelfMode && (
                              <WhatsAppButton 
+                               isSent={item.whatsappSent}
                                onSend={() => {
                                  sendWhatsAppUpdate(task, item.text, item.link);
                                  const newTimeline = task.timeline.map(t => t.id === item.id ? { ...t, whatsappSent: true } : t);
                                  updateTask(task.id, { timeline: newTimeline });
                                }} 
+                               onReset={() => {
+                                 const newTimeline = task.timeline.map(t => t.id === item.id ? { ...t, whatsappSent: false } : t);
+                                 updateTask(task.id, { timeline: newTimeline });
+                               }}
                                className="p-1.5 rounded-md"
                              />
                            )}

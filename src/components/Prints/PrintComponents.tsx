@@ -544,7 +544,7 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   return (
     <div className="w-full bg-white text-black flex flex-col" style={{ width: '794px' }}>
       {chunks.map((chunk, pageIdx) => (
-        <div key={pageIdx} className="bg-white p-8 box-border flex flex-col" style={{ width: '794px', height: '1123px', fontFamily: "'Noto Serif Malayalam', serif" }}>
+        <div key={pageIdx} className="pdf-page-chunk bg-white p-8 box-border flex flex-col" style={{ width: '794px', height: '1123px', fontFamily: "'Noto Serif Malayalam', serif" }}>
           {pageIdx === 0 ? (
             <div className="text-center border-b-2 border-black pb-3 mb-4 shrink-0">
               <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
@@ -598,9 +598,13 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
                       )}
                       <p className="text-[11px]"><span className="font-bold">Assigned To:</span> {t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}</p>
                     </div>
-                    <div className="text-right text-[11px]">
+                    <div className="text-right text-[11px] max-w-[50%]">
                       <p className="font-bold text-base mb-1">{t.personalDetails.name}</p>
-                      {!t.isSelfMode && <p className="font-bold text-gray-800">{t.personalDetails.mobileNumber}</p>}
+                      {t.personalDetails.designation && <p className="text-[10px] text-gray-700 font-bold mb-0.5">{t.personalDetails.designation}</p>}
+                      <p className="text-[10px] text-gray-600 leading-snug mb-0.5">
+                         {[t.personalDetails.houseName, t.personalDetails.place, t.personalDetails.ward, t.personalDetails.localBody || t.personalDetails.panchayat].filter(Boolean).join(', ')}
+                      </p>
+                      {!t.isSelfMode && <p className="font-bold text-gray-800 mt-1">{t.personalDetails.mobileNumber}</p>}
                     </div>
                   </div>
                   

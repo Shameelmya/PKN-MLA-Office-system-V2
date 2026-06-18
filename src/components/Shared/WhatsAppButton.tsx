@@ -3,12 +3,15 @@ import { MessageSquare } from 'lucide-react';
 
 interface WhatsAppButtonProps {
   onSend: () => void;
+  isSent?: boolean;
+  onReset?: () => void;
   className?: string;
   iconSize?: number;
 }
 
-export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsAppButtonProps) {
-  const [isSent, setIsSent] = useState(false);
+export function WhatsAppButton({ onSend, isSent: externalIsSent, onReset, className = '', iconSize = 14 }: WhatsAppButtonProps) {
+  const [localIsSent, setLocalIsSent] = useState(false);
+  const isSent = externalIsSent !== undefined ? externalIsSent : localIsSent;
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const ignoreNextClick = useRef(false);
 
@@ -21,9 +24,10 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
   const handlePointerDown = () => {
     if (!isSent) return;
     pressTimer.current = setTimeout(() => {
-      setIsSent(false); // Re-enable after 3 seconds
+      if (onReset) onReset();
+      else setLocalIsSent(false); // Re-enable after 4 seconds
       ignoreNextClick.current = true; // Prevent immediate click event on release
-    }, 3000);
+    }, 4000);
   };
 
   const handlePointerUpOrLeave = () => {
@@ -40,7 +44,9 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
       return;
     }
     if (isSent) return;
-    setIsSent(true);
+    if (externalIsSent === undefined) {
+      setLocalIsSent(true);
+    }
     onSend();
   };
 
@@ -56,7 +62,7 @@ export function WhatsAppButton({ onSend, className = '', iconSize = 14 }: WhatsA
           ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-transparent' 
           : 'bg-green-50 text-green-600 hover:bg-green-100'
       }`}
-      title={isSent ? "Message Sent. Hold for 3s to re-enable." : "Send via WhatsApp"}
+      title={isSent ? "Message Sent. Hold for 4s to re-enable." : "Send via WhatsApp"}
       disabled={false} // We don't actually disable the button element so pointer events still fire
     >
       <div className="flex items-center justify-center pointer-events-none">

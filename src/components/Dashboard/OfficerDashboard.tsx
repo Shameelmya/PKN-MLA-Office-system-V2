@@ -142,6 +142,18 @@ export function OfficerDashboard({
         )}
       </div>
 
+      {/* Standalone Updation Report Button for Officers without Global Overview Access */}
+      {!hasGlobalOverviewPermission && user.canGenerateUpdationReport && (
+        <div className="flex justify-end print-hidden -mt-2">
+          <button 
+            onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <FileOutput size={18}/> Generate Updation Report
+          </button>
+        </div>
+      )}
+
       {/* 1. Recent Assignments Tab */}
       {activeTab === 'recent' && (
         <RecentAlertsTab 

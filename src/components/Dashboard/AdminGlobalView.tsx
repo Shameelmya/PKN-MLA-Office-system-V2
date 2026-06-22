@@ -101,7 +101,7 @@ export function AdminGlobalView({
   }, [updateTask]);
 
   const sortedCategories = useMemo(() => {
-    return [...categories].sort((a, b) => a.localeCompare(b));
+    return [...categories].sort((a, b) => String(a).localeCompare(String(b)));
   }, [categories]);
 
   const handleSendWA = (t: Task) => {

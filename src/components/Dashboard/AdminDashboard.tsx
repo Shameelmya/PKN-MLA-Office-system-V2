@@ -58,6 +58,27 @@ interface AdminDashboardProps {
   loadArchive: () => Promise<void>;
 }
 
+const StatCard = ({ title, value, color, icon }: any) => {
+  const colors = {
+    blue: 'bg-blue-50 text-blue-600 border-blue-200',
+    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-200',
+    green: 'bg-green-50 text-green-600 border-green-200',
+    purple: 'bg-purple-50 text-purple-600 border-purple-200',
+    red: 'bg-red-50 text-red-600 border-red-200',
+  };
+  return (
+    <div className={`p-4 rounded-xl border flex items-center gap-3 ${colors[color as keyof typeof colors]}`}>
+      <div className={`p-2 rounded-lg bg-white/60`}>
+        {icon}
+      </div>
+      <div>
+        <h3 className="text-2xl font-black leading-tight">{value}</h3>
+        <p className="text-[10px] font-bold uppercase tracking-wider opacity-80 mt-1">{title}</p>
+      </div>
+    </div>
+  );
+};
+
 export function AdminDashboard({
   currentUser,
   tasks,

@@ -41,6 +41,17 @@ import { OfficerDashboard } from './components/Dashboard/OfficerDashboard';
 
 declare const __initial_auth_token: string | undefined;
 
+const sanitizeTask = (data: any): Task => {
+  return {
+    ...data,
+    assignedTo: data.assignedTo || [],
+    timeline: data.timeline || [],
+    attachments: data.attachments || [],
+    officerStatuses: data.officerStatuses || {},
+    personalDetails: data.personalDetails || { name: 'Unknown', mobileNumber: '' },
+  } as Task;
+};
+
 export default function App() {
   const [fbUser, setFbUser] = useState<any>(null);
   const [pdfProgress, setPdfProgress] = useState<{current: number, total: number} | null>(null);
@@ -137,7 +148,7 @@ export default function App() {
     setIsFetchingArchive(true); 
     try { 
       const snap = await getDocs(getColRef('archived_tasks')); 
-      setArchivedTasks(snap.docs.map(d => d.data() as Task)); 
+      setArchivedTasks(snap.docs.map(d => sanitizeTask(d.data()))); 
       hasFetchedArchive.current = true; 
     } catch (e) { 
       console.error("Failed to load archive:", e); 
@@ -157,7 +168,7 @@ export default function App() {
     if (savedUser) setCurrentUser(JSON.parse(savedUser));
     
     const unsubTasks = onSnapshot(getColRef('tasks'), (snap) => {
-      setActiveTasks(snap.docs.map(docSnapshot => docSnapshot.data() as Task));
+      setActiveTasks(snap.docs.map(docSnapshot => sanitizeTask(docSnapshot.data())));
     }, (err) => console.error(err));
     
     const unsubUsers = onSnapshot(getColRef('users'), (snap) => { 

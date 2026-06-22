@@ -42,6 +42,7 @@ declare const __initial_auth_token: string | undefined;
 
 export default function App() {
   const [fbUser, setFbUser] = useState<any>(null);
+  const [pdfProgress, setPdfProgress] = useState<{current: number, total: number} | null>(null);
   const [users, setUsers] = useState<UserType[]>(DEFAULT_USERS);
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [impersonatedUser, setImpersonatedUser] = useState<UserType | null>(null);

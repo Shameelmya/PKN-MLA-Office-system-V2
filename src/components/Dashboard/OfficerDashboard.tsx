@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Activity, Database, Plus, Bell, Eye, AlertCircle, Ban, 
-  Trash2, EyeOff, FileText, ArrowRight, Zap
+  Trash2, EyeOff, FileText, ArrowRight, Zap, FileOutput
 } from 'lucide-react';
 import { Task, User, GlobalFilters } from '../../types';
 import { WorkerTab } from './WorkerTab';

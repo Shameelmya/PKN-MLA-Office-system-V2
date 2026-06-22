@@ -223,7 +223,7 @@ export function RecentUpdationsTab({ tasks, users, triggerRecentUpdationsDownloa
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
                       <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded tracking-widest uppercase">{item.taskId}</span>
-                      <span className="text-[10px] font-bold text-slate-500 truncate max-w-[150px]">{item.taskSubject}</span>
+                      <span className="text-[10px] font-bold text-slate-500 leading-tight">{item.taskSubject}</span>
                     </div>
                     <div className="text-right">
                       <span className="block text-[10px] font-black text-slate-800">{formatDate(item.updation.time)}</span>

@@ -8,4 +8,7 @@
   input[type="reset"] {
     cursor: pointer !important;
   }
+  body, html {
+    font-family: 'Inter', 'Noto Serif Malayalam', sans-serif !important;
+  }
 }

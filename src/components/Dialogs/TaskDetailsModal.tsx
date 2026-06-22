@@ -497,7 +497,7 @@ export function TaskDetailsModal({
                          <div>
                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Mobile Number</label>
                            <input
-                             type="text"
+                             type="number"
                              value={editData.personalDetails.mobileNumber || ''}
                              onChange={e => setEditData({
                                ...editData,
@@ -509,7 +509,7 @@ export function TaskDetailsModal({
                          <div>
                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">WhatsApp Number</label>
                            <input
-                             type="text"
+                             type="number"
                              value={editData.personalDetails.whatsappNumber || ''}
                              onChange={e => setEditData({
                                ...editData,

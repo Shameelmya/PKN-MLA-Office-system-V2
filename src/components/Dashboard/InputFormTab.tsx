@@ -452,6 +452,7 @@ export function InputFormTab({
                   )}
                 </label>
                 <input 
+                  type="number"
                   required 
                   name="mobileNumber" 
                   value={form.personal.mobileNumber} 
@@ -499,6 +500,7 @@ export function InputFormTab({
                   </label>
                 </label>
                 <input 
+                  type="number"
                   name="whatsappNumber" 
                   value={form.personal.whatsappNumber} 
                   onChange={handlePersChange} 

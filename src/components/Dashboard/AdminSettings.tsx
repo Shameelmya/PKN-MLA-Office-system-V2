@@ -179,9 +179,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Can Register input</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || u.canInput} 
+                      checked={!!u.canInput} 
                       onChange={() => handleToggle(u.id, 'canInput')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -189,9 +188,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Detailed Reports</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || u.canSeeReports} 
+                      checked={!!u.canSeeReports} 
                       onChange={() => handleToggle(u.id, 'canSeeReports')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -199,9 +197,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Global Overview Tab</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canSeeGlobalOverview} 
+                      checked={!!u.canSeeGlobalOverview} 
                       onChange={() => handleToggle(u.id, 'canSeeGlobalOverview')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -209,9 +206,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Drafts View / Worker</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canSeeDraftsView} 
+                      checked={!!u.canSeeDraftsView} 
                       onChange={() => handleToggle(u.id, 'canSeeDraftsView')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -219,9 +215,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Edit Global Overview</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canEditGlobalOverview} 
+                      checked={!!u.canEditGlobalOverview} 
                       onChange={() => handleToggle(u.id, 'canEditGlobalOverview')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -229,9 +224,8 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Edit Own Inputs (Staff)</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canEditOwnInputs} 
+                      checked={!!u.canEditOwnInputs} 
                       onChange={() => handleToggle(u.id, 'canEditOwnInputs')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
@@ -239,18 +233,16 @@ export function AdminSettings({
                     <span className="text-xs font-bold text-slate-700">Can Re-assign Tasks</span>
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || u.canReassign !== false} 
+                      checked={u.canReassign !== false} 
                       onChange={() => handleToggle(u.id, 'canReassign')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canGenerateUpdationReport} 
+                      checked={!!u.canGenerateUpdationReport} 
                       onChange={() => handleToggle(u.id, 'canGenerateUpdationReport')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                     <span className="text-xs font-bold text-slate-700">Updation Report Access</span>
@@ -258,9 +250,8 @@ export function AdminSettings({
                   <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
                     <input 
                       type="checkbox" 
-                      checked={u.role==='admin' || !!u.canSeeRecentUpdations} 
+                      checked={!!u.canSeeRecentUpdations} 
                       onChange={() => handleToggle(u.id, 'canSeeRecentUpdations')} 
-                      disabled={u.role==='admin'} 
                       className="w-4 h-4 disabled:opacity-50"
                     />
                     <span className="text-xs font-bold text-slate-700">Recent Updations Tab</span>

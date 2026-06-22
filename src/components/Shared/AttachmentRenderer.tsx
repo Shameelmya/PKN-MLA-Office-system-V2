@@ -12,18 +12,19 @@ interface AttachmentRendererProps {
 }
 
 export function AttachmentRenderer({ attachment, currentUser, onDeleteSuccess, index }: AttachmentRendererProps) {
+  if (!attachment) return null;
   const isString = typeof attachment === 'string';
-  let rawName = isString ? `Doc. ${index + 1}` : attachment.name;
+  let rawName = isString ? `Doc. ${index + 1}` : (attachment.name || `Doc. ${index + 1}`);
   const name = rawName.replace('External Document Link', 'Doc.');
   const url = isString ? attachment : attachment.url;
-  const isImage = !isString && attachment.type?.startsWith('image/');
+  const isImage = !isString && (attachment.type || '').startsWith('image/');
   const driveId = !isString ? attachment.driveId : undefined;
   
   let canDelete = false;
   if (!isString && driveId) {
-    if (currentUser.role === 'admin' && currentUser.name === 'PK Navas (MLA)') {
+    if (currentUser?.role === 'admin' && currentUser?.name === 'PK Navas (MLA)') {
       canDelete = true;
-    } else if (attachment.uploaderId === currentUser.id && attachment.uploadedAt) {
+    } else if (attachment.uploaderId === currentUser?.id && attachment.uploadedAt) {
       // Check if within 24 hours
       const uploadTime = new Date(attachment.uploadedAt).getTime();
       const now = new Date().getTime();

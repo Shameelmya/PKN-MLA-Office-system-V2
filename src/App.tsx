@@ -42,13 +42,25 @@ import { OfficerDashboard } from './components/Dashboard/OfficerDashboard';
 declare const __initial_auth_token: string | undefined;
 
 const sanitizeTask = (data: any): Task => {
+  const pd = data?.personalDetails || {};
   return {
     ...data,
-    assignedTo: data.assignedTo || [],
-    timeline: data.timeline || [],
-    attachments: data.attachments || [],
-    officerStatuses: data.officerStatuses || {},
-    personalDetails: data.personalDetails || { name: 'Unknown', mobileNumber: '' },
+    id: data?.id ? String(data.id) : '',
+    subject: data?.subject ? String(data.subject) : '',
+    category: data?.category ? String(data.category) : 'General',
+    status: data?.status ? String(data.status) : 'Pending',
+    priority: data?.priority ? String(data.priority) : 'Medium',
+    assignedTo: Array.isArray(data?.assignedTo) ? data.assignedTo : (data?.assignedTo ? [data.assignedTo] : []),
+    timeline: Array.isArray(data?.timeline) ? data.timeline : (data?.timeline ? [data.timeline] : []),
+    attachments: Array.isArray(data?.attachments) ? data.attachments : (data?.attachments ? [data.attachments] : []),
+    officerStatuses: typeof data?.officerStatuses === 'object' && data?.officerStatuses !== null ? data.officerStatuses : {},
+    personalDetails: {
+      name: pd.name ? String(pd.name) : 'Unknown',
+      mobileNumber: pd.mobileNumber ? String(pd.mobileNumber) : '',
+      whatsappNumber: pd.whatsappNumber ? String(pd.whatsappNumber) : '',
+      designation: pd.designation ? String(pd.designation) : '',
+    },
+    createdAt: data?.createdAt ? String(data.createdAt) : new Date().toISOString(),
   } as Task;
 };
 

@@ -29,6 +29,7 @@ export function RecentUpdationsTab({ tasks, users, triggerRecentUpdationsDownloa
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [officerFilter, setOfficerFilter] = useState('All');
+  const [msgFilter, setMsgFilter] = useState('All');
 
   const flattenedUpdations = useMemo(() => {
     const arr: FlattenedUpdation[] = [];
@@ -92,6 +93,12 @@ export function RecentUpdationsTab({ tasks, users, triggerRecentUpdationsDownloa
         u.personName.toLowerCase().includes(s) ||
         u.updation.text.toLowerCase().includes(s)
       );
+    }
+
+    if (msgFilter === 'Sent') {
+      result = result.filter(u => u.updation.whatsappSent === true);
+    } else if (msgFilter === 'Not Sent') {
+      result = result.filter(u => !u.updation.whatsappSent);
     }
 
     return result;
@@ -200,17 +207,26 @@ export function RecentUpdationsTab({ tasks, users, triggerRecentUpdationsDownloa
           </div>
         )}
 
-        <div className="min-w-[150px]">
-          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1"><UserIcon size={12}/> Assigned To</label>
-          <select 
-            value={officerFilter} 
-            onChange={e => setOfficerFilter(e.target.value)} 
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-          >
-            <option value="All">All Officers</option>
-            {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-          </select>
-        </div>
+          <div className="flex flex-col md:flex-row gap-3 w-full max-w-2xl ml-auto">
+            <select 
+              value={officerFilter}
+              onChange={e => setOfficerFilter(e.target.value)}
+              className="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-xl font-bold text-sm text-slate-700 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none"
+            >
+              <option value="All">All Assigned Officers</option>
+              {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+            
+            <select
+              value={msgFilter}
+              onChange={e => setMsgFilter(e.target.value)}
+              className="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-xl font-bold text-sm text-slate-700 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none"
+            >
+              <option value="All">All Messages</option>
+              <option value="Sent">Message Sent</option>
+              <option value="Not Sent">Message Not Sent</option>
+            </select>
+          </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

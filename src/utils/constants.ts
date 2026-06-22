@@ -56,7 +56,7 @@ export const EXT_LINKS: Record<string, string> = {
 };
 
 export const DEFAULT_USERS: User[] = [
-  { id: 'admin', name: 'PK Navas (MLA)', role: 'admin', pass: 'Navas@2026', enabled: true, canInput: true, canSeeReports: true, canSeeGlobal: true, phone: '', whatsapp: '' },
+  { id: 'admin', name: 'PK Navas (MLA)', role: 'admin', pass: 'Navas@2026', enabled: true, canInput: true, canSeeReports: true, canSeeGlobal: true, canSeeGlobalOverview: true, canSeeDraftsView: true, canEditGlobalOverview: true, canEditOwnInputs: true, canReassign: true, canGenerateUpdationReport: true, canSeeRecentUpdations: true, phone: '', whatsapp: '' },
   { id: 'off1', name: 'Abdul Shukoor NK', role: 'officer', pass: 'Input@2026', enabled: true, canInput: true, canSeeReports: false, canSeeGlobal: false, phone: '', whatsapp: '' },
   { id: 'off2', name: 'P Musthafa', role: 'officer', pass: 'Off2@2026', enabled: true, canInput: false, canSeeReports: false, canSeeGlobal: false, phone: '', whatsapp: '' },
   { id: 'off3', name: 'Sadiq', role: 'officer', pass: 'Off3@2026', enabled: true, canInput: false, canSeeReports: false, canSeeGlobal: false, phone: '', whatsapp: '' },

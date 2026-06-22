@@ -216,7 +216,7 @@ export function AdminGlobalView({
                   </td>
                   <td className="px-4 py-3">
                     <span className="font-bold text-slate-800 max-w-[200px] truncate block" title={t.subject}>{t.subject || '-'}</span>
-                    <span className="text-xs text-slate-500">{t.personalDetails.name} • {t.personalDetails.mobileNumber}</span>
+                    <span className="text-xs text-slate-500">{t.personalDetails?.name || 'Unknown'} • {t.personalDetails?.mobileNumber || ''}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-700">{t.category}</span>
@@ -396,12 +396,12 @@ const AdminTaskCard = React.memo(({
         </div>
       </div>
       <div className="mb-2 border-b border-slate-100/50 pb-2 mt-1">
-        <h3 className="font-black text-slate-800 text-base leading-tight mb-1">{t.personalDetails.name}</h3>
-        {t.personalDetails.designation && (
+        <h3 className="font-black text-slate-800 text-base leading-tight mb-1">{t.personalDetails?.name || 'Unknown'}</h3>
+        {t.personalDetails?.designation && (
           <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">{t.personalDetails.designation}</p>
         )}
         <div className="flex gap-2 mt-2">
-          {!t.isSelfMode && (
+          {!t.isSelfMode && t.personalDetails?.mobileNumber && (
             <a 
               href={`tel:${t.personalDetails.mobileNumber}`} 
               className="bg-slate-100 p-1.5 rounded-lg text-slate-600 hover:bg-blue-100 hover:text-blue-600 transition-colors"
@@ -409,7 +409,7 @@ const AdminTaskCard = React.memo(({
               <Phone size={14}/>
             </a>
           )}
-          {t.personalDetails.whatsappNumber && !t.isSelfMode && (
+          {t.personalDetails?.whatsappNumber && !t.isSelfMode && (
             <a 
               href={`https://wa.me/${formatWhatsAppNumber(t.personalDetails.whatsappNumber)}`} 
               target="_blank" 

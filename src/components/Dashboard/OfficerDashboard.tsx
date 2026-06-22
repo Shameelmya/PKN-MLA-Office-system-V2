@@ -223,14 +223,6 @@ export function OfficerDashboard({
               <h2 className="text-lg font-black text-slate-800">Global Overview</h2>
               <p className="text-xs font-semibold text-slate-500">View and print all system-wide inputs based on permissions.</p>
             </div>
-            {user.canGenerateUpdationReport && (
-              <button 
-                onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
-              >
-                <FileOutput size={18}/> Updation Report
-              </button>
-            )}
           </div>
           <AdminGlobalView 
             currentUser={user}

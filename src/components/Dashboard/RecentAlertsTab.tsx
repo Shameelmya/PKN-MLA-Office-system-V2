@@ -23,15 +23,15 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
     } else {
       return tasks
         .filter(t => 
-          (t.assignedTo.includes(user.id) && (t.officerStatuses[user.id] === 'Pending' || t.officerStatuses[user.id] === 'In Progress' || !t.officerStatuses[user.id])) ||
+          (t.assignedTo.includes(user.id) && (t.officerStatuses?.[user.id] === 'Pending' || t.officerStatuses?.[user.id] === 'In Progress' || !t.officerStatuses?.[user.id])) ||
           (t.status === 'Rejected' && t.createdByUid === user.id)
         )
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
   }, [tasks, user]);
 
-  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.status !== 'Rejected' && (t.officerStatuses[user.id] === 'Pending' || !t.officerStatuses[user.id]))).length;
-  const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : (t.status !== 'Rejected' && t.officerStatuses[user.id] === 'In Progress')).length;
+  const pendingCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'Pending' : (t.status !== 'Rejected' && (t.officerStatuses?.[user.id] === 'Pending' || !t.officerStatuses?.[user.id]))).length;
+  const inProgressCount = activeTasks.filter(t => user.role === 'admin' ? t.status === 'In Progress' : (t.status !== 'Rejected' && t.officerStatuses?.[user.id] === 'In Progress')).length;
   const rejectedCount = activeTasks.filter(t => t.status === 'Rejected').length;
 
   const overdueCount = useMemo(() => {
@@ -112,11 +112,11 @@ export function RecentAlertsTab({ user, tasks, jumpToTask, users, setImpersonate
             {users.filter(u => u.enabled).map(u => {
               const uPending = tasks.filter(t => 
                 t.assignedTo.includes(u.id) && 
-                (t.officerStatuses[u.id] === 'Pending' || !t.officerStatuses[u.id] || t.officerStatuses[u.id] === 'Rejected')
+                (t.officerStatuses?.[u.id] === 'Pending' || !t.officerStatuses?.[u.id] || t.officerStatuses?.[u.id] === 'Rejected')
               ).length;
               const uInProgress = tasks.filter(t => 
                 t.assignedTo.includes(u.id) && 
-                t.officerStatuses[u.id] === 'In Progress'
+                t.officerStatuses?.[u.id] === 'In Progress'
               ).length;
               const uActive = uPending + uInProgress;
 

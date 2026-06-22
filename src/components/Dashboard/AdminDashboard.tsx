@@ -16,6 +16,7 @@ import { UpdationReportConfig } from '../../types';
 import { formatDate } from '../../utils/formatters';
 
 interface AdminDashboardProps {
+  currentUser: User;
   tasks: Task[];
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => void;
@@ -58,6 +59,7 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({
+  currentUser,
   tasks,
   updateTask,
   deleteTask,
@@ -231,7 +233,7 @@ export function AdminDashboard({
               <p className="text-sm font-medium text-slate-500">System wide tracking for active filters</p>
             </div>
             <div className="flex gap-2">
-              {(users.find(u => u.role === 'admin') || {}).role === 'admin' && (
+              {currentUser.role === 'admin' && (
                 <button 
                   onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
@@ -255,7 +257,7 @@ export function AdminDashboard({
             <StatCard title="Pending" value={pend} color="red" icon={<Clock size={24}/>}/>
           </div>
           <AdminGlobalView 
-            currentUser={users.find(u => u.role === 'admin')!}
+            currentUser={currentUser}
             tasks={tasks.filter(t => (t.taskType || 'input') === 'input')} 
             globalFilters={globalFilters} 
             updateTask={updateTask} 
@@ -285,7 +287,7 @@ export function AdminDashboard({
           users={users} 
           triggerPrint={triggerPrint} 
           triggerDownloadPDF={triggerDownloadPDF} 
-          creator={users.find(u => u.role === 'admin')!} 
+          creator={currentUser} 
         />
       )}
       
@@ -299,7 +301,7 @@ export function AdminDashboard({
       
       {activeTab === 'direct' && (
         <AdminDirectAssignments 
-          currentUser={users.find(u => u.role === 'admin')!}
+          currentUser={currentUser}
           users={users} 
           tasks={tasks} 
           globalFilters={globalFilters} 

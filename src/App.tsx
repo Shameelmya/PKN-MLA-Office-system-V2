@@ -271,6 +271,7 @@ export default function App() {
       const el = document.getElementById(targetId as string); 
       if(!el) { 
         cleanDownloadState(); 
+        setPdfProgress(null);
         return; 
       } 
       
@@ -283,12 +284,15 @@ export default function App() {
           const pages = Array.from(el.querySelectorAll('.pdf-page-chunk')) as HTMLElement[];
           
           if (pages.length > 0) {
-            // Render each chunk as a separate high-quality image
+            setPdfProgress({ current: 0, total: pages.length });
             for (let i = 0; i < pages.length; i++) {
+              setPdfProgress({ current: i + 1, total: pages.length });
+              await new Promise(resolve => setTimeout(resolve, 50));
+              
               const pageEl = pages[i];
               const dataUrl = await htmlToImage.toJpeg(pageEl, {
-                quality: 1.0,
-                pixelRatio: 3,
+                quality: 0.95,
+                pixelRatio: 2,
                 backgroundColor: '#ffffff',
                 style: { margin: '0' }
               });
@@ -297,13 +301,15 @@ export default function App() {
               pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             }
           } else {
-            // Fallback for reports that don't use page chunks
+            setPdfProgress({ current: 0, total: 1 });
+            await new Promise(resolve => setTimeout(resolve, 50));
             const dataUrl = await htmlToImage.toJpeg(el, {
-              quality: 1.0,
-              pixelRatio: 3,
+              quality: 0.95,
+              pixelRatio: 2,
               backgroundColor: '#ffffff',
               style: { margin: '0' }
             });
+            setPdfProgress({ current: 1, total: 1 });
             const pdfHeight = (el.offsetHeight * pdfWidth) / el.offsetWidth;
             
             let heightLeft = pdfHeight;
@@ -326,11 +332,11 @@ export default function App() {
           console.error("PDF Generation Failed:", error); 
           alert("Failed to generate PDF. Error: " + (error.message || String(error)));
         } finally {
-          // Cleanup any stuck html2canvas/html2pdf overlays
           document.querySelectorAll('.html2canvas-container').forEach(c => c.remove());
+          setPdfProgress(null);
           cleanDownloadState(); 
         }
-      }, 1500); // 1.5s wait to ensure background images are fully loaded
+      }, 100); 
     }; 
     
     const cleanDownloadState = () => { 
@@ -534,22 +540,22 @@ export default function App() {
       ` }} />
 
       {taskToPrint && <div className="hidden print:block w-full bg-white text-black font-sans"><PrintAcknowledgeSlip task={taskToPrint} /></div>}
-      {taskToDownload && <PDFCaptureWrapper id="dl-ack-slip"><PrintAcknowledgeSlip task={taskToDownload} /></PDFCaptureWrapper>}
+      {taskToDownload && <PDFCaptureWrapper id="dl-ack-slip" progress={pdfProgress}><PrintAcknowledgeSlip task={taskToDownload} /></PDFCaptureWrapper>}
       
       {taskDetailsToDownload && (
         taskDetailsToDownload.isCompletionLetter ? (
-          <PDFCaptureWrapper id="dl-completion-letter">
+          <PDFCaptureWrapper id="dl-completion-letter" progress={pdfProgress}>
             <PrintCompletionLetter task={taskDetailsToDownload} />
           </PDFCaptureWrapper>
         ) : (
-          <PDFCaptureWrapper id="dl-details-report">
+          <PDFCaptureWrapper id="dl-details-report" progress={pdfProgress}>
             <PrintTaskDetailsReport task={taskDetailsToDownload} users={users} />
           </PDFCaptureWrapper>
         )
       )}
       
       {masterReportConfigToDownload && (
-        <PDFCaptureWrapper id="dl-master-report">
+        <PDFCaptureWrapper id="dl-master-report" progress={pdfProgress}>
           <PrintMasterReport 
             config={masterReportConfigToDownload} 
             tasks={allTasks} 
@@ -560,19 +566,19 @@ export default function App() {
       )}
       
       {officerReportToDownload && (
-        <PDFCaptureWrapper id="dl-officer-report">
+        <PDFCaptureWrapper id="dl-officer-report" progress={pdfProgress}>
           <PrintOfficerReport config={officerReportToDownload} tasks={allTasks} />
         </PDFCaptureWrapper>
       )}
       
       {citizenDirectoryToDownload && (
-        <PDFCaptureWrapper id="dl-citizen-dir">
+        <PDFCaptureWrapper id="dl-citizen-dir" progress={pdfProgress}>
           <PrintCitizenDirectory citizens={citizenDirectoryToDownload} />
         </PDFCaptureWrapper>
       )}
 
       {updationReportToDownload && (
-        <PDFCaptureWrapper id="dl-updation-report">
+        <PDFCaptureWrapper id="dl-updation-report" progress={pdfProgress}>
           <PrintUpdationReport config={updationReportToDownload} tasks={allTasks} users={users} />
         </PDFCaptureWrapper>
       )}

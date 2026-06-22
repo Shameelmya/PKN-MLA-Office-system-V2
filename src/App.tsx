@@ -31,6 +31,7 @@ import {
   PrintOfficerReport, 
   PrintCitizenDirectory,
   PrintUpdationReport,
+  PrintRecentUpdationsReport,
   ReportConfig
 } from './components/Prints/PrintComponents';
 import { TaskDetailsModal } from './components/Dialogs/TaskDetailsModal';
@@ -111,8 +112,9 @@ export default function App() {
   const [taskDetailsToDownload, setTaskDetailsToDownload] = useState<Task | null>(null);
   const [masterReportConfigToDownload, setMasterReportConfigToDownload] = useState<ReportConfig | null>(null);
   const [citizenDirectoryToDownload, setCitizenDirectoryToDownload] = useState<any[] | null>(null);
-  const [officerReportToDownload, setOfficerReportToDownload] = useState<any | null>(null);
+  const [officerReportToDownload, setOfficerReportToDownload] = useState<ReportConfig | null>(null);
   const [updationReportToDownload, setUpdationReportToDownload] = useState<UpdationReportConfig | null>(null);
+  const [recentUpdationsReportToDownload, setRecentUpdationsReportToDownload] = useState<any>(null);
 
   useEffect(() => { 
     const initAuth = async () => { 
@@ -232,7 +234,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const downloadState = taskToDownload || taskDetailsToDownload || masterReportConfigToDownload || citizenDirectoryToDownload || officerReportToDownload || updationReportToDownload;
+    const downloadState = taskToDownload || taskDetailsToDownload || masterReportConfigToDownload || citizenDirectoryToDownload || officerReportToDownload || updationReportToDownload || recentUpdationsReportToDownload;
     if (!downloadState) return;
     const isCompletionLetter = taskDetailsToDownload && taskDetailsToDownload.isCompletionLetter;
     
@@ -250,7 +252,9 @@ export default function App() {
                 ? 'dl-citizen-dir' 
                 : updationReportToDownload
                   ? 'dl-updation-report'
-                  : null;
+                  : recentUpdationsReportToDownload
+                    ? 'dl-recent-updations-report'
+                    : null;
     
     const filename = taskToDownload 
       ? `Acknowledge_${taskToDownload.id}` 
@@ -266,7 +270,9 @@ export default function App() {
                 ? `Citizen_Directory` 
                 : updationReportToDownload
                   ? `Updation_Report_${updationReportToDownload.dateRange}`
-                  : 'Document';
+                  : recentUpdationsReportToDownload
+                    ? `Recent_Updations_Report`
+                    : 'Document';
 
     const generatePDF = () => { 
       const el = document.getElementById(targetId as string); 
@@ -345,12 +351,14 @@ export default function App() {
       setTaskDetailsToDownload(null); 
       setMasterReportConfigToDownload(null); 
       setCitizenDirectoryToDownload(null); 
-      setOfficerReportToDownload(null); 
+      setOfficerReportToDownload(null);
       setUpdationReportToDownload(null);
-    };
-
+      setRecentUpdationsReportToDownload(null);
+      setCitizenDirectoryToDownload(null);
+    }; 
+    
     generatePDF(); 
-  }, [taskToDownload, taskDetailsToDownload, masterReportConfigToDownload, citizenDirectoryToDownload, officerReportToDownload, updationReportToDownload]);
+  }, [taskToDownload, taskDetailsToDownload, masterReportConfigToDownload, officerReportToDownload, updationReportToDownload, recentUpdationsReportToDownload, citizenDirectoryToDownload, users, categories]);
 
   const handleLogin = (user: UserType) => { 
     setCurrentUser(user); 
@@ -584,6 +592,12 @@ export default function App() {
         </PDFCaptureWrapper>
       )}
 
+      {recentUpdationsReportToDownload && (
+        <PDFCaptureWrapper id="dl-recent-updations-report" progress={pdfProgress}>
+          <PrintRecentUpdationsReport config={recentUpdationsReportToDownload} />
+        </PDFCaptureWrapper>
+      )}
+
       {viewingTask && !taskToPrint && (
         <TaskDetailsModal 
           task={allTasks.find(t => t.id === viewingTask.id) || viewingTask} 
@@ -701,9 +715,10 @@ export default function App() {
               addDesignation={addDesignation} 
               triggerMasterReport={(config) => setMasterReportConfigToDownload(config)} 
               triggerMasterDownload={setMasterReportConfigToDownload} 
-              triggerOfficerReport={(config) => setOfficerReportToDownload(config)} 
+              triggerOfficerReport={setOfficerReportToDownload} 
               triggerOfficerDownload={setOfficerReportToDownload} 
               triggerUpdationDownload={setUpdationReportToDownload}
+              triggerRecentUpdationsDownload={setRecentUpdationsReportToDownload}
               backupMeta={backupMeta} 
               updateBackupMeta={updateBackupMeta} 
               triggerCitizenPrint={(data) => setCitizenDirectoryToDownload(data)} 
@@ -730,6 +745,7 @@ export default function App() {
               triggerDetailsDownload={setTaskDetailsToDownload} 
               triggerViewDetails={setViewingTask} 
               triggerUpdationDownload={setUpdationReportToDownload}
+              triggerRecentUpdationsDownload={setRecentUpdationsReportToDownload}
               isAdminOverride={currentUser!.role === 'admin'} 
               triggerConfirm={triggerConfirm} 
               globalFilters={globalFilters} 

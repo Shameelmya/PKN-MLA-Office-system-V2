@@ -34,8 +34,9 @@ export function AdminSettings({
     canSeeDraftsView: false,
     canEditGlobalOverview: false,
     canEditOwnInputs: false,
-    canReassign: true,
-    canGenerateUpdationReport: false
+    canReassign: false,
+    canGenerateUpdationReport: false,
+    canSeeRecentUpdations: false
   });
 
   const handleToggle = (id: string, field: keyof User) => {
@@ -72,7 +73,8 @@ export function AdminSettings({
       canEditGlobalOverview: newOffForm.canEditGlobalOverview,
       canEditOwnInputs: newOffForm.canEditOwnInputs,
       canReassign: newOffForm.canReassign,
-      canGenerateUpdationReport: newOffForm.canGenerateUpdationReport
+      canGenerateUpdationReport: newOffForm.canGenerateUpdationReport,
+      canSeeRecentUpdations: newOffForm.canSeeRecentUpdations
     };
     await addUser(newUser);
     setNewOffForm({
@@ -87,8 +89,9 @@ export function AdminSettings({
       canSeeDraftsView: false,
       canEditGlobalOverview: false,
       canEditOwnInputs: false,
-      canReassign: true,
-      canGenerateUpdationReport: false
+      canReassign: false,
+      canGenerateUpdationReport: false,
+      canSeeRecentUpdations: false
     });
     alert("New officer successfully created.");
   };
@@ -242,15 +245,23 @@ export function AdminSettings({
                       className="w-4 h-4 disabled:opacity-50"
                     />
                   </label>
-                  <label className="flex items-center justify-between cursor-pointer p-1">
-                    <span className="text-xs font-bold text-slate-700">Updation Report Access</span>
+                  <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
                     <input 
                       type="checkbox" 
                       checked={!!u.canGenerateUpdationReport} 
                       onChange={() => handleToggle(u.id, 'canGenerateUpdationReport')} 
-                      disabled={u.role==='admin'} 
-                      className="w-4 h-4 disabled:opacity-50"
+                      className="w-4 h-4 text-emerald-600 rounded cursor-pointer"
                     />
+                    <span className="text-xs font-bold text-slate-700">Updation Report Access</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-200">
+                    <input 
+                      type="checkbox" 
+                      checked={!!u.canSeeRecentUpdations} 
+                      onChange={() => handleToggle(u.id, 'canSeeRecentUpdations')} 
+                      className="w-4 h-4 text-emerald-600 rounded cursor-pointer"
+                    />
+                    <span className="text-xs font-bold text-slate-700">Recent Updations Tab</span>
                   </label>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -372,16 +383,29 @@ export function AdminSettings({
                 /> 
                 Can Re-assign Tasks
               </label>
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-900">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={newOffForm.canGenerateUpdationReport} 
                   onChange={e => setNewOffForm({...newOffForm, canGenerateUpdationReport: e.target.checked})} 
-                  className="rounded text-indigo-600 bg-white"
-                /> 
-                Updation Report
+                  className="w-4 h-4 text-emerald-600 rounded"
+                />
+                <span className="text-sm font-semibold text-slate-700">
+                  Updation Report Access
+                </span>
               </label>
-            </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={newOffForm.canSeeRecentUpdations} 
+                  onChange={e => setNewOffForm({...newOffForm, canSeeRecentUpdations: e.target.checked})} 
+                  className="w-4 h-4 text-emerald-600 rounded"
+                />
+                <span className="text-sm font-semibold text-slate-700">
+                  Recent Updations Tab
+                </span>
+              </label>
+            </div> 
             <div className="w-full flex justify-end mt-2 pt-2 border-t border-slate-100">
               <button 
                 type="submit" 

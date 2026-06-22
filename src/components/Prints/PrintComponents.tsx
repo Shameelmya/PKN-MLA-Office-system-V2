@@ -660,3 +660,79 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   );
 }
 
+// 8. Print Recent Updations Report
+interface PrintRecentUpdationsReportProps {
+  config: {
+    dateRange: string;
+    customStartDate?: string;
+    customEndDate?: string;
+    officer: string;
+    flattenedData: any[]; // Matches FlattenedUpdation
+  };
+}
+
+export function PrintRecentUpdationsReport({ config }: PrintRecentUpdationsReportProps) {
+  const { flattenedData } = config;
+  const chunkedData = [];
+  const itemsPerPage = 8;
+  for (let i = 0; i < flattenedData.length; i += itemsPerPage) {
+    chunkedData.push(flattenedData.slice(i, i + itemsPerPage));
+  }
+  if (chunkedData.length === 0) chunkedData.push([]);
+
+  return (
+    <div className="bg-white w-full max-w-[794px] mx-auto text-black font-sans">
+      {chunkedData.map((chunk, pageIndex) => (
+        <div key={pageIndex} className="pdf-page-chunk" style={{ width: '794px', height: '1123px', display: 'flex', flexDirection: 'column', padding: '15mm', backgroundColor: 'white', boxSizing: 'border-box' }}>
+          
+          <div className="border-b-2 border-black pb-2 mb-4 shrink-0 flex items-end justify-between">
+            <div>
+              <h1 className="text-2xl font-black uppercase tracking-widest text-black">PK Navas MLA</h1>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500">MLA Office, Tanur Constituency</p>
+            </div>
+            <div className="text-right">
+              <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Recent Updations</h2>
+              <p className="text-[10px] font-bold text-gray-500 uppercase mt-1">Page {pageIndex + 1} of {chunkedData.length}</p>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col gap-3">
+            {chunk.map((item, idx) => (
+              <div key={idx} className="border border-black p-3 break-inside-avoid shadow-sm bg-white text-black">
+                <div className="flex justify-between items-start border-b border-gray-300 pb-2 mb-2">
+                  <div className="flex gap-2 items-center">
+                    <span className="font-black text-[12px] uppercase">{item.taskId}</span>
+                    <span className="text-[11px] font-bold text-gray-700 truncate max-w-[200px]">{item.taskSubject}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-[11px] font-black">{formatDate(item.updation.time)} {formatTime(item.updation.time)}</span>
+                  </div>
+                </div>
+
+                <div className="text-[12px] font-semibold text-gray-900 leading-snug mb-2">
+                  {item.updation.text}
+                </div>
+
+                <div className="flex justify-between items-end pt-1 border-t border-gray-200">
+                  <div>
+                    <span className="block text-[11px] font-black">{item.personName} {item.mobileNumber && `(${item.mobileNumber})`}</span>
+                  </div>
+                  <div className="text-[9px] font-bold uppercase text-gray-500 text-right">
+                    By {item.updation.by} <span className="lowercase text-gray-400 px-1">for</span> {item.assignedToNames || 'None'}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {chunk.length === 0 && (
+              <div className="text-center p-8 font-bold text-gray-500">No updations found matching these filters.</div>
+            )}
+          </div>
+
+          <div className="mt-auto border-t border-gray-300 pt-2 text-right text-[9px] font-bold text-gray-400 uppercase tracking-widest shrink-0">
+            Generated on {new Date().toLocaleString('en-IN')} | PK Navas MLA Office
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

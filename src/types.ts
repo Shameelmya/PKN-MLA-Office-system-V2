@@ -13,6 +13,7 @@ export interface User {
   canEditOwnInputs?: boolean;
   canReassign?: boolean;
   canGenerateUpdationReport?: boolean;
+  canSeeRecentUpdations?: boolean;
   phone: string;
   whatsapp: string;
 }

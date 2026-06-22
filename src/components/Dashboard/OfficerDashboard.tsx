@@ -7,8 +7,10 @@ import { Task, User, GlobalFilters } from '../../types';
 import { WorkerTab } from './WorkerTab';
 import { AllTasksHistoryTab } from './AllTasksHistoryTab';
 import { InputFormTab } from './InputFormTab';
+import { InputFormTab } from './InputFormTab';
 import { RecentAlertsTab } from './RecentAlertsTab';
 import { AdminGlobalView } from './AdminGlobalView';
+import { RecentUpdationsTab } from './RecentUpdationsTab';
 import { UpdationReportConfigModal } from '../Dialogs/ReportModals';
 import { UpdationReportConfig } from '../../types';
 import { formatDate } from '../../utils/formatters';
@@ -30,6 +32,7 @@ interface OfficerDashboardProps {
   triggerDetailsDownload: (task: Task) => void;
   triggerViewDetails: (task: Task) => void;
   triggerUpdationDownload?: (config: UpdationReportConfig) => void;
+  triggerRecentUpdationsDownload?: (config: any) => void;
   isAdminOverride: boolean;
   triggerConfirm: (
     title: string,
@@ -61,6 +64,7 @@ export function OfficerDashboard({
   triggerDetailsDownload,
   triggerViewDetails,
   triggerUpdationDownload,
+  triggerRecentUpdationsDownload,
   isAdminOverride,
   triggerConfirm,
   globalFilters,
@@ -115,9 +119,17 @@ export function OfficerDashboard({
         {hasGlobalOverviewPermission && (
           <button 
             onClick={() => { setActiveTab('overview'); setGlobalSearch(''); }} 
-            className={`flex-1 px-2 py-2 md:py-3 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 ${activeTab === 'overview' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          className={`flex-1 px-2 py-2 md:py-3 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 ${activeTab === 'overview' ? 'bg-slate-800 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             <Eye size={15} /> Global Overview
+          </button>
+        )}
+        {user.canSeeRecentUpdations && (
+          <button 
+            onClick={() => { setActiveTab('recent_updations'); setGlobalSearch(''); loadArchive(); }} 
+            className={`flex-1 px-2 py-2 md:py-3 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 ${activeTab === 'recent_updations' ? 'bg-amber-500 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+          >
+            <Zap size={15} /> Updations
           </button>
         )}
         <button 
@@ -190,6 +202,16 @@ export function OfficerDashboard({
           triggerViewDetails={triggerViewDetails} 
           triggerConfirm={triggerConfirm} 
           initialSearch={globalSearch}
+        />
+      )}
+
+      {/* Recent Updations Tab */}
+      {activeTab === 'recent_updations' && user.canSeeRecentUpdations && (
+        <RecentUpdationsTab 
+          tasks={tasks} 
+          users={users} 
+          triggerRecentUpdationsDownload={triggerRecentUpdationsDownload!} 
+          updateTask={updateTask} 
         />
       )}
 

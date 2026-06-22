@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Bell, FileText, Users, Plus, Zap, Eye, Database, FileOutput, Clock, CheckCircle, Paperclip, Ban, AlertCircle, ArrowRight } from 'lucide-react';
 import { Task, User, GlobalFilters, BackupMeta } from '../../types';
-import { RecentAlertsTab } from './RecentAlertsTab';
-import { StatCard } from '../Shared/StatCard';
-import { AdminGlobalView } from './AdminGlobalView';
 import { InputFormTab } from './InputFormTab';
+import { RecentAlertsTab } from './RecentAlertsTab';
+import { AdminGlobalView } from './AdminGlobalView';
+import { RecentUpdationsTab } from './RecentUpdationsTab';
 import { AdminCitizenDirectory } from './AdminCitizenDirectory';
 import { AdminDirectAssignments } from './AdminDirectAssignments';
 import { AdminSettings } from './AdminSettings';
@@ -38,7 +38,8 @@ interface AdminDashboardProps {
   triggerMasterDownload: (config: ReportConfig) => void;
   triggerOfficerReport: (config: ReportConfig) => void;
   triggerOfficerDownload: (config: ReportConfig) => void;
-  triggerUpdationDownload: (config: UpdationReportConfig) => void;
+  triggerUpdationDownload?: (config: UpdationReportConfig) => void;
+  triggerRecentUpdationsDownload?: (config: any) => void;
   backupMeta: BackupMeta;
   updateBackupMeta: (updates: Partial<BackupMeta>) => Promise<void>;
   triggerCitizenPrint: (citizens: any[]) => void;
@@ -80,6 +81,7 @@ export function AdminDashboard({
   triggerOfficerReport,
   triggerOfficerDownload,
   triggerUpdationDownload,
+  triggerRecentUpdationsDownload,
   backupMeta,
   updateBackupMeta,
   triggerCitizenPrint,
@@ -155,6 +157,12 @@ export function AdminDashboard({
           Global Overview
         </button>
         <button 
+          onClick={() => { setActiveTab('recent_updations'); setGlobalSearch(''); loadArchive(); }} 
+          className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'recent_updations' ? 'bg-amber-500 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
+        >
+          <Zap size={13}/> Updations
+        </button>
+        <button 
           onClick={() => { setActiveTab('input'); setGlobalSearch(''); }} 
           className={`flex-1 justify-center px-3 py-1.5 md:px-4 md:py-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 whitespace-nowrap ${activeTab === 'input' ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'}`}
         >
@@ -203,6 +211,15 @@ export function AdminDashboard({
           setImpersonatedUser={setImpersonatedUser}
           onOfficerClick={handleOfficerClick}
           updateTask={updateTask}
+        />
+      )}
+
+      {activeTab === 'recent_updations' && (
+        <RecentUpdationsTab 
+          tasks={tasks} 
+          users={users} 
+          triggerRecentUpdationsDownload={triggerRecentUpdationsDownload!} 
+          updateTask={updateTask} 
         />
       )}
       

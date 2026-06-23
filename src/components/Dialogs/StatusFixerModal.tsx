@@ -79,10 +79,11 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
                   </td>
                   <td className="py-3">
                     <select 
-                      value={t.followUpFrequency || '1W'} 
+                      value={t.followUpFrequency || 'None'} 
                       onChange={(e) => handleFrequencyChange(t.id, e.target.value)}
                       className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
                     >
+                      <option value="None">None</option>
                       <option value="1W">1 Week</option>
                       <option value="2W">2 Weeks</option>
                       <option value="1M">1 Month</option>

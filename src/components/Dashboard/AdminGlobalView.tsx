@@ -52,6 +52,15 @@ export function AdminGlobalView({
   triggerConfirm
 }: AdminGlobalViewProps) {
   const [search, setSearch] = useState('');
+  
+  const waPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearWAPress = () => {
+    if (waPressTimer.current) {
+      clearTimeout(waPressTimer.current);
+      waPressTimer.current = null;
+    }
+  };
   const [catFilter, setCatFilter] = useState('All');
   const [officerFilter, setOfficerFilter] = useState(initialOfficerFilter || 'All');
   const [visibleCount, setVisibleCount] = useState(50);
@@ -113,6 +122,7 @@ export function AdminGlobalView({
       return;
     }
     const waMessage = `പ്രിയപ്പെട്ട ${t.personalDetails.name},\n\nതാങ്കൾ പി.കെ നവാസ് എം.എൽ.എ യുടെ ഓഫീസുമായി ബന്ധപ്പെട്ടതിന് നന്ദി. നിങ്ങളുടെ അപേക്ഷ/പരാതി ഔദ്യോഗികമായി രേഖപ്പെടുത്തിയിട്ടുണ്ട്.\n\n*വിഷയം:* ${t.subject}\n*റഫറൻസ് ഐഡി:* ${t.id}\n\n\nസ്നേഹത്തോടെ,\nഎം.എൽ.എ ഓഫീസ്, താനൂർ.ഫോൺ: 9037032002`;
+    updateTask(t.id, { isWASent: true });
     window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMessage)}`, '_blank');
   };
 
@@ -240,8 +250,25 @@ export function AdminGlobalView({
                     {!t.isSelfMode && (
                       <button 
                         onClick={() => handleSendWA(t)} 
-                        title="Send WhatsApp Acknowledgement" 
-                        className="text-green-600 hover:bg-green-100 p-2 rounded-lg transition-colors bg-green-50"
+                        onMouseDown={() => {
+                          if (t.isWASent) {
+                            waPressTimer.current = setTimeout(() => {
+                              updateTask(t.id, { isWASent: false });
+                            }, 500);
+                          }
+                        }}
+                        onMouseUp={clearWAPress}
+                        onMouseLeave={clearWAPress}
+                        onTouchStart={() => {
+                          if (t.isWASent) {
+                            waPressTimer.current = setTimeout(() => {
+                              updateTask(t.id, { isWASent: false });
+                            }, 500);
+                          }
+                        }}
+                        onTouchEnd={clearWAPress}
+                        title={t.isWASent ? "Hold to mark Unsent" : "Send WhatsApp Acknowledgement"} 
+                        className={`p-2 rounded-lg transition-colors ${t.isWASent ? 'bg-slate-200 text-slate-400' : 'text-green-600 hover:bg-green-100 bg-green-50'}`}
                       >
                         <Send size={16}/>
                       </button>
@@ -410,14 +437,32 @@ const AdminTaskCard = React.memo(({
             </a>
           )}
           {t.personalDetails?.whatsappNumber && !t.isSelfMode && (
-            <a 
-              href={`https://wa.me/${formatWhatsAppNumber(t.personalDetails.whatsappNumber)}`} 
-              target="_blank" 
-              rel="noreferrer" 
-              className="bg-slate-100 p-1.5 rounded-lg text-slate-600 hover:bg-green-100 hover:text-green-600 transition-colors"
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleSendWA(t); }} 
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                if (t.isWASent) {
+                  pressTimer.current = setTimeout(() => {
+                    updateTask(t.id, { isWASent: false });
+                  }, 500);
+                }
+              }}
+              onMouseUp={(e) => { e.stopPropagation(); clearPress(); }}
+              onMouseLeave={(e) => { e.stopPropagation(); clearPress(); }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                if (t.isWASent) {
+                  pressTimer.current = setTimeout(() => {
+                    updateTask(t.id, { isWASent: false });
+                  }, 500);
+                }
+              }}
+              onTouchEnd={(e) => { e.stopPropagation(); clearPress(); }}
+              className={`p-1.5 rounded-lg transition-colors ${t.isWASent ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-green-600 hover:bg-green-100'}`}
+              title={t.isWASent ? "Hold to mark Unsent" : "Send WA"}
             >
               <MessageSquare size={14}/>
-            </a>
+            </button>
           )}
         </div>
       </div>

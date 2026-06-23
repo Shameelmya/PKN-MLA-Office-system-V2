@@ -569,6 +569,17 @@ export default function App() {
            <option value="3M">3 Months</option>
          </select>
        )}
+       {activeUser?.name === 'PK Navas (MLA)' && (
+         <select
+           value={globalFilters.waSentStatus || 'All'}
+           onChange={e => setGlobalFilters(p => ({...p, waSentStatus: e.target.value}))}
+           className="px-3 py-1.5 border border-slate-300 rounded-lg font-bold text-slate-700 outline-none bg-green-50 focus:border-green-500 transition-all font-sans"
+         >
+           <option value="All">WA Status: All</option>
+           <option value="Sent">WA Sent</option>
+           <option value="Unsent">WA Unsent</option>
+         </select>
+       )}
        {isFetchingArchive && (
          <span className="text-xs font-bold text-indigo-500 animate-pulse ml-2 flex items-center gap-1">
            <Database size={14}/> Fetching Archive...

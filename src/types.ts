@@ -82,6 +82,7 @@ export interface Task {
   isCompletionLetter?: boolean;
   isReadByAdmin?: boolean;
   followUpFrequency?: string;
+  isWASent?: boolean;
 }
 
 export interface GlobalFilters {
@@ -91,6 +92,7 @@ export interface GlobalFilters {
   customStartDate?: string;
   customEndDate?: string;
   followUpFrequency?: string;
+  waSentStatus?: string;
 }
 
 export interface BackupMeta {

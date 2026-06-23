@@ -46,6 +46,14 @@ export const useFilteredTasks = (
       result = result.filter(t => t.followUpFrequency === globalFilters.followUpFrequency);
     }
 
+    if (globalFilters.waSentStatus && globalFilters.waSentStatus !== 'All') {
+      if (globalFilters.waSentStatus === 'Sent') {
+        result = result.filter(t => t.isWASent);
+      } else if (globalFilters.waSentStatus === 'Unsent') {
+        result = result.filter(t => !t.isWASent);
+      }
+    }
+
     if (catFilter && catFilter !== 'All') {
       if (catFilter === 'Direct Assignment') result = result.filter(t => t.taskType === 'direct');
       else result = result.filter(t => t.category === catFilter);

@@ -84,7 +84,7 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200">
-                <th className="pb-3 text-xs font-black text-slate-500 uppercase">Task ID</th>
+                <th className="pb-3 text-xs font-black text-slate-500 uppercase w-32">Task ID</th>
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase">Subject</th>
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase w-48">Status</th>
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase">Follow-up Freq</th>

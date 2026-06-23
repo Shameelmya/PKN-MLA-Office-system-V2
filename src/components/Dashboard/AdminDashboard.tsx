@@ -261,10 +261,7 @@ export function AdminDashboard({
                 onClick={() => setShowStatusFixer(true)}
                 className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-xl text-sm font-black shadow-sm transition-all"
               >
-                Status Fixer
-              </button>
-              <button onClick={() => { localStorage.removeItem('activeUser'); window.location.reload(); }} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-xl text-sm font-black shadow-sm transition-all flex items-center gap-2">
-                <LogOut size={16}/> Logout
+                Quick Status
               </button>
               <div className="flex gap-2">
                 {currentUser.role === 'admin' && (

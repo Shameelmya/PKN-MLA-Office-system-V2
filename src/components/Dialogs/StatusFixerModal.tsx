@@ -10,28 +10,61 @@ interface StatusFixerModalProps {
 
 export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModalProps) {
   const [search, setSearch] = useState('');
+  const [pendingChanges, setPendingChanges] = useState<Record<string, {status?: string, freq?: string}>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const filteredTasks = tasks.filter(t => 
     t.id.toLowerCase().includes(search.toLowerCase()) || 
     t.subject.toLowerCase().includes(search.toLowerCase())
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const handleStatusChange = async (taskId: string, newStatus: string) => {
-    await updateTask(taskId, { status: newStatus });
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    setPendingChanges(prev => ({
+      ...prev,
+      [taskId]: { ...prev[taskId], status: newStatus }
+    }));
   };
 
-  const handleFrequencyChange = async (taskId: string, newFreq: string) => {
-    await updateTask(taskId, { followUpFrequency: newFreq });
+  const handleFrequencyChange = (taskId: string, newFreq: string) => {
+    setPendingChanges(prev => ({
+      ...prev,
+      [taskId]: { ...prev[taskId], freq: newFreq }
+    }));
+  };
+
+  const handleSaveAll = async () => {
+    setIsSaving(true);
+    for (const taskId of Object.keys(pendingChanges)) {
+      const updates: Partial<Task> = {};
+      if (pendingChanges[taskId].status) updates.status = pendingChanges[taskId].status;
+      if (pendingChanges[taskId].freq) updates.followUpFrequency = pendingChanges[taskId].freq;
+      if (Object.keys(updates).length > 0) {
+        await updateTask(taskId, updates);
+      }
+    }
+    setPendingChanges({});
+    setIsSaving(false);
   };
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
-          <h2 className="text-xl font-black text-slate-800">Status & Follow-up Fixer (Temporary Tool)</h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors">
-            <X size={20}/>
-          </button>
+          <h2 className="text-xl font-black text-slate-800">Quick Status</h2>
+          <div className="flex items-center gap-4">
+            {Object.keys(pendingChanges).length > 0 && (
+              <button 
+                onClick={handleSaveAll} 
+                disabled={isSaving} 
+                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2 rounded-xl text-sm font-bold shadow transition-all"
+              >
+                {isSaving ? 'Saving...' : `Save ${Object.keys(pendingChanges).length} Changes`}
+              </button>
+            )}
+            <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-500 transition-colors">
+              <X size={20}/>
+            </button>
+          </div>
         </div>
         
         <div className="p-4 border-b border-slate-100">
@@ -53,7 +86,7 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
               <tr className="border-b border-slate-200">
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase">Task ID</th>
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase">Subject</th>
-                <th className="pb-3 text-xs font-black text-slate-500 uppercase">Status</th>
+                <th className="pb-3 text-xs font-black text-slate-500 uppercase w-48">Status</th>
                 <th className="pb-3 text-xs font-black text-slate-500 uppercase">Follow-up Freq</th>
               </tr>
             </thead>
@@ -61,12 +94,12 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
               {filteredTasks.map(t => (
                 <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="py-3 text-xs font-bold text-slate-600">{t.id}</td>
-                  <td className="py-3 text-sm font-bold text-slate-800 pr-4">{t.subject}</td>
+                  <td className="py-3 text-[11px] font-bold text-slate-800 pr-4 leading-tight">{t.subject}</td>
                   <td className="py-3 pr-4">
                     <select 
-                      value={t.status || 'Pending'} 
+                      value={pendingChanges[t.id]?.status || t.status || 'Pending'} 
                       onChange={(e) => handleStatusChange(t.id, e.target.value)}
-                      className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
+                      className="px-2 py-1 w-full bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
                     >
                       <option value="Pending">Pending</option>
                       <option value="In Progress">In Progress</option>
@@ -79,7 +112,7 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
                   </td>
                   <td className="py-3">
                     <select 
-                      value={t.followUpFrequency || 'None'} 
+                      value={pendingChanges[t.id]?.freq || t.followUpFrequency || 'None'} 
                       onChange={(e) => handleFrequencyChange(t.id, e.target.value)}
                       className="px-2 py-1 bg-white border border-slate-300 rounded text-xs font-bold text-slate-700 outline-none focus:border-indigo-500"
                     >

@@ -116,11 +116,16 @@ export function TaskDetailsModal({
 
   const handleSaveEdit = async () => {
     let updatedTimeline = [...task.timeline];
+    let finalAssignedTo = [...editData.assignedTo];
+    if (editData.status === 'Local Work') {
+      finalAssignedTo = [];
+    }
+
     const oldAssigned = [...task.assignedTo].sort().join(',');
-    const newAssigned = [...editData.assignedTo].sort().join(',');
+    const newAssigned = [...finalAssignedTo].sort().join(',');
     
     if (oldAssigned !== newAssigned) {
-      const newNames = editData.assignedTo
+      const newNames = finalAssignedTo
         .map(id => users.find(u => u.id === id)?.name || id)
         .join(', ');
       updatedTimeline.push({
@@ -137,7 +142,7 @@ export function TaskDetailsModal({
 
     if (task.status === 'Rejected') {
       finalStatus = 'Pending';
-      editData.assignedTo.forEach(id => {
+      finalAssignedTo.forEach(id => {
         updatedOfficerStatuses[id] = 'Pending';
       });
       updatedTimeline.push({
@@ -148,7 +153,7 @@ export function TaskDetailsModal({
         text: `Task updated and resubmitted to assigned officers.`
       });
     } else if (editData.status !== task.status) {
-      editData.assignedTo.forEach(id => {
+      finalAssignedTo.forEach(id => {
         updatedOfficerStatuses[id] = editData.status;
       });
       let actionType = 'update';
@@ -164,7 +169,7 @@ export function TaskDetailsModal({
         text: `Global status changed to ${editData.status}.`
       });
     } else {
-      editData.assignedTo.forEach(id => {
+      finalAssignedTo.forEach(id => {
         if (!task.assignedTo.includes(id)) {
           updatedOfficerStatuses[id] = 'Pending';
         }
@@ -177,7 +182,7 @@ export function TaskDetailsModal({
       status: finalStatus,
       priority: editData.priority,
       category: editData.category,
-      assignedTo: editData.assignedTo,
+      assignedTo: finalAssignedTo,
       personalDetails: editData.personalDetails,
       officerStatuses: updatedOfficerStatuses,
       timeline: updatedTimeline,

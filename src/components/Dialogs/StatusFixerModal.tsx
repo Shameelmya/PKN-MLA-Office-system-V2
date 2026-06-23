@@ -16,7 +16,11 @@ export function StatusFixerModal({ tasks, updateTask, onClose }: StatusFixerModa
   const filteredTasks = tasks.filter(t => 
     t.id.toLowerCase().includes(search.toLowerCase()) || 
     t.subject.toLowerCase().includes(search.toLowerCase())
-  ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  ).sort((a, b) => {
+    const numA = parseInt(a.id.match(/\d+$/)?.[0] || '0', 10);
+    const numB = parseInt(b.id.match(/\d+$/)?.[0] || '0', 10);
+    return numB - numA;
+  });
 
   const handleStatusChange = (taskId: string, newStatus: string) => {
     setPendingChanges(prev => ({

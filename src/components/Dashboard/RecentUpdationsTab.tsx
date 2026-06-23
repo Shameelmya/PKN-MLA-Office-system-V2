@@ -102,7 +102,7 @@ export function RecentUpdationsTab({ tasks, users, triggerRecentUpdationsDownloa
     }
 
     return result;
-  }, [flattenedUpdations, dateRange, customStart, customEnd, officerFilter, search]);
+  }, [flattenedUpdations, dateRange, customStart, customEnd, officerFilter, search, msgFilter]);
 
   const handleSendWA = (u: FlattenedUpdation) => {
     if (u.isSelfMode) return;

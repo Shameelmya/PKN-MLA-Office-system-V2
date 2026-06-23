@@ -320,7 +320,26 @@ export function TaskDetailsModal({
                 </span>
               )}
             </h2>
-            <p className="text-xs text-slate-400 font-medium tracking-widest uppercase mt-1">Ref: {task.id}</p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-xs text-slate-400 font-medium tracking-widest uppercase">Ref: {task.id}</p>
+              {currentUser.name === 'PK Navas (MLA)' && (
+                <div className="flex items-center gap-2 border-l border-slate-700 pl-3">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Follow-up:</span>
+                  <select
+                    value={task.followUpFrequency || ''}
+                    onChange={(e) => updateTask(task.id, { followUpFrequency: e.target.value })}
+                    className="bg-slate-800 text-white text-xs font-bold rounded px-1.5 py-0.5 border border-slate-700 outline-none cursor-pointer"
+                  >
+                    <option value="">None</option>
+                    <option value="1W">1W</option>
+                    <option value="2W">2W</option>
+                    <option value="1M">1M</option>
+                    <option value="2M">2M</option>
+                    <option value="3M">3M</option>
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3">
              {canUserEdit && (

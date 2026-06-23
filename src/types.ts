@@ -81,6 +81,7 @@ export interface Task {
   timeline: TimelineItem[];
   isCompletionLetter?: boolean;
   isReadByAdmin?: boolean;
+  followUpFrequency?: string;
 }
 
 export interface GlobalFilters {
@@ -89,6 +90,7 @@ export interface GlobalFilters {
   applicationMode: string;
   customStartDate?: string;
   customEndDate?: string;
+  followUpFrequency?: string;
 }
 
 export interface BackupMeta {
@@ -120,6 +122,7 @@ export interface UpdationReportConfig {
   addDescriptions: boolean;
   customStartDate?: string;
   customEndDate?: string;
+  followUpFrequency?: string;
 }
 
 // Global variable declarations

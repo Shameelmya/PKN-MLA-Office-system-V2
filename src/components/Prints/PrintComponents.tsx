@@ -534,6 +534,11 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
     filteredTasks = filteredTasks.filter(t => new Date(t.createdAt) >= start);
   }
 
+  // Filter Follow-up Frequency
+  if (config.followUpFrequency && config.followUpFrequency !== 'All') {
+    filteredTasks = filteredTasks.filter(t => t.followUpFrequency === config.followUpFrequency);
+  }
+
   // Sort tasks by Task Number (ID) ascending
   filteredTasks.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
 
@@ -558,7 +563,7 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               <h1 className="text-xl font-bold uppercase tracking-widest mb-1">PK Navas MLA Office</h1>
               <h2 className="text-base font-bold text-gray-700 uppercase tracking-widest">Updation Report</h2>
               <p className="mt-1 text-[10px] font-bold text-gray-500 uppercase">
-                Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === 'custom' ? `${config.customStartDate ? new Date(config.customStartDate).toLocaleDateString('en-GB') : 'Start'} to ${config.customEndDate ? new Date(config.customEndDate).toLocaleDateString('en-GB') : 'End'}` : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}
+                Status: {config.status} | Period: {config.dateRange === 'all' ? 'All Time' : config.dateRange === 'custom' ? `${config.customStartDate ? new Date(config.customStartDate).toLocaleDateString('en-GB') : 'Start'} to ${config.customEndDate ? new Date(config.customEndDate).toLocaleDateString('en-GB') : 'End'}` : config.dateRange === '7days' ? 'Last 7 Days' : config.dateRange === '1month' ? 'Last 1 Month' : config.dateRange === '6months' ? 'Last 6 Months' : 'Last 1 Year'}{config.followUpFrequency && config.followUpFrequency !== 'All' ? ` | Follow-up: ${config.followUpFrequency}` : ''}
               </p>
               <div className="flex justify-center gap-4 mt-2 text-[10px] font-bold text-gray-800 uppercase">
                 <span>Total: {total}</span>

@@ -42,6 +42,10 @@ export const useFilteredTasks = (
       result = result.filter(t => !t.isSelfMode && t.taskType !== 'direct');
     }
 
+    if (globalFilters.followUpFrequency && globalFilters.followUpFrequency !== 'All') {
+      result = result.filter(t => t.followUpFrequency === globalFilters.followUpFrequency);
+    }
+
     if (catFilter && catFilter !== 'All') {
       if (catFilter === 'Direct Assignment') result = result.filter(t => t.taskType === 'direct');
       else result = result.filter(t => t.category === catFilter);

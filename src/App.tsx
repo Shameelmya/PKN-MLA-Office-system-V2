@@ -555,6 +555,20 @@ export default function App() {
          <option value="Citizen">Citizen Registrations Only</option>
          <option value="Self">Self Mode Only (No Citizen)</option>
        </select>
+       {activeUser?.name === 'PK Navas (MLA)' && (
+         <select
+           value={globalFilters.followUpFrequency || 'All'}
+           onChange={e => setGlobalFilters(p => ({...p, followUpFrequency: e.target.value}))}
+           className="px-3 py-1.5 border border-slate-300 rounded-lg font-bold text-slate-700 outline-none bg-blue-50 focus:border-blue-500 transition-all font-sans"
+         >
+           <option value="All">All Follow-ups</option>
+           <option value="1W">1 Week</option>
+           <option value="2W">2 Weeks</option>
+           <option value="1M">1 Month</option>
+           <option value="2M">2 Months</option>
+           <option value="3M">3 Months</option>
+         </select>
+       )}
        {isFetchingArchive && (
          <span className="text-xs font-bold text-indigo-500 animate-pulse ml-2 flex items-center gap-1">
            <Database size={14}/> Fetching Archive...

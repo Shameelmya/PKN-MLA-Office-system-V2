@@ -189,6 +189,7 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
   const [addDescriptions, setAddDescriptions] = useState(true);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [followUpFrequency, setFollowUpFrequency] = useState('All');
 
   const handleGenerate = () => {
     onGenerate({
@@ -199,7 +200,8 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
       maxUpdations,
       addDescriptions,
       customStartDate,
-      customEndDate
+      customEndDate,
+      followUpFrequency
     });
   };
 
@@ -255,18 +257,36 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
             </div>
           )}
           <div>
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Assigned Officers</label>
+            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Assigned Officer</label>
             <select 
               value={assignedOfficer} 
               onChange={e => setAssignedOfficer(e.target.value)} 
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="All">All Officers</option>
-              {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {users.map(u => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
             </select>
           </div>
-          
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-1">Follow-up Freq</label>
+              <select 
+                value={followUpFrequency} 
+                onChange={e => setFollowUpFrequency(e.target.value)} 
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="All">All Follow-ups</option>
+                <option value="1W">1 Week</option>
+                <option value="2W">2 Weeks</option>
+                <option value="1M">1 Month</option>
+                <option value="2M">2 Months</option>
+                <option value="3M">3 Months</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-4 items-center justify-between border-t border-slate-100 pt-4">
             <div className="flex items-center gap-2 mb-2">
               <input 
                 type="checkbox" 

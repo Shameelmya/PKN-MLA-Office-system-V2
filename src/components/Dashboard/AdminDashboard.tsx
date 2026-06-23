@@ -10,6 +10,8 @@ import { AdminDirectAssignments } from './AdminDirectAssignments';
 import { AdminSettings } from './AdminSettings';
 import { AdminDatabase } from './AdminDatabase';
 import { ReportConfigModal, OfficerReportConfigModal, UpdationReportConfigModal } from '../Dialogs/ReportModals';
+import { TaskDetailsModal } from '../Dialogs/TaskDetailsModal';
+import { StatusFixerModal } from '../Dialogs/StatusFixerModal';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { ReportConfig } from '../Prints/PrintComponents';
 import { UpdationReportConfig } from '../../types';
@@ -119,6 +121,7 @@ export function AdminDashboard({
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [updationReportModalOpen, setUpdationReportModalOpen] = useState(false);
   const [officerModalOpen, setOfficerModalOpen] = useState<User | null>(null);
+  const [showStatusFixer, setShowStatusFixer] = useState(false);
 
   const jumpToTask = (tab: string, taskId: string) => {
     setGlobalSearch(taskId);
@@ -253,21 +256,32 @@ export function AdminDashboard({
               <h2 className="text-xl font-black text-slate-800">Analytics Dashboard</h2>
               <p className="text-sm font-medium text-slate-500">System wide tracking for active filters</p>
             </div>
-            <div className="flex gap-2">
-              {currentUser.role === 'admin' && (
-                <button 
-                  onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
-                >
-                  <FileOutput size={18}/> Updation Report
-                </button>
-              )}
+            <div className="flex gap-4">
               <button 
-                onClick={() => { setReportModalOpen(true); loadArchive(); }} 
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+                onClick={() => setShowStatusFixer(true)}
+                className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-xl text-sm font-black shadow-sm transition-all"
               >
-                <FileOutput size={18}/> Generate Master Report
+                Status Fixer
               </button>
+              <button onClick={() => { localStorage.removeItem('activeUser'); window.location.reload(); }} className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-xl text-sm font-black shadow-sm transition-all flex items-center gap-2">
+                <LogOut size={16}/> Logout
+              </button>
+              <div className="flex gap-2">
+                {currentUser.role === 'admin' && (
+                  <button 
+                    onClick={() => { setUpdationReportModalOpen(true); loadArchive(); }} 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+                  >
+                    <FileOutput size={18}/> Updation Report
+                  </button>
+                )}
+                <button 
+                  onClick={() => { setReportModalOpen(true); loadArchive(); }} 
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow flex items-center gap-2 transition-colors"
+                >
+                  <FileOutput size={18}/> Generate Master Report
+                </button>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -438,6 +452,14 @@ export function AdminDashboard({
           onClose={() => setUpdationReportModalOpen(false)}
           onGenerate={(c) => { setUpdationReportModalOpen(false); triggerUpdationDownload(c); }}
           users={users}
+        />
+      )}
+
+      {showStatusFixer && (
+        <StatusFixerModal 
+          tasks={tasks}
+          updateTask={updateTask}
+          onClose={() => setShowStatusFixer(false)}
         />
       )}
     </div>

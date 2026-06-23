@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Bell, FileText, Users, Plus, Zap, Eye, Database, FileOutput, Clock, CheckCircle, Paperclip, Ban, AlertCircle, ArrowRight } from 'lucide-react';
+import { Bell, FileText, Users, Plus, Zap, Eye, Database, FileOutput, Clock, CheckCircle, Paperclip, Ban, AlertCircle, ArrowRight, LogOut } from 'lucide-react';
 import { Task, User, GlobalFilters, BackupMeta } from '../../types';
 import { InputFormTab } from './InputFormTab';
 import { RecentAlertsTab } from './RecentAlertsTab';

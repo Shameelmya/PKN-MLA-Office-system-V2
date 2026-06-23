@@ -453,6 +453,7 @@ export function TaskDetailsModal({
                    <option value="Draft">Draft</option>
                    <option value="Completed">Completed</option>
                    <option value="Unsolved">Unsolved</option>
+                   <option value="Local Work">Local Work</option>
                  </select>
                ) : (
                  <span className={`px-3 py-1 rounded font-black text-sm uppercase tracking-wider ${task.status==='Completed'?'bg-green-100 text-green-700':task.status==='In Progress'?'bg-amber-100 text-amber-700':task.status==='Draft'?'bg-purple-100 text-purple-700':task.status==='Unsolved'?'bg-slate-200 text-slate-500':'bg-red-100 text-red-700'}`}>

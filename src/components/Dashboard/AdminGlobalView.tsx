@@ -95,7 +95,7 @@ export function AdminGlobalView({
           evs.push({ id: generateUid(), type: 'update', time: getNow(), by: 'PK Navas (Admin)', text: `Completion Note: ${note}` });
         }
         evs.push({ id: generateUid(), type: 'completed', time: getNow(), by: 'PK Navas (Admin)', text: 'Task marked as fully completed directly by Admin.' });
-        updateTask(task.id, { status: 'Completed', officerStatuses: newOffStat, timeline: [...task.timeline, ...evs] });
+        updateTask(task.id, { status: 'Completed', officerStatuses: newOffStat, timeline: [...(task.timeline || []), ...evs] });
       }, 
       false, 
       "Mark Completed", 
@@ -506,8 +506,8 @@ const AdminTaskCard = React.memo(({
       <div className={`mb-4 ${t.isSelfMode ? 'bg-yellow-105/50' : 'bg-slate-50'} p-3 rounded-lg border border-slate-100/50 flex flex-col gap-2 mt-auto`}>
         <div className="flex justify-between items-center text-xs">
           <span className="text-slate-500 font-bold">Assigned:</span>
-          <span className="font-black text-slate-700 text-right truncate max-w-[120px]" title={t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}>
-            {t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}
+          <span className="font-black text-slate-700 text-right truncate max-w-[120px]" title={(t.assignedTo || []).map(id => users.find(u => u.id === id)?.name || id).join(', ')}>
+            {(t.assignedTo || []).map(id => users.find(u => u.id === id)?.name || id).join(', ')}
           </span>
         </div>
         <div className="flex justify-between items-center text-xs">

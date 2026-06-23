@@ -53,6 +53,7 @@ interface FormState {
   };
   description: string;
   assignedTo: string[];
+  isLocalWork?: boolean;
 }
 
 export function InputFormTab({
@@ -69,6 +70,7 @@ export function InputFormTab({
 }: InputFormTabProps) {
   const initForm: FormState = {
     isSelfMode: false,
+    isLocalWork: false,
     types: [],
     category: '',
     newCategory: '',
@@ -212,7 +214,9 @@ export function InputFormTab({
     if(isInvitation) {
       finalAssignedTo = ['admin'];
     }
-    if (finalAssignedTo.length === 0) {
+    if (form.isLocalWork) {
+      finalAssignedTo = [];
+    } else if (finalAssignedTo.length === 0) {
       return scrollToField('field-assignedTo', 'Please assign this to at least one officer.');
     }
 
@@ -270,7 +274,7 @@ export function InputFormTab({
       assignedTo: finalAssignedTo,
       deadline: finalDeadline,
       programDate: isInvitation ? form.programDate : null,
-      status: 'Pending',
+      status: form.isLocalWork ? 'Local Work' : 'Pending',
       priority: 'Medium',
       officerStatuses: {},
       isSignedByMLA: false,
@@ -342,15 +346,26 @@ export function InputFormTab({
     >
       <div className="bg-slate-900 px-8 py-4 flex justify-between items-center text-white">
         <h2 className="font-black text-lg flex items-center gap-2"><Plus size={20}/> New Registration</h2>
-        <label className="flex items-center gap-2 cursor-pointer bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-600 transition-colors">
-          <input 
-            type="checkbox" 
-            checked={form.isSelfMode} 
-            onChange={(e) => setForm(f => ({ ...f, isSelfMode: e.target.checked }))} 
-            className="w-4 h-4 text-yellow-500 rounded focus:ring-yellow-500 bg-slate-900" 
-          />
-          <span className="font-bold text-sm text-yellow-400">Self Application Mode (No Citizen Contact)</span>
-        </label>
+        <div className="flex gap-3">
+          <label className="flex items-center gap-2 cursor-pointer bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-600 transition-colors">
+            <input 
+              type="checkbox" 
+              checked={form.isLocalWork || false} 
+              onChange={(e) => setForm(f => ({ ...f, isLocalWork: e.target.checked }))} 
+              className="w-4 h-4 text-green-500 rounded focus:ring-green-500 bg-slate-900" 
+            />
+            <span className="font-bold text-sm text-green-400">Local Work</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-600 transition-colors">
+            <input 
+              type="checkbox" 
+              checked={form.isSelfMode} 
+              onChange={(e) => setForm(f => ({ ...f, isSelfMode: e.target.checked }))} 
+              className="w-4 h-4 text-yellow-500 rounded focus:ring-yellow-500 bg-slate-900" 
+            />
+            <span className="font-bold text-sm text-yellow-400">Self Application Mode (No Citizen Contact)</span>
+          </label>
+        </div>
       </div>
 
       <div className={`p-8 border-b border-slate-100 bg-slate-50/50 grid ${form.isSelfMode ? 'grid-cols-1 max-w-3xl' : 'md:grid-cols-2'} gap-10`}>
@@ -768,7 +783,11 @@ export function InputFormTab({
                   </span>
                 )}
               </h3>
-              {isInvitation ? (
+              {form.isLocalWork ? (
+                <div className="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 text-green-800 font-bold mb-6">
+                  <Plus size={24} className="text-green-600"/> Local Work: No officers assigned.
+                </div>
+              ) : isInvitation ? (
                 <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl flex items-center gap-3 text-indigo-800 font-bold mb-6">
                   <Plus size={24} className="text-indigo-600"/> Auto-Assigned exclusively to PK Navas (MLA)
                 </div>

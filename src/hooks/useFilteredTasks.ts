@@ -11,7 +11,7 @@ export const useFilteredTasks = (
   return useMemo(() => {
     let result = allTasks;
     if (globalFilters.status === 'Active') {
-      result = result.filter(t => t.status !== 'Completed' && t.status !== 'Unsolved');
+      result = result.filter(t => t.status !== 'Completed' && t.status !== 'Unsolved' && t.status !== 'Local Work');
     } else if (globalFilters.status !== 'All') {
       result = result.filter(t => t.status === globalFilters.status);
     }

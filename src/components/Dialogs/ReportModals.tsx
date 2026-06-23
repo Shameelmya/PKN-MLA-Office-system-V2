@@ -226,6 +226,7 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
               <option value="Unsolved">Unsolved</option>
+              <option value="Local Work">Local Work</option>
               <option value="All">All Statuses</option>
             </select>
           </div>
@@ -286,18 +287,19 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
               </select>
             </div>
           </div>
-          <div className="flex gap-4 items-center justify-between border-t border-slate-100 pt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <input 
-                type="checkbox" 
-                id="addUpdationsCheck" 
-                checked={addUpdations} 
-                onChange={e => setAddUpdations(e.target.checked)} 
-                className="w-4 h-4 text-emerald-600 rounded"
-              />
-              <label htmlFor="addUpdationsCheck" className="text-sm font-bold text-slate-700 cursor-pointer">Add Updations</label>
-            </div>
-            {addUpdations && (
+          {status !== 'Local Work' && (
+            <div className="flex gap-4 items-center justify-between border-t border-slate-100 pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <input 
+                  type="checkbox" 
+                  id="addUpdationsCheck" 
+                  checked={addUpdations} 
+                  onChange={e => setAddUpdations(e.target.checked)} 
+                  className="w-4 h-4 text-emerald-600 rounded"
+                />
+                <label htmlFor="addUpdationsCheck" className="text-sm font-bold text-slate-700 cursor-pointer">Add Updations</label>
+              </div>
+              {addUpdations && (
               <div className="pl-6">
                 <select 
                   value={maxUpdations} 
@@ -310,9 +312,10 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
                 </select>
               </div>
             )}
-          </div>
+            </div>
+          )}
 
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mt-4">
             <div className="flex items-center gap-2">
               <input 
                 type="checkbox" 

@@ -415,7 +415,7 @@ const AdminTaskCard = React.memo(({
           <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-1">
             <div className="flex gap-3 lg:gap-1 items-center">
               {t.status !== 'Draft' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Draft?', () => updateTask(t.id, { status: 'Draft' }), false, 'Yes, Change'); }} title="Mark as Draft" className="group flex items-center justify-center transition-colors">
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Draft?', () => { const newOffStat = {...t.officerStatuses}; (t.assignedTo || []).forEach(id => newOffStat[id] = 'Draft'); updateTask(t.id, { status: 'Draft', officerStatuses: newOffStat }); }, false, 'Yes, Change'); }} title="Mark as Draft" className="group flex items-center justify-center transition-colors">
                   <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-purple-300 text-purple-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-purple-50">DR</span>
                   <span className="hidden lg:flex text-purple-400 group-hover:text-purple-600 group-hover:bg-purple-50 p-1 rounded"><FileEdit size={12}/></span>
                 </button>
@@ -427,13 +427,13 @@ const AdminTaskCard = React.memo(({
                 </button>
               )}
               {t.status !== 'Pending' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Pending?', () => updateTask(t.id, { status: 'Pending' }), false, 'Yes, Change'); }} title="Mark as Pending" className="group flex items-center justify-center transition-colors">
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Pending?', () => { const newOffStat = {...t.officerStatuses}; (t.assignedTo || []).forEach(id => newOffStat[id] = 'Pending'); updateTask(t.id, { status: 'Pending', officerStatuses: newOffStat }); }, false, 'Yes, Change'); }} title="Mark as Pending" className="group flex items-center justify-center transition-colors">
                   <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-red-300 text-red-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-red-50">PD</span>
                   <span className="hidden lg:flex text-red-400 group-hover:text-red-600 group-hover:bg-red-50 p-1 rounded"><Clock size={12}/></span>
                 </button>
               )}
               {t.status !== 'Partially Completed' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Partially Completed?', () => updateTask(t.id, { status: 'Partially Completed' }), false, 'Yes, Change'); }} title="Mark Partially Completed" className="group flex items-center justify-center transition-colors">
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Confirm Action', 'Change status to Partially Completed?', () => { const newOffStat = {...t.officerStatuses}; (t.assignedTo || []).forEach(id => newOffStat[id] = 'Partially Completed'); updateTask(t.id, { status: 'Partially Completed', officerStatuses: newOffStat }); }, false, 'Yes, Change'); }} title="Mark Partially Completed" className="group flex items-center justify-center transition-colors">
                   <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-emerald-300 text-emerald-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-emerald-50">PC</span>
                   <span className="hidden lg:flex text-emerald-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 p-1 rounded"><CheckCircle2 size={12}/></span>
                 </button>

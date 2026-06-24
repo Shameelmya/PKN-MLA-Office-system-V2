@@ -411,44 +411,57 @@ const AdminTaskCard = React.memo(({
             </span>
           )}
         </div>
-        <div className="text-right flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1">
-            <div className="flex items-center gap-0.5">
+        <div className="text-right flex flex-col items-end gap-2">
+          <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-1">
+            <div className="flex gap-2 lg:gap-1 items-center">
               {t.status !== 'Draft' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Draft?', () => updateTask(t.id, { status: 'Draft' }), false, 'Yes, Change'); }} title="Mark as Draft" className="text-purple-400 hover:text-purple-600 hover:bg-purple-50 p-1 rounded transition-colors"><FileEdit size={12}/></button>
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Draft?', () => updateTask(t.id, { status: 'Draft' }), false, 'Yes, Change'); }} title="Mark as Draft" className="group flex items-center justify-center transition-colors">
+                  <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-purple-300 text-purple-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-purple-50">DR</span>
+                  <span className="hidden lg:flex text-purple-400 group-hover:text-purple-600 group-hover:bg-purple-50 p-1 rounded"><FileEdit size={12}/></span>
+                </button>
               )}
               {t.status !== 'Local Work' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Local Work?', () => updateTask(t.id, { status: 'Local Work', assignedTo: [], officerStatuses: {} }), false, 'Yes, Change'); }} title="Mark as Local Work" className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded transition-colors"><MapPin size={12}/></button>
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Local Work?', () => updateTask(t.id, { status: 'Local Work', assignedTo: [], officerStatuses: {} }), false, 'Yes, Change'); }} title="Mark as Local Work" className="group flex items-center justify-center transition-colors">
+                  <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-300 text-slate-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-slate-50">LW</span>
+                  <span className="hidden lg:flex text-slate-400 group-hover:text-slate-600 group-hover:bg-slate-100 p-1 rounded"><MapPin size={12}/></span>
+                </button>
               )}
               {t.status !== 'Pending' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Pending?', () => updateTask(t.id, { status: 'Pending' }), false, 'Yes, Change'); }} title="Mark as Pending" className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1 rounded transition-colors"><Clock size={12}/></button>
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Pending?', () => updateTask(t.id, { status: 'Pending' }), false, 'Yes, Change'); }} title="Mark as Pending" className="group flex items-center justify-center transition-colors">
+                  <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-red-300 text-red-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-red-50">PD</span>
+                  <span className="hidden lg:flex text-red-400 group-hover:text-red-600 group-hover:bg-red-50 p-1 rounded"><Clock size={12}/></span>
+                </button>
               )}
               {t.status !== 'Partially Completed' && (
-                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Partially Completed?', () => updateTask(t.id, { status: 'Partially Completed' }), false, 'Yes, Change'); }} title="Mark Partially Completed" className="text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 p-1 rounded transition-colors"><CheckCircle2 size={12}/></button>
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Partially Completed?', () => updateTask(t.id, { status: 'Partially Completed' }), false, 'Yes, Change'); }} title="Mark Partially Completed" className="group flex items-center justify-center transition-colors">
+                  <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-emerald-300 text-emerald-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-emerald-50">PC</span>
+                  <span className="hidden lg:flex text-emerald-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 p-1 rounded"><CheckCircle2 size={12}/></span>
+                </button>
               )}
               {t.status !== 'Completed' && t.status !== 'Unsolved' && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); quickCompleteTask(t); }} 
                   title="Quick Mark as Completed" 
-                  className="text-green-500 hover:text-green-700 hover:bg-green-50 p-1 rounded transition-colors ml-0.5"
+                  className="group flex items-center justify-center transition-colors"
                 >
-                  <CheckSquare size={16} />
+                  <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-green-400 text-green-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-green-50"><CheckSquare size={14}/></span>
+                  <span className="hidden lg:flex text-green-500 group-hover:text-green-700 group-hover:bg-green-50 p-1 rounded ml-0.5"><CheckSquare size={16}/></span>
                 </button>
               )}
             </div>
-            <div className="text-right ml-1">
+            <div className="text-right min-w-[45px]">
               <span className="text-[10px] font-bold text-slate-400 block leading-tight">{formatDate(t.createdAt)}</span>
               <span className="text-[9px] font-semibold text-slate-400 block leading-tight">{formatTime(t.createdAt)}</span>
             </div>
           </div>
-          <div className="flex gap-1 items-center">
+          <div className="flex gap-1.5 lg:gap-1 items-center mt-1 lg:mt-0 flex-wrap justify-end">
             {['None', '1W', '2W', '1M', '2M', '3M'].filter(f => f !== 'None' || t.followUpFrequency).map(f => {
               const isSelected = t.followUpFrequency === f || (!t.followUpFrequency && f === 'None');
               return (
                 <button 
                   key={f}
                   onClick={(e) => { e.stopPropagation(); triggerConfirm(`Change Follow-up to ${f}?`, () => updateTask(t.id, { followUpFrequency: f === 'None' ? '' : f }), false, 'Yes, Change'); }}
-                  className={`px-1.5 py-0.5 rounded text-[8px] font-black transition-colors ${isSelected ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                  className={`px-2 py-1 lg:px-1.5 lg:py-0.5 rounded text-[9px] lg:text-[8px] font-black transition-colors ${isSelected ? 'text-indigo-600 bg-indigo-50 border border-indigo-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-transparent'}`}
                 >
                   {f}
                 </button>

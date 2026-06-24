@@ -413,7 +413,7 @@ const AdminTaskCard = React.memo(({
         </div>
         <div className="text-right flex flex-col items-end gap-2">
           <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-1">
-            <div className="flex gap-2 lg:gap-1 items-center">
+            <div className="flex gap-3 lg:gap-1 items-center">
               {t.status !== 'Draft' && (
                 <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Draft?', () => updateTask(t.id, { status: 'Draft' }), false, 'Yes, Change'); }} title="Mark as Draft" className="group flex items-center justify-center transition-colors">
                   <span className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-purple-300 text-purple-600 text-[9px] sm:text-[10px] font-black lg:hidden group-hover:bg-purple-50">DR</span>
@@ -454,14 +454,14 @@ const AdminTaskCard = React.memo(({
               <span className="text-[9px] font-semibold text-slate-400 block leading-tight">{formatTime(t.createdAt)}</span>
             </div>
           </div>
-          <div className="flex gap-1.5 lg:gap-1 items-center mt-1 lg:mt-0 flex-wrap justify-end">
-            {['None', '1W', '2W', '1M', '2M', '3M'].filter(f => f !== 'None' || t.followUpFrequency).map(f => {
+          <div className="flex gap-2 lg:gap-1 items-center mt-2 lg:mt-0 flex-wrap justify-end">
+            {['None', '1W', '2W', '1M', '2M', '3M'].map(f => {
               const isSelected = t.followUpFrequency === f || (!t.followUpFrequency && f === 'None');
               return (
                 <button 
                   key={f}
                   onClick={(e) => { e.stopPropagation(); triggerConfirm(`Change Follow-up to ${f}?`, () => updateTask(t.id, { followUpFrequency: f === 'None' ? '' : f }), false, 'Yes, Change'); }}
-                  className={`px-2 py-1 lg:px-1.5 lg:py-0.5 rounded text-[9px] lg:text-[8px] font-black transition-colors ${isSelected ? 'text-indigo-600 bg-indigo-50 border border-indigo-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-transparent'}`}
+                  className={`px-3 py-1.5 lg:px-1.5 lg:py-0.5 rounded text-[10px] lg:text-[8px] font-black transition-colors ${isSelected ? 'text-indigo-600 bg-indigo-50 border border-indigo-200' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-transparent'}`}
                 >
                   {f}
                 </button>

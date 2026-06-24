@@ -141,7 +141,7 @@ export function AdminDashboard({
   }, [analyticsTasks]);
 
   const comp = useMemo(() => {
-    return analyticsTasks.filter(t => t.taskType !== 'direct' && t.status === 'Completed').length;
+    return analyticsTasks.filter(t => t.taskType !== 'direct' && (t.status === 'Completed' || t.status === 'Partially Completed')).length;
   }, [analyticsTasks]);
 
   const draft = useMemo(() => {

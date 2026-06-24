@@ -514,6 +514,7 @@ export default function App() {
          <option value="In Progress">In Progress Only</option>
          <option value="Draft">Drafts Only</option>
          <option value="Completed">Completed Only</option>
+         <option value="Partially Completed">Partially Completed Only</option>
          <option value="Unsolved">Unsolved Only</option>
          <option value="Local Work">Local Works Only</option>
          <option value="All">All Statuses</option>

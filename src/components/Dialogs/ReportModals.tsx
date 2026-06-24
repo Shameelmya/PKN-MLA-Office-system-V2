@@ -222,6 +222,7 @@ export function UpdationReportConfigModal({ onClose, onGenerate, users }: Updati
             >
               <option value="Active">Active Actions</option>
               <option value="Completed">Completed</option>
+              <option value="Partially Completed">Partially Completed</option>
               <option value="Draft">Drafts</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>

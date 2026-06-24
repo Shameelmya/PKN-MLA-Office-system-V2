@@ -191,6 +191,7 @@ export function AdminGlobalView({
               triggerViewDetails={triggerViewDetails} 
               deleteTask={deleteTask} 
               updateTask={updateTask}
+              triggerConfirm={triggerConfirm}
             />
           ))}
           {displayed.length === 0 && (
@@ -232,7 +233,7 @@ export function AdminGlobalView({
                     <span className="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-700">{t.category}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs font-black uppercase ${t.status==='Completed'?'bg-green-100 text-green-700':t.status==='In Progress'?'bg-amber-100 text-amber-700':t.status==='Draft'?'bg-purple-100 text-purple-700':t.status==='Unsolved'?'bg-slate-200 text-slate-500':'bg-red-100 text-red-700'}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-black uppercase ${t.status==='Completed'?'bg-green-100 text-green-700':t.status==='Partially Completed'?'bg-emerald-100 text-emerald-700':t.status==='In Progress'?'bg-amber-100 text-amber-700':t.status==='Draft'?'bg-purple-100 text-purple-700':t.status==='Unsolved'?'bg-slate-200 text-slate-500':'bg-red-100 text-red-700'}`}>
                       {t.status}
                     </span>
                   </td>
@@ -329,6 +330,7 @@ interface AdminTaskCardProps {
   triggerViewDetails: (task: Task) => void;
   deleteTask: (taskId: string) => void;
   updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  triggerConfirm: (msg: string, onConfirm: () => void, isDanger?: boolean, confirmText?: string) => void;
 }
 
 const AdminTaskCard = React.memo(({
@@ -340,7 +342,8 @@ const AdminTaskCard = React.memo(({
   togglePriority,
   triggerViewDetails,
   deleteTask,
-  updateTask
+  updateTask,
+  triggerConfirm
 }: AdminTaskCardProps) => {
   const getPriorityColor = (p?: string) => {
     if (p === 'High') return 'bg-red-100 text-red-700 border border-red-200 hover:bg-red-200';
@@ -350,6 +353,7 @@ const AdminTaskCard = React.memo(({
 
   const getStatusColor = (s: string) => {
     if (s === 'Completed') return 'text-green-600';
+    if (s === 'Partially Completed') return 'text-emerald-600';
     if (s === 'In Progress') return 'text-amber-600';
     if (s === 'Draft') return 'text-purple-600';
     if (s === 'Unsolved') return 'text-slate-500';
@@ -406,19 +410,49 @@ const AdminTaskCard = React.memo(({
             </span>
           )}
         </div>
-        <div className="text-right flex items-center gap-3">
-          {t.status !== 'Completed' && t.status !== 'Unsolved' && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); quickCompleteTask(t); }} 
-              title="Quick Mark as Completed" 
-              className="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 hover:shadow-sm p-1.5 rounded-full transition-all"
-            >
-              <CheckSquare size={14} />
-            </button>
-          )}
-          <div>
-            <span className="text-[10px] font-bold text-slate-400 block leading-tight">{formatDate(t.createdAt)}</span>
-            <span className="text-[9px] font-semibold text-slate-400 block leading-tight">{formatTime(t.createdAt)}</span>
+        <div className="text-right flex flex-col items-end gap-2">
+          <div className="flex items-center gap-3">
+            <div className="flex gap-2">
+              {t.status !== 'Draft' && (
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Draft?', () => updateTask(t.id, { status: 'Draft' }), false, 'Yes, Change'); }} className="bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-100 p-1.5 rounded-md text-[9px] font-black w-8 h-8 flex flex-col items-center justify-center transition-colors">DR</button>
+              )}
+              {t.status !== 'Local Work' && (
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Local Work?', () => updateTask(t.id, { status: 'Local Work', assignedTo: [], officerStatuses: {} }), false, 'Yes, Change'); }} className="bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 p-1.5 rounded-md text-[9px] font-black w-8 h-8 flex flex-col items-center justify-center transition-colors">LW</button>
+              )}
+              {t.status !== 'Pending' && (
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Pending?', () => updateTask(t.id, { status: 'Pending' }), false, 'Yes, Change'); }} className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-1.5 rounded-md text-[9px] font-black w-8 h-8 flex flex-col items-center justify-center transition-colors">PD</button>
+              )}
+              {t.status !== 'Partially Completed' && (
+                <button onClick={(e) => { e.stopPropagation(); triggerConfirm('Change status to Partially Completed?', () => updateTask(t.id, { status: 'Partially Completed' }), false, 'Yes, Change'); }} className="bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 p-1.5 rounded-md text-[9px] font-black w-8 h-8 flex flex-col items-center justify-center transition-colors">PC</button>
+              )}
+              {t.status !== 'Completed' && t.status !== 'Unsolved' && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); quickCompleteTask(t); }} 
+                  title="Quick Mark as Completed" 
+                  className="bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 p-1.5 rounded-md text-[9px] font-black w-8 h-8 flex flex-col items-center justify-center transition-colors"
+                >
+                  <CheckSquare size={14} />
+                </button>
+              )}
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 block leading-tight">{formatDate(t.createdAt)}</span>
+              <span className="text-[9px] font-semibold text-slate-400 block leading-tight">{formatTime(t.createdAt)}</span>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {['None', '1W', '2W', '1M', '2M', '3M'].map(f => {
+              const isSelected = t.followUpFrequency === f || (!t.followUpFrequency && f === 'None');
+              return (
+                <button 
+                  key={f}
+                  onClick={(e) => { e.stopPropagation(); triggerConfirm(`Change Follow-up to ${f}?`, () => updateTask(t.id, { followUpFrequency: f === 'None' ? '' : f }), false, 'Yes, Change'); }}
+                  className={`w-8 h-6 rounded flex items-center justify-center text-[9px] font-black border transition-colors ${isSelected ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+                >
+                  {f}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

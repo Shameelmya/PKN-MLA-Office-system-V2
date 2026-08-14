@@ -549,10 +549,14 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   const draft = filteredTasks.filter(t => t.status === 'Draft').length;
 
   const chunks = [];
-  for (let i = 0; i < filteredTasks.length; i += 4) {
-    chunks.push(filteredTasks.slice(i, i + 4));
+  if (filteredTasks.length > 0) {
+    chunks.push(filteredTasks.slice(0, 3));
+    for (let i = 3; i < filteredTasks.length; i += 4) {
+      chunks.push(filteredTasks.slice(i, i + 4));
+    }
+  } else {
+    chunks.push([]);
   }
-  if (chunks.length === 0) chunks.push([]);
 
   return (
     <div className="w-full bg-white text-black flex flex-col" style={{ width: '794px' }}>
@@ -589,29 +593,29 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               } else {
                 updates = [];
               }
-              const globalIndex = (pageIdx * 4) + idx + 1;
+              const globalIndex = pageIdx === 0 ? idx + 1 : 3 + ((pageIdx - 1) * 4) + idx + 1;
 
               return (
                 <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col flex-1 overflow-hidden">
                   <div className="flex justify-between items-start mb-2 border-b border-gray-300 pb-2">
-                    <div>
+                    <div className="shrink-0 flex items-center">
                       <span className="font-bold text-sm bg-black text-white px-2 py-0.5 mr-2">SL No: {globalIndex}</span>
-                      <span className="font-bold text-sm bg-gray-200 text-black px-2 py-0.5">Task No: {t.id}</span>
+                      <span className="font-bold text-sm bg-gray-200 text-black px-2 py-0.5">Task No: {t.taskNumber || t.id}</span>
                     </div>
-                    <div className="text-right text-[10px] font-bold text-gray-600">
+                    <div className="text-right text-[10px] font-bold text-gray-600 shrink-0 whitespace-nowrap">
                       <p>Rec: {formatDate(t.createdAt)}</p>
                       <p>Status: <span className="text-black uppercase">{t.status}</span></p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p className="text-sm font-bold mb-1">{t.subject}</p>
+                  <div className="flex gap-4 mb-3 justify-between">
+                    <div className="flex-1 pr-4">
+                      <p className="text-sm font-bold mb-1 leading-snug">{t.subject}</p>
                       {config.addDescriptions && t.description && (
                         <p className="text-[11px] text-gray-700 leading-tight mb-2">{t.description}</p>
                       )}
                       <p className="text-[11px]"><span className="font-bold">Assigned To:</span> {t.assignedTo.map(id => users.find(u => u.id === id)?.name || id).join(', ')}</p>
                     </div>
-                    <div className="text-right text-[11px] flex-1">
+                    <div className="text-right text-[11px] w-[180px] shrink-0">
                       <p className="font-bold text-base mb-1">{t.personalDetails.name}</p>
                       {t.personalDetails.designation && <p className="text-[10px] text-gray-700 font-bold mb-0.5">{t.personalDetails.designation}</p>}
                       <p className="text-[10px] text-gray-600 leading-snug mb-0.5">
@@ -628,10 +632,9 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
                   
                   {config.addUpdations && updates.length > 0 && (
                     <div className="mt-2 bg-gray-50 border border-gray-300 p-3 flex-1 overflow-hidden">
-                      <p className="text-[10px] font-bold uppercase border-b border-gray-300 pb-1 mb-2 tracking-widest text-gray-600">Recent Updations</p>
                       <div className="space-y-3">
                         {updates.map((upd, uIdx) => (
-                          <div key={upd.id || uIdx} className="text-[11px] leading-snug">
+                          <div key={upd.id || uIdx} className="text-[11px] leading-snug border-b border-gray-200 pb-2 last:border-0 last:pb-0">
                             <div className="flex justify-between font-bold text-gray-800 mb-0.5">
                               <span>{upd.by}</span>
                               <div className="flex items-center gap-2">

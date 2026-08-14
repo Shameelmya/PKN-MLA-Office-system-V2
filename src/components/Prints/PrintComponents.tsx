@@ -549,8 +549,8 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   const draft = filteredTasks.filter(t => t.status === 'Draft').length;
 
   const chunks = [];
-  for (let i = 0; i < filteredTasks.length; i += 2) {
-    chunks.push(filteredTasks.slice(i, i + 2));
+  for (let i = 0; i < filteredTasks.length; i += 4) {
+    chunks.push(filteredTasks.slice(i, i + 4));
   }
   if (chunks.length === 0) chunks.push([]);
 
@@ -580,7 +580,7 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
             </div>
           )}
 
-          <div className="flex flex-col gap-6 flex-1">
+          <div className="flex flex-col gap-4 flex-1">
             {chunk.map((t, idx) => {
               // Get updates
               let updates = t.timeline.filter(tl => tl.type === 'update' || tl.type === 'comment' || tl.type === 'completed' || tl.type === 'draft');
@@ -589,10 +589,10 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               } else {
                 updates = [];
               }
-              const globalIndex = (pageIdx * 2) + idx + 1;
+              const globalIndex = (pageIdx * 4) + idx + 1;
 
               return (
-                <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col" style={{ minHeight: '400px' }}>
+                <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col">
                   <div className="flex justify-between items-start mb-2 border-b border-gray-300 pb-2">
                     <div>
                       <span className="font-bold text-sm bg-black text-white px-2 py-0.5 mr-2">SL No: {globalIndex}</span>

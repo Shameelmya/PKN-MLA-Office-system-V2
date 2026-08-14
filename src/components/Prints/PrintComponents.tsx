@@ -548,43 +548,9 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
   const inprog = filteredTasks.filter(t => t.status === 'In Progress').length;
   const draft = filteredTasks.filter(t => t.status === 'Draft').length;
 
-  const chunks: Task[][] = [];
-  let currentChunk: Task[] = [];
-  let currentHeight = 0;
-  
-  const FIRST_PAGE_AVAILABLE = 750; // pixels available for tasks on the first page
-  const SUBSEQUENT_PAGE_AVAILABLE = 950; // pixels available for tasks on next pages
-
-  filteredTasks.forEach((t) => {
-    let taskHeight = 170; // Base estimated height (padding, borders, headers, citizen details)
-    
-    if (config.addUpdations) {
-      const updates = t.timeline.filter(tl => tl.type === 'update' || tl.type === 'comment' || tl.type === 'completed' || tl.type === 'draft').slice(-config.maxUpdations);
-      if (updates.length > 0) {
-        taskHeight += 50 + (updates.length * 45); // Header + estimated height per update
-      } else {
-        taskHeight += 40; // "No updates recorded yet" text
-      }
-    }
-    
-    if (config.addDescriptions && t.description) {
-      taskHeight += 30 + (Math.ceil(t.description.length / 100) * 15);
-    }
-
-    const availableSpace = chunks.length === 0 ? FIRST_PAGE_AVAILABLE : SUBSEQUENT_PAGE_AVAILABLE;
-
-    if (currentHeight + taskHeight > availableSpace && currentChunk.length > 0) {
-      chunks.push(currentChunk);
-      currentChunk = [t];
-      currentHeight = taskHeight;
-    } else {
-      currentChunk.push(t);
-      currentHeight += taskHeight;
-    }
-  });
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk);
+  const chunks = [];
+  for (let i = 0; i < filteredTasks.length; i += 4) {
+    chunks.push(filteredTasks.slice(i, i + 4));
   }
   if (chunks.length === 0) chunks.push([]);
 
@@ -608,9 +574,9 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               </div>
             </div>
           ) : (
-            <div className="text-center border-b-2 border-black pb-2 mb-4 shrink-0 flex justify-between items-end">
-              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Updation Report (Cont.)</span>
-              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest">Page {pageIdx + 1}</span>
+            <div className="border-b-2 border-black pb-2 mb-4 shrink-0 flex justify-between items-end">
+              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest whitespace-nowrap">Updation Report (Cont.)</span>
+              <span className="text-[10px] font-bold uppercase text-gray-500 tracking-widest whitespace-nowrap">Page {pageIdx + 1}</span>
             </div>
           )}
 
@@ -623,12 +589,10 @@ export function PrintUpdationReport({ config, tasks, users }: PrintUpdationRepor
               } else {
                 updates = [];
               }
-              // Calculate global index by summing up previous chunks lengths
-              const prevCounts = chunks.slice(0, pageIdx).reduce((acc, curr) => acc + curr.length, 0);
-              const globalIndex = prevCounts + idx + 1;
+              const globalIndex = (pageIdx * 4) + idx + 1;
 
               return (
-                <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col">
+                <div key={t.id} className="border border-black p-4 break-inside-avoid relative flex flex-col flex-1 overflow-hidden">
                   <div className="flex justify-between items-start mb-2 border-b border-gray-300 pb-2">
                     <div>
                       <span className="font-bold text-sm bg-black text-white px-2 py-0.5 mr-2">SL No: {globalIndex}</span>

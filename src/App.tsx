@@ -184,11 +184,11 @@ export default function App() {
     }, (err) => console.error(err));
     
     const unsubUsers = onSnapshot(getColRef('users'), (snap) => { 
-      if (snap.empty) { 
+      if (snap.empty && !snap.metadata.fromCache) { 
         const batch = writeBatch(db); 
         DEFAULT_USERS.forEach(u => batch.set(getDocRef('users', u.id), u)); 
         batch.commit().catch(e => console.error("Batch init error", e)); 
-      } else {
+      } else if (!snap.empty) {
         const docUsers = snap.docs.map(docSnapshot => docSnapshot.data() as UserType);
         setUsers(docUsers);
         
@@ -214,12 +214,12 @@ export default function App() {
     }, (err) => console.error(err));
     
     const unsubSettings = onSnapshot(getDocRef('settings', 'globals'), (snap) => { 
-      if (!snap.exists()) {
+      if (!snap.exists() && !snap.metadata.fromCache) {
         setDoc(getDocRef('settings', 'globals'), { 
           categories: DEFAULT_CATEGORIES, 
           designations: DEFAULT_DESIGNATIONS 
         }).catch(e => console.error(e)); 
-      } else { 
+      } else if (snap.exists()) { 
         const data = snap.data();
         if(data.categories) setCategories(data.categories); 
         if(data.designations) setDesignations(data.designations); 
@@ -234,7 +234,7 @@ export default function App() {
     return () => { 
       unsubTasks(); 
       unsubUsers(); 
-      unSettings(); 
+      unsubSettings(); 
       unsubBackupMeta(); 
     };
 

@@ -6,7 +6,7 @@ import {
 
 // Firebase Integration
 import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { onSnapshot, writeBatch, setDoc, deleteDoc, getDocs } from "firebase/firestore";
+import { onSnapshot, writeBatch, setDoc, deleteDoc, getDocs, arrayUnion } from "firebase/firestore";
 import { auth, getColRef, getDocRef, db } from './services/firebase';
 
 // Helper Utilities & Formatting
@@ -492,21 +492,17 @@ export default function App() {
   };
 
   const addCategory = async (newCat: string) => {
-    await setDoc(getDocRef('settings', 'globals'), { categories: [...categories, newCat] }, { merge: true });
+    await setDoc(getDocRef('settings', 'globals'), { categories: arrayUnion(newCat) }, { merge: true });
   };
 
   const addDesignation = async (newDesig: string) => { 
     if (designations.includes(newDesig)) return;
-    const newDesignations = [...designations, newDesig]; 
-    setDesignations(newDesignations); 
-    await setDoc(getDocRef('settings', 'globals'), { designations: newDesignations }, { merge: true }); 
+    await setDoc(getDocRef('settings', 'globals'), { designations: arrayUnion(newDesig) }, { merge: true }); 
   };
 
   const addTemplate = async (newTemplate: string) => { 
     if (templates.includes(newTemplate)) return;
-    const newTemplates = [...templates, newTemplate]; 
-    setTemplates(newTemplates); 
-    await setDoc(getDocRef('settings', 'globals'), { templates: newTemplates }, { merge: true }); 
+    await setDoc(getDocRef('settings', 'globals'), { templates: arrayUnion(newTemplate) }, { merge: true }); 
   };
 
   const updateBackupMeta = async (updates: Partial<BackupMeta>) => {

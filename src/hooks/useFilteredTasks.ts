@@ -92,7 +92,8 @@ export const useFilteredTasks = (
         const name = (t.personalDetails?.name || '').toLowerCase();
         const subject = (t.subject || '').toLowerCase();
         const mobile = t.personalDetails?.mobileNumber || '';
-        const combinedText = `${id} ${name} ${subject} ${mobile}`;
+        const category = (t.category || '').toLowerCase();
+        const combinedText = `${id} ${name} ${subject} ${mobile} ${category}`;
         return searchWords.every(word => combinedText.includes(word));
       });
     }

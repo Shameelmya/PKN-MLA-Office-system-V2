@@ -63,7 +63,7 @@ export function AllTasksHistoryTab({
       <div className="flex gap-4 flex-wrap">
         <input 
           type="text" 
-          placeholder="Search history by Subject, Name, ID, Mobile..." 
+          placeholder="Search history by Subject, Name, ID, Category, Mobile..." 
           value={search} 
           onChange={e => setSearch(e.target.value)} 
           className="flex-1 min-w-[250px] px-4 py-2 border border-slate-300 rounded-xl font-medium outline-none focus:border-blue-500 bg-white text-slate-800" 

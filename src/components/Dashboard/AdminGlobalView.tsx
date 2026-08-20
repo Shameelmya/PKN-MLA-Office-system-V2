@@ -135,7 +135,7 @@ export function AdminGlobalView({
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Search entries by Subject, Name, ID, Mobile..." 
+              placeholder="Search entries by Subject, Name, ID, Category, Mobile..." 
               value={search} 
               onChange={e => setSearch(e.target.value)} 
               className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 bg-white" 

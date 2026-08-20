@@ -37,6 +37,7 @@ interface AdminDashboardProps {
   addTask: (newTask: Task) => Promise<void>;
   addCategory: (newCat: string) => Promise<void>;
   addDesignation: (newDesig: string) => Promise<void>;
+  removeGlobalItem: (type: 'categories' | 'designations' | 'templates', item: string) => Promise<void>;
   triggerMasterReport: (config: ReportConfig) => void;
   triggerMasterDownload: (config: ReportConfig) => void;
   triggerOfficerReport: (config: ReportConfig) => void;
@@ -102,6 +103,7 @@ export function AdminDashboard({
   addTask,
   addCategory,
   addDesignation,
+  removeGlobalItem,
   triggerMasterReport,
   triggerMasterDownload,
   triggerOfficerReport,
@@ -361,6 +363,14 @@ export function AdminDashboard({
           setImpersonatedUser={setImpersonatedUser} 
           setOfficerModalOpen={setOfficerModalOpen} 
           loadArchive={loadArchive} 
+          categories={categories}
+          designations={designations}
+          tasks={tasks}
+          updateTask={updateTask}
+          addCategory={addCategory}
+          addDesignation={addDesignation}
+          removeGlobalItem={removeGlobalItem}
+          triggerConfirm={triggerConfirm}
         />
       )}
       

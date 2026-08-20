@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Users, Shield, User as UserIcon, Lock, Edit, FileOutput, Trash2, Plus, X } from 'lucide-react';
 import { User } from '../../types';
 import { generateUid } from '../../utils/formatters';
+import { AdminGlobalDataManagement } from './AdminGlobalDataManagement';
 
 interface AdminSettingsProps {
   users: User[];
@@ -11,6 +12,22 @@ interface AdminSettingsProps {
   setImpersonatedUser: (user: User | null) => void;
   setOfficerModalOpen: (user: User | null) => void;
   loadArchive: () => Promise<void>;
+  categories: string[];
+  designations: string[];
+  tasks: Task[];
+  updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  addCategory: (newCat: string) => Promise<void>;
+  addDesignation: (newDesig: string) => Promise<void>;
+  removeGlobalItem: (type: 'categories' | 'designations' | 'templates', item: string) => Promise<void>;
+  triggerConfirm: (
+    title: string,
+    message: string,
+    onConfirm: (val: string) => void,
+    isDanger?: boolean,
+    confirmText?: string,
+    showInput?: boolean,
+    inputPlaceholder?: string
+  ) => void;
 }
 
 export function AdminSettings({
@@ -20,7 +37,15 @@ export function AdminSettings({
   deleteUser,
   setImpersonatedUser,
   setOfficerModalOpen,
-  loadArchive
+  loadArchive,
+  categories,
+  designations,
+  tasks,
+  updateTask,
+  addCategory,
+  addDesignation,
+  removeGlobalItem,
+  triggerConfirm
 }: AdminSettingsProps) {
   const [newOffForm, setNewOffForm] = useState({
     name: '',
@@ -410,6 +435,17 @@ export function AdminSettings({
           </div>
         </form>
       </div>
+
+      <AdminGlobalDataManagement 
+        categories={categories}
+        designations={designations}
+        tasks={tasks}
+        updateTask={updateTask}
+        addCategory={addCategory}
+        addDesignation={addDesignation}
+        removeGlobalItem={removeGlobalItem}
+        triggerConfirm={triggerConfirm}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
 
 // Firebase Integration
 import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { onSnapshot, writeBatch, setDoc, deleteDoc, getDocs, arrayUnion } from "firebase/firestore";
+import { onSnapshot, writeBatch, setDoc, deleteDoc, getDocs, arrayUnion, arrayRemove } from "firebase/firestore";
 import { auth, getColRef, getDocRef, db } from './services/firebase';
 
 // Helper Utilities & Formatting
@@ -505,6 +505,10 @@ export default function App() {
     await setDoc(getDocRef('settings', 'globals'), { templates: arrayUnion(newTemplate) }, { merge: true }); 
   };
 
+  const removeGlobalItem = async (type: 'categories' | 'designations' | 'templates', item: string) => {
+    await setDoc(getDocRef('settings', 'globals'), { [type]: arrayRemove(item) }, { merge: true });
+  };
+
   const updateBackupMeta = async (updates: Partial<BackupMeta>) => {
     await setDoc(getDocRef('settings', 'backupMeta'), updates, { merge: true });
   };
@@ -808,6 +812,7 @@ export default function App() {
               addTask={addTask} 
               addCategory={addCategory} 
               addDesignation={addDesignation} 
+              removeGlobalItem={removeGlobalItem}
               triggerMasterReport={(config) => setMasterReportConfigToDownload(config)} 
               triggerMasterDownload={setMasterReportConfigToDownload} 
               triggerOfficerReport={setOfficerReportToDownload} 
